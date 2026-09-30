@@ -1,0 +1,10 @@
+{
+  "name": "unicode",
+  "secrets": [
+    "k"
+  ],
+  "timestamp": 1790000456,
+  "body": "{\"label\":\"Kérk — Paasfees 🌅\"}",
+  "sign": "fe4fd79a5a8f1bae680b0ffef3b48bbfc6b1f92325aa04156b5e0695ae27a22e",
+  "header": "v1=fe4fd79a5a8f1bae680b0ffef3b48bbfc6b1f92325aa04156b5e0695ae27a22e"
+}

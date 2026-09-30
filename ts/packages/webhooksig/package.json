@@ -1,0 +1,13 @@
+{
+  "name": "@zavon/webhooksig",
+  "version": "0.1.0",
+  "description": "Sign and verify the X-Zavon-* request signature. Twin of kit/go/webhooksig.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  }
+}

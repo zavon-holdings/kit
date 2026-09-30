@@ -1,0 +1,11 @@
+{
+  "name": "rotation",
+  "secrets": [
+    "new-secret",
+    "old-secret"
+  ],
+  "timestamp": 1790000123,
+  "body": "{\"action\":\"shop.fulfilment.transition\",\"input\":{\"to\":\"packed\"}}",
+  "sign": "806c34778aa77825d6a43c4b501ba629bc470efc2fc30ad63b28b94a69e10e5d",
+  "header": "v1=806c34778aa77825d6a43c4b501ba629bc470efc2fc30ad63b28b94a69e10e5d, v1=d393696689831196397857d5ebfd4063e46c5e23772f235a2957e41cbf03a1f9"
+}

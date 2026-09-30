@@ -1,0 +1,42 @@
+name: Release
+
+# A tag vX.Y.Z is a kit release. The Go module is released by its tag
+# (go/vX.Y.Z, pushed beside it — Go reads a subdirectory module's version from
+# a tag prefixed with the directory). The TypeScript packages are packed and
+# attached to the GitHub release, where consumers download them into
+# vendor/kit/. Nobody publishes from a laptop.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pack
+        working-directory: ts
+        run: |
+          mkdir -p ../dist
+          for pkg in packages/*/; do
+            (cd "$pkg" && npm pack --pack-destination ../../../dist)
+          done
+          ls -l ../dist
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/*.tgz \
+            --title "kit $GITHUB_REF_NAME" \
+            --notes "Go: go get github.com/zavon-holdings/kit/go@$GITHUB_REF_NAME, then vendor. TS: the packs below, into vendor/kit/."

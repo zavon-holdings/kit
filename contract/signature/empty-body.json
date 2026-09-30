@@ -1,0 +1,10 @@
+{
+  "name": "empty-body",
+  "secrets": [
+    "s3cret"
+  ],
+  "timestamp": 1790000000,
+  "body": "",
+  "sign": "3f1246e838620c39d8e5f9188a6c06e0ce4a06a9a7fdcd36b33d618b18ff964d",
+  "header": "v1=3f1246e838620c39d8e5f9188a6c06e0ce4a06a9a7fdcd36b33d618b18ff964d"
+}

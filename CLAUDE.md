@@ -1,0 +1,56 @@
+# kit — working notes
+
+The estate's shared WIRE code, released and vendored. See
+`admin/docs/workflow-engine-plan.md` §11 for why it exists and how it ships.
+
+```
+go/        module github.com/zavon-holdings/kit/go   (webhooksig, policy, …)
+ts/        npm workspace: @zavon/webhooksig, …
+contract/  JSON vectors every consumer's CI runs
+scripts/   bump.sh — move consumers onto one release
+```
+
+## The rule
+
+> **Services meet at a wire.** A service never imports another service's
+> module, and never builds against a submodule or a registry it needs a
+> credential to reach. Code that exists only to speak a wire — clients, wire
+> types, request signing and verification, JWT verification, the policy
+> evaluator, the permits cache, and the shared workflow UI — lives in
+> `zavon-holdings/kit` and reaches a service **only as a tagged kit release,
+> vendored into the service's tree** (`go mod vendor` committed; TypeScript
+> packs under `vendor/kit/`). Vendored kit code is never edited in place; a
+> change is a kit release. Kit never holds business logic, storage, or
+> anything a single service owns. The wire stays the contract: kit's contract
+> vectors run in core's CI and in every consumer's CI. Copies that predate kit
+> (`corewire`, `verify`, `policy`, `AppSwitcher`) move into kit as they are
+> next touched, and until then keep the old note naming their original.
+
+## Things that look wrong but are not
+
+- **Kit holds no business logic and no secrets.** Nothing here decides what a
+  service does with a request, stores anything, or carries a credential. A
+  package that needs one of those belongs in the service.
+- **Two tags per release.** `vX.Y.Z` triggers the release (tests, TS packs
+  attached to the GitHub release). `go/vX.Y.Z` is what Go resolves: a module
+  in a subdirectory is versioned by tags prefixed with that directory, so
+  `go get github.com/zavon-holdings/kit/go@vX.Y.Z` needs `go/vX.Y.Z`. Push both.
+- **Minors are additive only.** Kit's major is the wire version it speaks
+  (`Zavon-Workflow-Version`); apps may lag any number of minors.
+- **`webhooksig` is byte-identical to core's `app/auth.Sign`.** `Sign` returns
+  core's bare hex; `Header` adds the `v1=` form and the rotation list.
+  `Verify` accepts either, and refuses everything when it holds no secret.
+- **Contract vectors are generated, then checked.**
+  `KIT_WRITE_VECTORS=1 go test ./webhooksig -run TestContractVectors` rewrites
+  `contract/signature/*.json`; every other run (Go and TS) checks against them.
+  A vector changing is a wire change and needs a major.
+- **Consumers vendor with the command their repo builds with.** A repository
+  with a `go.work` (admin has one) vendors with `go work vendor`; `go mod
+  vendor` there produces a tree the build ignores. `scripts/bump.sh` picks.
+
+## Verifying a change
+
+```bash
+cd go && gofmt -l . && go vet ./... && go test ./... -race
+cd ts && npm test
+```

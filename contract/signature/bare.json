@@ -1,0 +1,10 @@
+{
+  "name": "bare",
+  "secrets": [
+    "s3cret"
+  ],
+  "timestamp": 1790000000,
+  "body": "{\"action\":\"pages.publish\",\"attempt\":1}",
+  "sign": "2404dff02b09fa87975a446c6672be2be1e54cd8ccbb504d053f0ec429731fe0",
+  "header": "v1=2404dff02b09fa87975a446c6672be2be1e54cd8ccbb504d053f0ec429731fe0"
+}
