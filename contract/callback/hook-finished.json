@@ -1,0 +1,21 @@
+{
+  "name": "hook-finished",
+  "path": "/hooks",
+  "secrets": [
+    "door-secret"
+  ],
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "run:r1:hook:finished",
+    "X-Zavon-Delivery": "dv-hook-finished",
+    "X-Zavon-Signature": "v1=e5f11b328a91540c70857be93084e138d90a3b7b0348f4776fbb45f5c053b658",
+    "X-Zavon-Timestamp": "1790000000",
+    "Zavon-Workflow-Version": "1"
+  },
+  "body": "{\"action\":\"pages.notify\",\"tenant\":\"shofar\",\"run\":{\"uid\":\"r1\",\"definition\":\"page-review\",\"version\":2,\"kind\":\"approval\",\"tenant\":\"shofar\",\"property\":\"pages-by-zavon\"},\"step\":{\"code\":\"\",\"kind\":\"hook\"},\"subject\":{\"property\":\"pages-by-zavon\",\"type\":\"page\",\"pid\":\"p1\"},\"input\":{\"event\":\"finished\",\"state\":\"done\",\"outcome\":\"approved\",\"pause_reason\":\"\"},\"attempt\":1}",
+  "decision": "done",
+  "answer": {
+    "status": 200,
+    "body": "{\"status\":\"done\"}"
+  }
+}

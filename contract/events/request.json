@@ -1,0 +1,17 @@
+{
+  "type": "shop.order.paid",
+  "ref": "ord_1001",
+  "tenant": "shofar",
+  "occurred_at": "2026-09-30T10:00:00Z",
+  "subject": {
+    "property": "zavon-shop",
+    "type": "order",
+    "pid": "ord_1001",
+    "label": "Order #1001",
+    "url": "https://example.test/orders/1001"
+  },
+  "vars": {
+    "currency": "ZAR",
+    "total_cents": 12500
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "resolve-recipient",
+  "path": "/actions",
+  "secrets": [
+    "door-secret"
+  ],
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "run:r1:step:notify-owner:resolve",
+    "X-Zavon-Delivery": "dv-resolve-recipient",
+    "X-Zavon-Signature": "v1=af1cc1d6225370c5898fd8da1acddbe0bf377acc53b853dabca2cb9089c4d3b1",
+    "X-Zavon-Timestamp": "1790000000",
+    "Zavon-Workflow-Version": "1"
+  },
+  "body": "{\"action\":\"pages.resolve_recipient\",\"tenant\":\"shofar\",\"run\":{\"uid\":\"r1\",\"definition\":\"page-review\",\"version\":2,\"kind\":\"approval\",\"tenant\":\"shofar\",\"property\":\"pages-by-zavon\"},\"step\":{\"code\":\"notify-owner\",\"kind\":\"email\"},\"subject\":{\"property\":\"pages-by-zavon\",\"type\":\"page\",\"pid\":\"p1\"},\"input\":{\"role\":\"owner\"},\"attempt\":1}",
+  "decision": "done",
+  "answer": {
+    "status": 200,
+    "body": "{\"output\":{\"email\":\"nomsa@example.test\",\"name\":\"Nomsa\"},\"status\":\"done\"}"
+  }
+}

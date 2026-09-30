@@ -4,11 +4,29 @@ The estate's shared WIRE code, released and vendored. See
 `admin/docs/workflow-engine-plan.md` §11 for why it exists and how it ships.
 
 ```
-go/        module github.com/zavon-holdings/kit/go   (webhooksig, policy, …)
+go/        module github.com/zavon-holdings/kit/go, zero dependencies
+  webhooksig  sign/verify X-Zavon-Signature (byte-identical to core's auth.Sign)
+  policy      the statement evaluator (deny beats allow, default deny)
+  wfclient    client for core's /api/workflows/* (§7): definitions, runs,
+              events, manifest, deliveries; errors carry core's {code}
+  wfhandler   an app's callback door (§7.4): Mount verifies, dedupes on
+              Idempotency-Key, shapes done/accepted/refused; DDL + SQLReplayStore
+  outbox      at-least-once outbox (AddTx in the caller's tx, Drain by cron)
+  permits     the permits cache (§10.3): Snapshot, Cache, the four refresh
+              triggers, Decide over policy. READ-ONLY until Accounts ships
+              GET /api/orgs/{slug}/permits and the permits version (phase 3);
+              nothing fills it yet, the seam (Refresher) is what ships.
 ts/        npm workspace: @zavon/webhooksig, …
 contract/  JSON vectors every consumer's CI runs
+  signature/  webhooksig vectors            callback/  wfhandler request→answer
+  events/ runs/ errors/  public-wire bodies as wfclient marshals them
 scripts/   bump.sh — move consumers onto one release
 ```
+
+Database access in kit goes through a `Querier` interface (`Exec`,
+`QueryRow`) a pgx pool or transaction satisfies; kit imports no driver. JSONB
+is always passed as a string, because production runs pgx's simple protocol
+and a `[]byte` there is a bytea literal a jsonb column refuses.
 
 ## The rule
 
@@ -41,9 +59,9 @@ scripts/   bump.sh — move consumers onto one release
   core's bare hex; `Header` adds the `v1=` form and the rotation list.
   `Verify` accepts either, and refuses everything when it holds no secret.
 - **Contract vectors are generated, then checked.**
-  `KIT_WRITE_VECTORS=1 go test ./webhooksig -run TestContractVectors` rewrites
-  `contract/signature/*.json`; every other run (Go and TS) checks against them.
-  A vector changing is a wire change and needs a major.
+  `KIT_WRITE_VECTORS=1 go test ./webhooksig ./wfclient ./wfhandler -run TestContractVectors`
+  rewrites `contract/*/*.json`; every other run (Go and TS) checks against
+  them. A vector changing is a wire change and needs a major.
 - **Consumers vendor with the command their repo builds with.** A repository
   with a `go.work` (admin has one) vendors with `go work vendor`; `go mod
   vendor` there produces a tree the build ignores. `scripts/bump.sh` picks.

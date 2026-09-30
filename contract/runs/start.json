@@ -1,0 +1,14 @@
+{
+  "tenant": "shofar",
+  "definition": "page-review",
+  "subject": {
+    "property": "pages-by-zavon",
+    "type": "page",
+    "pid": "p_42",
+    "label": "Easter",
+    "url": "https://example.test/pages/p_42"
+  },
+  "vars": {
+    "scope": "site"
+  }
+}

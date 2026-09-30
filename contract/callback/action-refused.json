@@ -1,0 +1,21 @@
+{
+  "name": "action-refused",
+  "path": "/actions",
+  "secrets": [
+    "door-secret"
+  ],
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "run:r1:step:publish",
+    "X-Zavon-Delivery": "dv-action-refused",
+    "X-Zavon-Signature": "v1=0409916be4f61f68b26cb64303d3308f636a4df33048204be232b9083dbb2690",
+    "X-Zavon-Timestamp": "1790000000",
+    "Zavon-Workflow-Version": "1"
+  },
+  "body": "{\"action\":\"pages.publish\",\"delivery\":\"dv1\",\"tenant\":\"shofar\",\"run\":{\"uid\":\"r1\",\"definition\":\"page-review\",\"version\":2,\"kind\":\"approval\",\"tenant\":\"shofar\",\"property\":\"pages-by-zavon\"},\"step\":{\"code\":\"publish\",\"kind\":\"action\"},\"subject\":{\"property\":\"pages-by-zavon\",\"type\":\"page\",\"pid\":\"gone\",\"label\":\"Easter\"},\"input\":{\"scope\":\"site\"},\"vars\":{},\"attempt\":1}",
+  "decision": "refused",
+  "answer": {
+    "status": 410,
+    "body": "{\"refusal\":\"The page was deleted.\"}"
+  }
+}

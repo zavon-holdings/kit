@@ -1,0 +1,21 @@
+{
+  "name": "action-done",
+  "path": "/actions",
+  "secrets": [
+    "door-secret"
+  ],
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "run:r1:step:publish",
+    "X-Zavon-Delivery": "dv-action-done",
+    "X-Zavon-Signature": "v1=194d03c7b3ec75719531f9d74b4e674969e285b04abaa9303cf50de35f5250d3",
+    "X-Zavon-Timestamp": "1790000000",
+    "Zavon-Workflow-Version": "1"
+  },
+  "body": "{\"action\":\"pages.publish\",\"delivery\":\"dv1\",\"tenant\":\"shofar\",\"run\":{\"uid\":\"r1\",\"definition\":\"page-review\",\"version\":2,\"kind\":\"approval\",\"tenant\":\"shofar\",\"property\":\"pages-by-zavon\"},\"step\":{\"code\":\"publish\",\"kind\":\"action\"},\"subject\":{\"property\":\"pages-by-zavon\",\"type\":\"page\",\"pid\":\"p1\",\"label\":\"Easter\"},\"input\":{\"scope\":\"site\"},\"vars\":{},\"attempt\":1}",
+  "decision": "done",
+  "answer": {
+    "status": 200,
+    "body": "{\"output\":{\"published_at\":\"2026-09-30T10:00:00Z\"},\"status\":\"done\"}"
+  }
+}

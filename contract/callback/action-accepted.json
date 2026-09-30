@@ -1,0 +1,21 @@
+{
+  "name": "action-accepted",
+  "path": "/actions",
+  "secrets": [
+    "door-secret"
+  ],
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "run:r1:step:publish",
+    "X-Zavon-Delivery": "dv-action-accepted",
+    "X-Zavon-Signature": "v1=4abd55715eec00344967df44d5b22bd3e855545ad28caa4d0cf5f8061c8f4e70",
+    "X-Zavon-Timestamp": "1790000000",
+    "Zavon-Workflow-Version": "1"
+  },
+  "body": "{\"action\":\"pages.publish\",\"delivery\":\"dv1\",\"tenant\":\"shofar\",\"run\":{\"uid\":\"r1\",\"definition\":\"page-review\",\"version\":2,\"kind\":\"approval\",\"tenant\":\"shofar\",\"property\":\"pages-by-zavon\"},\"step\":{\"code\":\"publish\",\"kind\":\"action\"},\"subject\":{\"property\":\"pages-by-zavon\",\"type\":\"page\",\"pid\":\"slow\",\"label\":\"Easter\"},\"input\":{\"scope\":\"site\"},\"vars\":{},\"attempt\":1}",
+  "decision": "accepted",
+  "answer": {
+    "status": 202,
+    "body": "{\"status\":\"accepted\"}"
+  }
+}
