@@ -1,0 +1,64 @@
+{
+  "name": "a-sub-workflow-started-without-waiting",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "spawn"
+      },
+      {
+        "from": "spawn",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "definition": "follow-up",
+          "subject": {
+            "var": "vars.person"
+          },
+          "wait": false
+        },
+        "id": "spawn",
+        "type": "sub_workflow"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "spawn",
+      "name": "spawn",
+      "kind": "sub_workflow",
+      "config": {
+        "definition": "follow-up",
+        "subject": {
+          "var": "vars.person"
+        },
+        "wait": false
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ],
+  "normal": true
+}

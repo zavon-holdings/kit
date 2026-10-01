@@ -496,6 +496,8 @@ function validateShape(x, conditions) {
     }
     if (n.type === "sub_workflow" && !(typeof cfg.definition === "string" && cfg.definition.trim()))
       ps.push({ code: P.NODE_CONFIG, node: n.id, message: `${name}: name the workflow it runs, definition` });
+    if (n.type === "sub_workflow" && "version" in cfg && cfg.version !== "current")
+      ps.push({ code: P.NODE_CONFIG, node: n.id, message: `${name}: a sub-workflow runs the current version of the workflow it names: version is "current" or left out` });
   }
   const reached = reach(x);
   for (const n of x.g.nodes) {

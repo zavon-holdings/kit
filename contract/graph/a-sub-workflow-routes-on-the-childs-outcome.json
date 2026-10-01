@@ -1,0 +1,107 @@
+{
+  "name": "a-sub-workflow-routes-on-the-childs-outcome",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "child"
+      },
+      {
+        "from": "child",
+        "label": "completed",
+        "to": "ok"
+      },
+      {
+        "default": true,
+        "from": "child",
+        "label": "otherwise",
+        "to": "no"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "definition": "onboard",
+          "subject": "same",
+          "vars": {
+            "source": "parent"
+          },
+          "version": "current"
+        },
+        "id": "child",
+        "name": "Onboard",
+        "type": "sub_workflow"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "ok",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "stopped"
+        },
+        "id": "no",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "child",
+      "name": "Onboard",
+      "kind": "sub_workflow",
+      "config": {
+        "definition": "onboard",
+        "subject": "same",
+        "vars": {
+          "source": "parent"
+        },
+        "version": "current"
+      }
+    },
+    {
+      "code": "child--route",
+      "name": "After Onboard",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "ok",
+            "when": {
+              "field": "steps.child.output.outcome",
+              "op": "is",
+              "value": "completed"
+            }
+          }
+        ],
+        "default": "no"
+      }
+    },
+    {
+      "code": "ok",
+      "name": "ok",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    },
+    {
+      "code": "no",
+      "name": "no",
+      "kind": "end",
+      "config": {
+        "outcome": "stopped"
+      }
+    }
+  ],
+  "normal": true
+}
