@@ -87,7 +87,9 @@ The `api` is optional member by member (`validate`, `simulate`,
   brings `@xyflow/system`, `zustand`, `classcat` (MIT) and the `d3-*` modules
   it uses (ISC, `d3-ease` BSD-3-Clause), all from npm and bundled by the host.
 - No typography of its own; colours are `--zwf-*` CSS variables a host sets
-  on any element around the editor. Status is tint, dot and words.
+  on any element around the editor. Status is tint, dot and words. The
+  editor's headings start at `headingLevel` (2 unless the host says), so
+  they follow the host page's own outline.
 - Every canvas edit is possible in the List tab with ordinary controls;
   nodes are one tab stop (arrows move along edges), edges connect by menu,
   zoom has buttons, and `prefers-reduced-motion` turns off animated pans.
