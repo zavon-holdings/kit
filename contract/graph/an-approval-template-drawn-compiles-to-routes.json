@@ -1,6 +1,6 @@
 {
-  "name": "decompile-an-approval-template-with-two-stages",
-  "direction": "decompile",
+  "name": "an-approval-template-drawn-compiles-to-routes",
+  "direction": "compile",
   "graph": {
     "edges": [
       {
@@ -133,8 +133,26 @@
           }
         ],
         "mode": "any",
-        "on_reject": "goto:returned",
+        "on_reject": "continue",
         "title": "First approval: {subject.label}"
+      }
+    },
+    {
+      "code": "stage-1--route",
+      "name": "After First approval",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "stage-2",
+            "when": {
+              "field": "steps.stage-1.output.outcome",
+              "op": "is",
+              "value": "approved"
+            }
+          }
+        ],
+        "default": "returned"
       }
     },
     {
@@ -153,8 +171,26 @@
           }
         ],
         "mode": "any",
-        "on_reject": "goto:returned",
+        "on_reject": "continue",
         "title": "Final approval: {subject.label}"
+      }
+    },
+    {
+      "code": "stage-2--route",
+      "name": "After Final approval",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "publish",
+            "when": {
+              "field": "steps.stage-2.output.outcome",
+              "op": "is",
+              "value": "approved"
+            }
+          }
+        ],
+        "default": "returned"
       }
     },
     {

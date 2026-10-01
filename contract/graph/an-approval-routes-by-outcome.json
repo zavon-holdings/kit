@@ -87,7 +87,25 @@
           }
         ],
         "mode": "any",
-        "on_reject": "goto:back"
+        "on_reject": "continue"
+      }
+    },
+    {
+      "code": "sign--route",
+      "name": "After Sign off",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "publish",
+            "when": {
+              "field": "steps.sign.output.outcome",
+              "op": "is",
+              "value": "approved"
+            }
+          }
+        ],
+        "default": "back"
       }
     },
     {
@@ -114,6 +132,5 @@
         "outcome": "rejected"
       }
     }
-  ],
-  "normal": true
+  ]
 }

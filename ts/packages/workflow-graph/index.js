@@ -1102,10 +1102,6 @@ class Compiler {
       const [normal] = x.waitEdges(id);
       return normal.length ? x.edge(normal[0]).to : "";
     }
-    if (n.type === "approval") {
-      const g = this.rejectGoto(id);
-      return g ? g.approved : "";
-    }
     if (x.chooses(n) || n.type === "end") return "";
     const es = x.outs(id);
     return es.length ? x.edge(es[0]).to : "";
@@ -1180,22 +1176,15 @@ class Compiler {
       }
     } else {
       const cfg = object(n.config) ?? {};
-      let goto = false;
-      if (n.type === "approval" && x.routes(n)) {
-        const rg = this.rejectGoto(id);
-        if (rg) {
-          // approved goes on, a rejection goes somewhere: the engine's own
-          // on_reject says it, and no route is needed.
-          cfg.on_reject = `goto:${this.first(rg.rejected)}`;
-          goto = true;
-        } else cfg.on_reject = REJECT_CONTINUE;
-      }
+      // The edges route a rejection: the task completes and the route decides.
+      // (A stored on_reject goto:<code> is drawn as these edges.)
+      if (n.type === "approval" && x.routes(n)) cfg.on_reject = REJECT_CONTINUE;
       if (n.type === "wait_event") {
         const [, timeout] = x.waitEdges(id);
         if (timeout.length) cfg.on_timeout = `branch:${this.first(x.edge(timeout[0]).to)}`;
       }
       this.add({ code: id, name: this.stepName(id), kind: n.type, config: canon(cfg) });
-      if (x.routes(n) && !goto) {
+      if (x.routes(n)) {
         this.add({ code: id + SUFFIX_ROUTE, name: `After ${this.stepName(id)}`, kind: "branch", config: this.choice(id, id) });
         return;
       }
@@ -1205,24 +1194,6 @@ class Compiler {
     const jump = { cases: [], default: this.first(to) };
     this.passes(jump, id, [to]);
     this.add({ code: id + SUFFIX_GOTO, name: `Go to ${this.stepName(to)}`, kind: "branch", config: canon(jump) });
-  }
-  /** An approval whose only routing is approved → one place, a rejection (the default) → another, with nothing to cap. */
-  rejectGoto(id) {
-    const es = this.x.outs(id);
-    if (es.length !== 2) return null;
-    let approved = "";
-    let rejected = "";
-    for (const i of es) {
-      const e = this.x.edge(i);
-      if (hasWhen(e)) return null;
-      if (e.default) rejected = e.to;
-      else if ((e.label ?? "").trim().toLowerCase() === "approved") approved = e.to;
-    }
-    if (!approved || !rejected) return null;
-    const probe = {};
-    this.passes(probe, id, [approved, rejected]);
-    if ("max_passes" in probe) return null;
-    return { approved, rejected };
   }
   choice(id, outcomeOf) {
     const x = this.x;

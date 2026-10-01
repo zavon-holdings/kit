@@ -129,3 +129,24 @@ test("a sub-workflow is one step of its own kind, and routes on its child's outc
   );
   assert.equal(seq.steps.length, 2);
 });
+
+test("an approval with on_reject goto:<code> is drawn as approved and rejected edges, and compiles to the route form", () => {
+  const steps = [
+    { code: "stage-1", name: "First", kind: "approval", config: { task_type: "approval", mode: "any", assignees: [], on_reject: "goto:returned" } },
+    { code: "publish", name: "Publish", kind: "call", config: { action: "content.publish" } },
+    { code: "approved", name: "Approved", kind: "end", config: { outcome: "approved" } },
+    { code: "returned", name: "Back", kind: "call", config: { action: "content.return_to_author" } },
+    { code: "rejected", name: "Rejected", kind: "end", config: { outcome: "rejected" } },
+  ];
+  const g = decompile(steps);
+  const out = g.edges.filter((e) => e.from === "stage-1");
+  assert.deepEqual(out, [
+    { from: "stage-1", to: "publish", label: "approved" },
+    { from: "stage-1", to: "returned", label: "rejected", default: true },
+  ]);
+  assert.equal(g.nodes.find((n) => n.id === "stage-1").config.on_reject, undefined);
+  const { steps: back, problems } = compile(g, { conditions });
+  assert.equal(problems, undefined);
+  assert.equal(back[1].code, "stage-1--route");
+  assert.equal(back[0].config.on_reject, "continue");
+});
