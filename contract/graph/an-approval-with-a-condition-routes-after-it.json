@@ -1,5 +1,5 @@
 {
-  "name": "an-approval-routes-by-outcome",
+  "name": "an-approval-with-a-condition-routes-after-it",
   "direction": "compile",
   "graph": {
     "edges": [
@@ -9,8 +9,12 @@
       },
       {
         "from": "sign",
-        "label": "approved",
-        "to": "publish"
+        "label": "signed",
+        "to": "publish",
+        "when": {
+          "field": "steps.sign.output.approved_by",
+          "op": "exists"
+        }
       },
       {
         "default": true,
@@ -44,7 +48,6 @@
           "mode": "any"
         },
         "id": "sign",
-        "name": "Sign off",
         "type": "approval"
       },
       {
@@ -73,7 +76,7 @@
   "steps": [
     {
       "code": "sign",
-      "name": "Sign off",
+      "name": "sign",
       "kind": "approval",
       "config": {
         "assignees": [
@@ -87,7 +90,24 @@
           }
         ],
         "mode": "any",
-        "on_reject": "goto:back"
+        "on_reject": "continue"
+      }
+    },
+    {
+      "code": "sign--route",
+      "name": "After sign",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "publish",
+            "when": {
+              "field": "steps.sign.output.approved_by",
+              "op": "exists"
+            }
+          }
+        ],
+        "default": "back"
       }
     },
     {
@@ -114,6 +134,5 @@
         "outcome": "rejected"
       }
     }
-  ],
-  "normal": true
+  ]
 }

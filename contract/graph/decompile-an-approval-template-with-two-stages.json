@@ -1,0 +1,193 @@
+{
+  "name": "decompile-an-approval-template-with-two-stages",
+  "direction": "decompile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "stage-1"
+      },
+      {
+        "from": "stage-1",
+        "label": "approved",
+        "to": "stage-2"
+      },
+      {
+        "default": true,
+        "from": "stage-1",
+        "label": "rejected",
+        "to": "returned"
+      },
+      {
+        "from": "stage-2",
+        "label": "approved",
+        "to": "publish"
+      },
+      {
+        "default": true,
+        "from": "stage-2",
+        "label": "rejected",
+        "to": "returned"
+      },
+      {
+        "from": "publish",
+        "to": "approved"
+      },
+      {
+        "from": "returned",
+        "to": "rejected"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "app": "content",
+          "assignees": [
+            {
+              "permission": {
+                "action": "content:page:publish",
+                "app": "content",
+                "resource": "org/{tenant}/content/{scope.type}/{scope.uid}"
+              }
+            }
+          ],
+          "mode": "any",
+          "title": "First approval: {subject.label}"
+        },
+        "id": "stage-1",
+        "name": "First approval",
+        "type": "approval"
+      },
+      {
+        "config": {
+          "app": "content",
+          "assignees": [
+            {
+              "permission": {
+                "action": "content:page:publish",
+                "app": "content",
+                "resource": "org/{tenant}/content/{scope.type}/{scope.uid}"
+              }
+            }
+          ],
+          "mode": "any",
+          "title": "Final approval: {subject.label}"
+        },
+        "id": "stage-2",
+        "name": "Final approval",
+        "type": "approval"
+      },
+      {
+        "config": {
+          "action": "content.publish"
+        },
+        "id": "publish",
+        "name": "Publish",
+        "type": "call"
+      },
+      {
+        "config": {
+          "outcome": "approved"
+        },
+        "id": "approved",
+        "name": "Approved",
+        "type": "end"
+      },
+      {
+        "config": {
+          "action": "content.return_to_author"
+        },
+        "id": "returned",
+        "name": "Back to the author",
+        "type": "call"
+      },
+      {
+        "config": {
+          "outcome": "rejected"
+        },
+        "id": "rejected",
+        "name": "Rejected",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "stage-1",
+      "name": "First approval",
+      "kind": "approval",
+      "config": {
+        "app": "content",
+        "assignees": [
+          {
+            "permission": {
+              "action": "content:page:publish",
+              "app": "content",
+              "resource": "org/{tenant}/content/{scope.type}/{scope.uid}"
+            }
+          }
+        ],
+        "mode": "any",
+        "on_reject": "goto:returned",
+        "title": "First approval: {subject.label}"
+      }
+    },
+    {
+      "code": "stage-2",
+      "name": "Final approval",
+      "kind": "approval",
+      "config": {
+        "app": "content",
+        "assignees": [
+          {
+            "permission": {
+              "action": "content:page:publish",
+              "app": "content",
+              "resource": "org/{tenant}/content/{scope.type}/{scope.uid}"
+            }
+          }
+        ],
+        "mode": "any",
+        "on_reject": "goto:returned",
+        "title": "Final approval: {subject.label}"
+      }
+    },
+    {
+      "code": "publish",
+      "name": "Publish",
+      "kind": "call",
+      "config": {
+        "action": "content.publish"
+      }
+    },
+    {
+      "code": "approved",
+      "name": "Approved",
+      "kind": "end",
+      "config": {
+        "outcome": "approved"
+      }
+    },
+    {
+      "code": "returned",
+      "name": "Back to the author",
+      "kind": "call",
+      "config": {
+        "action": "content.return_to_author"
+      }
+    },
+    {
+      "code": "rejected",
+      "name": "Rejected",
+      "kind": "end",
+      "config": {
+        "outcome": "rejected"
+      }
+    }
+  ]
+}
