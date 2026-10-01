@@ -1,0 +1,65 @@
+{
+  "name": "names-default-to-the-id-and-layout-is-ignored",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "layout": {
+      "done": {
+        "x": 0,
+        "y": 240
+      },
+      "hello": {
+        "x": 0,
+        "y": 120
+      },
+      "start": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "welcome"
+        },
+        "id": "hello",
+        "type": "email"
+      },
+      {
+        "config": {},
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "hello",
+      "name": "hello",
+      "kind": "email",
+      "config": {
+        "template_code": "welcome"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    }
+  ]
+}

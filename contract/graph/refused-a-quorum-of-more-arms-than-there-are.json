@@ -1,0 +1,93 @@
+{
+  "name": "refused-a-quorum-of-more-arms-than-there-are",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "both"
+      },
+      {
+        "from": "both",
+        "label": "finance",
+        "to": "finance"
+      },
+      {
+        "from": "both",
+        "label": "ministry",
+        "to": "ministry-mail"
+      },
+      {
+        "from": "finance",
+        "to": "both--join"
+      },
+      {
+        "from": "ministry-mail",
+        "to": "ministry"
+      },
+      {
+        "from": "ministry",
+        "to": "both--join"
+      },
+      {
+        "from": "both--join",
+        "to": "after"
+      },
+      {
+        "from": "after",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "both",
+        "type": "fork"
+      },
+      {
+        "id": "finance",
+        "type": "review"
+      },
+      {
+        "config": {
+          "template_code": "ministry"
+        },
+        "id": "ministry-mail",
+        "type": "email"
+      },
+      {
+        "id": "ministry",
+        "type": "review"
+      },
+      {
+        "config": {
+          "join": "quorum",
+          "quorum": 3
+        },
+        "id": "both--join",
+        "type": "join"
+      },
+      {
+        "config": {
+          "template_code": "after"
+        },
+        "id": "after",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "quorum",
+      "node": "both--join"
+    }
+  ]
+}

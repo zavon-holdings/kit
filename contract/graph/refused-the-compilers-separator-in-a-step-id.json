@@ -1,0 +1,40 @@
+{
+  "name": "refused-the-compilers-separator-in-a-step-id",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "pay--request"
+      },
+      {
+        "from": "pay--request",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "x"
+        },
+        "id": "pay--request",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "bad_id",
+      "node": "pay--request"
+    }
+  ]
+}

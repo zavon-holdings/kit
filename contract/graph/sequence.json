@@ -1,0 +1,78 @@
+{
+  "name": "sequence",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "wait"
+      },
+      {
+        "from": "wait",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "welcome"
+        },
+        "id": "hello",
+        "name": "Hello",
+        "type": "email"
+      },
+      {
+        "config": {
+          "unit": "days",
+          "value": 2
+        },
+        "id": "wait",
+        "type": "delay"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "hello",
+      "name": "Hello",
+      "kind": "email",
+      "config": {
+        "template_code": "welcome"
+      }
+    },
+    {
+      "code": "wait",
+      "name": "wait",
+      "kind": "delay",
+      "config": {
+        "unit": "days",
+        "value": 2
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ],
+  "normal": true
+}

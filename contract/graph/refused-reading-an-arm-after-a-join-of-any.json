@@ -1,0 +1,94 @@
+{
+  "name": "refused-reading-an-arm-after-a-join-of-any",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "both"
+      },
+      {
+        "from": "both",
+        "to": "finance"
+      },
+      {
+        "from": "both",
+        "to": "pastor"
+      },
+      {
+        "from": "finance",
+        "to": "meet"
+      },
+      {
+        "from": "pastor",
+        "to": "meet"
+      },
+      {
+        "from": "meet",
+        "to": "ok"
+      },
+      {
+        "from": "ok",
+        "label": "yes",
+        "to": "yes"
+      },
+      {
+        "default": true,
+        "from": "ok",
+        "label": "no",
+        "to": "no"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "both",
+        "type": "fork"
+      },
+      {
+        "id": "finance",
+        "type": "review"
+      },
+      {
+        "id": "pastor",
+        "type": "review"
+      },
+      {
+        "config": {
+          "join": "any"
+        },
+        "id": "meet",
+        "type": "join"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "steps.finance.output.outcome",
+            "op": "is",
+            "value": "approved"
+          }
+        },
+        "id": "ok",
+        "type": "condition"
+      },
+      {
+        "id": "yes",
+        "type": "end"
+      },
+      {
+        "id": "no",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "scope_unavailable",
+      "node": "ok"
+    }
+  ]
+}

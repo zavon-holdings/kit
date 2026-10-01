@@ -1,0 +1,52 @@
+{
+  "name": "refused-a-branch-without-a-condition",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "d"
+      },
+      {
+        "from": "d",
+        "label": "x",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "d",
+        "to": "b"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "d",
+        "type": "decision"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "needs_condition",
+      "node": "d",
+      "edge": {
+        "from": "d",
+        "to": "a",
+        "label": "x"
+      }
+    }
+  ]
+}

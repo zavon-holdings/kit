@@ -1,0 +1,156 @@
+{
+  "name": "a-decision-after-a-join-of-all-reads-an-arm",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "both"
+      },
+      {
+        "from": "both",
+        "label": "finance",
+        "to": "finance"
+      },
+      {
+        "from": "both",
+        "label": "pastor",
+        "to": "pastor"
+      },
+      {
+        "from": "finance",
+        "to": "meet"
+      },
+      {
+        "from": "pastor",
+        "to": "meet"
+      },
+      {
+        "from": "meet",
+        "to": "ok"
+      },
+      {
+        "from": "ok",
+        "label": "yes",
+        "to": "yes"
+      },
+      {
+        "default": true,
+        "from": "ok",
+        "label": "no",
+        "to": "no"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "both",
+        "type": "fork"
+      },
+      {
+        "id": "finance",
+        "type": "review"
+      },
+      {
+        "id": "pastor",
+        "type": "review"
+      },
+      {
+        "id": "meet",
+        "type": "join"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "steps.finance.output.outcome",
+            "op": "is",
+            "value": "approved"
+          }
+        },
+        "id": "ok",
+        "type": "condition"
+      },
+      {
+        "id": "yes",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "rejected"
+        },
+        "id": "no",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "both",
+      "name": "both",
+      "kind": "parallel",
+      "config": {
+        "arms": {
+          "finance": [
+            "finance"
+          ],
+          "pastor": [
+            "pastor"
+          ]
+        },
+        "join": "all"
+      }
+    },
+    {
+      "code": "finance",
+      "name": "finance",
+      "kind": "review",
+      "config": {},
+      "parent": "both",
+      "branch": "finance"
+    },
+    {
+      "code": "pastor",
+      "name": "pastor",
+      "kind": "review",
+      "config": {},
+      "parent": "both",
+      "branch": "pastor"
+    },
+    {
+      "code": "ok",
+      "name": "ok",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "yes",
+            "when": {
+              "field": "steps.finance.output.outcome",
+              "op": "is",
+              "value": "approved"
+            }
+          }
+        ],
+        "default": "no"
+      }
+    },
+    {
+      "code": "yes",
+      "name": "yes",
+      "kind": "end",
+      "config": {}
+    },
+    {
+      "code": "no",
+      "name": "no",
+      "kind": "end",
+      "config": {
+        "outcome": "rejected"
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "refused-an-end-with-a-way-out",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "done"
+      },
+      {
+        "from": "done",
+        "to": "after"
+      },
+      {
+        "from": "after",
+        "to": "fin"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "welcome"
+        },
+        "id": "hello",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "template_code": "x"
+        },
+        "id": "after",
+        "type": "email"
+      },
+      {
+        "id": "fin",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "end_edges",
+      "node": "done"
+    }
+  ]
+}

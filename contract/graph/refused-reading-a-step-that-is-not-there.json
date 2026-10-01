@@ -1,0 +1,55 @@
+{
+  "name": "refused-reading-a-step-that-is-not-there",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "c"
+      },
+      {
+        "from": "c",
+        "label": "yes",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "c",
+        "label": "no",
+        "to": "b"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "steps.ghost.status",
+            "op": "is",
+            "value": "completed"
+          }
+        },
+        "id": "c",
+        "type": "condition"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "unknown_step",
+      "node": "c"
+    }
+  ]
+}

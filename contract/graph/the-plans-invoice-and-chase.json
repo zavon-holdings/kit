@@ -1,0 +1,366 @@
+{
+  "name": "the-plans-invoice-and-chase",
+  "direction": "compile",
+  "trigger": "event",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "big"
+      },
+      {
+        "from": "big",
+        "label": "yes",
+        "to": "inv"
+      },
+      {
+        "default": true,
+        "from": "big",
+        "label": "no",
+        "to": "thanks"
+      },
+      {
+        "from": "inv",
+        "to": "paid"
+      },
+      {
+        "from": "paid",
+        "label": "paid",
+        "to": "fork",
+        "when": {
+          "field": "event.type",
+          "op": "is",
+          "value": "shop.invoice.paid"
+        }
+      },
+      {
+        "from": "paid",
+        "label": "overdue",
+        "to": "chase",
+        "when": {
+          "field": "event.type",
+          "op": "is",
+          "value": "shop.invoice.overdue"
+        }
+      },
+      {
+        "default": true,
+        "from": "paid",
+        "label": "voided",
+        "to": "lost"
+      },
+      {
+        "from": "chase",
+        "label": "retry",
+        "to": "inv"
+      },
+      {
+        "default": true,
+        "from": "chase",
+        "label": "give up",
+        "to": "lost"
+      },
+      {
+        "from": "fork",
+        "to": "ship"
+      },
+      {
+        "from": "fork",
+        "to": "tell"
+      },
+      {
+        "from": "ship",
+        "to": "join"
+      },
+      {
+        "from": "tell",
+        "to": "join"
+      },
+      {
+        "from": "join",
+        "to": "done"
+      },
+      {
+        "from": "thanks",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "event.vars.total_cents",
+            "op": "gte",
+            "value": 500000
+          }
+        },
+        "id": "big",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "event": [
+            "shop.invoice.paid",
+            "shop.invoice.overdue",
+            "shop.invoice.voided"
+          ],
+          "match": "subject"
+        },
+        "id": "inv",
+        "max_passes": 4,
+        "type": "wait_event"
+      },
+      {
+        "id": "paid",
+        "type": "decision"
+      },
+      {
+        "config": {
+          "body_text": "Thank you",
+          "channel": "email",
+          "subject": "Thanks",
+          "to": [
+            {
+              "subject": true
+            }
+          ]
+        },
+        "id": "thanks",
+        "type": "notification"
+      },
+      {
+        "config": {
+          "outcomes": [
+            {
+              "name": "retry"
+            },
+            {
+              "name": "give-up"
+            }
+          ]
+        },
+        "id": "chase",
+        "type": "review"
+      },
+      {
+        "id": "fork",
+        "type": "fork"
+      },
+      {
+        "config": {
+          "action": "shop.fulfilment.transition",
+          "input": {
+            "to": "to_pick"
+          }
+        },
+        "id": "ship",
+        "type": "call"
+      },
+      {
+        "config": {
+          "template_code": "shipped"
+        },
+        "id": "tell",
+        "type": "email"
+      },
+      {
+        "config": {
+          "join": "all"
+        },
+        "id": "join",
+        "type": "join"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "unpaid"
+        },
+        "id": "lost",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "big",
+      "name": "big",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "inv",
+            "when": {
+              "field": "event.vars.total_cents",
+              "op": "gte",
+              "value": 500000
+            }
+          }
+        ],
+        "default": "thanks"
+      }
+    },
+    {
+      "code": "inv",
+      "name": "inv",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "shop.invoice.paid",
+          "shop.invoice.overdue",
+          "shop.invoice.voided"
+        ],
+        "match": "subject"
+      }
+    },
+    {
+      "code": "paid",
+      "name": "paid",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "fork",
+            "when": {
+              "field": "event.type",
+              "op": "is",
+              "value": "shop.invoice.paid"
+            }
+          },
+          {
+            "goto": "chase",
+            "when": {
+              "field": "event.type",
+              "op": "is",
+              "value": "shop.invoice.overdue"
+            }
+          }
+        ],
+        "default": "lost"
+      }
+    },
+    {
+      "code": "fork",
+      "name": "fork",
+      "kind": "parallel",
+      "config": {
+        "arms": {
+          "arm-1": [
+            "ship"
+          ],
+          "arm-2": [
+            "tell"
+          ]
+        },
+        "join": "all"
+      }
+    },
+    {
+      "code": "ship",
+      "name": "ship",
+      "kind": "call",
+      "config": {
+        "action": "shop.fulfilment.transition",
+        "input": {
+          "to": "to_pick"
+        }
+      },
+      "parent": "fork",
+      "branch": "arm-1"
+    },
+    {
+      "code": "tell",
+      "name": "tell",
+      "kind": "email",
+      "config": {
+        "template_code": "shipped"
+      },
+      "parent": "fork",
+      "branch": "arm-2"
+    },
+    {
+      "code": "fork--goto",
+      "name": "Go to done",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "done"
+      }
+    },
+    {
+      "code": "chase",
+      "name": "chase",
+      "kind": "review",
+      "config": {
+        "outcomes": [
+          {
+            "name": "retry"
+          },
+          {
+            "name": "give-up"
+          }
+        ]
+      }
+    },
+    {
+      "code": "chase--route",
+      "name": "After chase",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "inv",
+            "when": {
+              "field": "steps.chase.output.outcome",
+              "op": "is",
+              "value": "retry"
+            }
+          }
+        ],
+        "default": "lost",
+        "max_passes": 4
+      }
+    },
+    {
+      "code": "lost",
+      "name": "lost",
+      "kind": "end",
+      "config": {
+        "outcome": "unpaid"
+      }
+    },
+    {
+      "code": "thanks",
+      "name": "thanks",
+      "kind": "notification",
+      "config": {
+        "body_text": "Thank you",
+        "channel": "email",
+        "subject": "Thanks",
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ]
+}

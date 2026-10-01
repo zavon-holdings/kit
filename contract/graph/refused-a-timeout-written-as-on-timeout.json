@@ -1,0 +1,56 @@
+{
+  "name": "refused-a-timeout-written-as-on-timeout",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "w"
+      },
+      {
+        "from": "w",
+        "to": "a"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "event": [
+            "x.y"
+          ],
+          "match": "subject",
+          "on_timeout": "branch:b",
+          "timeout": {
+            "unit": "days",
+            "value": 1
+          }
+        },
+        "id": "w",
+        "type": "wait_event"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "unreachable",
+      "node": "b"
+    },
+    {
+      "code": "timeout_edge",
+      "node": "w"
+    }
+  ]
+}

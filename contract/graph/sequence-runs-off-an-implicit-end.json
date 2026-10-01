@@ -1,0 +1,60 @@
+{
+  "name": "sequence-runs-off-an-implicit-end",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "to": "end"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "welcome"
+        },
+        "id": "hello",
+        "type": "email"
+      },
+      {
+        "id": "check",
+        "type": "review"
+      },
+      {
+        "id": "end",
+        "implicit": true,
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "hello",
+      "name": "hello",
+      "kind": "email",
+      "config": {
+        "template_code": "welcome"
+      }
+    },
+    {
+      "code": "check",
+      "name": "check",
+      "kind": "review",
+      "config": {}
+    }
+  ],
+  "normal": true
+}

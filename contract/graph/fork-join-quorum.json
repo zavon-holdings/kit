@@ -1,0 +1,148 @@
+{
+  "name": "fork-join-quorum",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "both"
+      },
+      {
+        "from": "both",
+        "label": "finance",
+        "to": "finance"
+      },
+      {
+        "from": "both",
+        "label": "ministry",
+        "to": "ministry-mail"
+      },
+      {
+        "from": "finance",
+        "to": "both--join"
+      },
+      {
+        "from": "ministry-mail",
+        "to": "ministry"
+      },
+      {
+        "from": "ministry",
+        "to": "both--join"
+      },
+      {
+        "from": "both--join",
+        "to": "after"
+      },
+      {
+        "from": "after",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "both",
+        "type": "fork"
+      },
+      {
+        "id": "finance",
+        "type": "review"
+      },
+      {
+        "config": {
+          "template_code": "ministry"
+        },
+        "id": "ministry-mail",
+        "type": "email"
+      },
+      {
+        "id": "ministry",
+        "type": "review"
+      },
+      {
+        "config": {
+          "join": "quorum",
+          "quorum": 2
+        },
+        "id": "both--join",
+        "type": "join"
+      },
+      {
+        "config": {
+          "template_code": "after"
+        },
+        "id": "after",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "both",
+      "name": "both",
+      "kind": "parallel",
+      "config": {
+        "arms": {
+          "finance": [
+            "finance"
+          ],
+          "ministry": [
+            "ministry-mail",
+            "ministry"
+          ]
+        },
+        "join": "quorum",
+        "quorum": 2
+      }
+    },
+    {
+      "code": "finance",
+      "name": "finance",
+      "kind": "review",
+      "config": {},
+      "parent": "both",
+      "branch": "finance"
+    },
+    {
+      "code": "ministry-mail",
+      "name": "ministry-mail",
+      "kind": "email",
+      "config": {
+        "template_code": "ministry"
+      },
+      "parent": "both",
+      "branch": "ministry"
+    },
+    {
+      "code": "ministry",
+      "name": "ministry",
+      "kind": "review",
+      "config": {},
+      "parent": "both",
+      "branch": "ministry"
+    },
+    {
+      "code": "after",
+      "name": "after",
+      "kind": "email",
+      "config": {
+        "template_code": "after"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    }
+  ],
+  "normal": true
+}

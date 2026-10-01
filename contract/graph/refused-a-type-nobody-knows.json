@@ -1,0 +1,37 @@
+{
+  "name": "refused-a-type-nobody-knows",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "x"
+      },
+      {
+        "from": "x",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "x",
+        "type": "teleport"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "unknown_type",
+      "node": "x"
+    }
+  ]
+}

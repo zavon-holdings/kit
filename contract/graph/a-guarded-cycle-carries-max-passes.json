@@ -1,0 +1,122 @@
+{
+  "name": "a-guarded-cycle-carries-max-passes",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "ask"
+      },
+      {
+        "from": "ask",
+        "to": "count"
+      },
+      {
+        "from": "count",
+        "to": "again"
+      },
+      {
+        "from": "again",
+        "label": "case-1",
+        "to": "ask",
+        "when": {
+          "field": "vars.passes",
+          "op": "lt",
+          "value": 2
+        }
+      },
+      {
+        "default": true,
+        "from": "again",
+        "label": "otherwise",
+        "to": "finish"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "ask"
+        },
+        "id": "ask",
+        "max_passes": 3,
+        "type": "email"
+      },
+      {
+        "config": {
+          "set": {
+            "passes": {
+              "add": 1
+            }
+          }
+        },
+        "id": "count",
+        "type": "set_var"
+      },
+      {
+        "id": "again",
+        "type": "decision"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "finish",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "ask",
+      "name": "ask",
+      "kind": "email",
+      "config": {
+        "template_code": "ask"
+      }
+    },
+    {
+      "code": "count",
+      "name": "count",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "passes": {
+            "add": 1
+          }
+        }
+      }
+    },
+    {
+      "code": "again",
+      "name": "again",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "ask",
+            "when": {
+              "field": "vars.passes",
+              "op": "lt",
+              "value": 2
+            }
+          }
+        ],
+        "default": "finish",
+        "max_passes": 3
+      }
+    },
+    {
+      "code": "finish",
+      "name": "finish",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "name": "a-condition-may-ask-who-holds-a-permit",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "may"
+      },
+      {
+        "from": "may",
+        "label": "yes",
+        "to": "publish"
+      },
+      {
+        "default": true,
+        "from": "may",
+        "label": "no",
+        "to": "ask"
+      },
+      {
+        "from": "publish",
+        "to": "done"
+      },
+      {
+        "from": "ask",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.submitter.email",
+            "op": "holds",
+            "value": {
+              "action": "page.publish",
+              "app": "pages",
+              "resource": "org/shofar/pages/*"
+            }
+          }
+        },
+        "id": "may",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "action": "pages.publish"
+        },
+        "id": "publish",
+        "type": "call"
+      },
+      {
+        "id": "ask",
+        "type": "review"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "may",
+      "name": "may",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "publish",
+            "when": {
+              "field": "vars.submitter.email",
+              "op": "holds",
+              "value": {
+                "action": "page.publish",
+                "app": "pages",
+                "resource": "org/shofar/pages/*"
+              }
+            }
+          }
+        ],
+        "default": "ask"
+      }
+    },
+    {
+      "code": "publish",
+      "name": "publish",
+      "kind": "call",
+      "config": {
+        "action": "pages.publish"
+      }
+    },
+    {
+      "code": "publish--goto",
+      "name": "Go to done",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "done"
+      }
+    },
+    {
+      "code": "ask",
+      "name": "ask",
+      "kind": "review",
+      "config": {}
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    }
+  ],
+  "normal": true
+}

@@ -1,0 +1,124 @@
+{
+  "name": "a-wait-with-a-timeout-edge",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "wait"
+      },
+      {
+        "from": "wait",
+        "to": "thanks"
+      },
+      {
+        "from": "wait",
+        "label": "timeout",
+        "to": "chase"
+      },
+      {
+        "from": "thanks",
+        "to": "done"
+      },
+      {
+        "from": "chase",
+        "to": "lost"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "event": [
+            "pages.payment.paid"
+          ],
+          "match": "subject",
+          "timeout": {
+            "unit": "days",
+            "value": 7
+          }
+        },
+        "id": "wait",
+        "type": "wait_event"
+      },
+      {
+        "config": {
+          "template_code": "thanks"
+        },
+        "id": "thanks",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "template_code": "chase"
+        },
+        "id": "chase",
+        "type": "email"
+      },
+      {
+        "config": {
+          "outcome": "unpaid"
+        },
+        "id": "lost",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "wait",
+      "name": "wait",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "pages.payment.paid"
+        ],
+        "match": "subject",
+        "on_timeout": "branch:chase",
+        "timeout": {
+          "unit": "days",
+          "value": 7
+        }
+      }
+    },
+    {
+      "code": "thanks",
+      "name": "thanks",
+      "kind": "email",
+      "config": {
+        "template_code": "thanks"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    },
+    {
+      "code": "chase",
+      "name": "chase",
+      "kind": "email",
+      "config": {
+        "template_code": "chase"
+      }
+    },
+    {
+      "code": "lost",
+      "name": "lost",
+      "kind": "end",
+      "config": {
+        "outcome": "unpaid"
+      }
+    }
+  ],
+  "normal": true
+}

@@ -1,0 +1,118 @@
+{
+  "name": "a-back-edge-from-a-step-is-a-jump-back",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "draft"
+      },
+      {
+        "from": "draft",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "label": "case-1",
+        "to": "fix",
+        "when": {
+          "field": "steps.draft.output.ok",
+          "op": "is",
+          "value": false
+        }
+      },
+      {
+        "default": true,
+        "from": "check",
+        "label": "otherwise",
+        "to": "done"
+      },
+      {
+        "from": "fix",
+        "to": "draft"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "draft",
+        "max_passes": 5,
+        "type": "form"
+      },
+      {
+        "id": "check",
+        "type": "decision"
+      },
+      {
+        "config": {
+          "template_code": "fix"
+        },
+        "id": "fix",
+        "type": "email"
+      },
+      {
+        "config": {
+          "outcome": "approved"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "draft",
+      "name": "draft",
+      "kind": "form",
+      "config": {}
+    },
+    {
+      "code": "check",
+      "name": "check",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "fix",
+            "when": {
+              "field": "steps.draft.output.ok",
+              "op": "is",
+              "value": false
+            }
+          }
+        ],
+        "default": "done"
+      }
+    },
+    {
+      "code": "fix",
+      "name": "fix",
+      "kind": "email",
+      "config": {
+        "template_code": "fix"
+      }
+    },
+    {
+      "code": "fix--goto",
+      "name": "Go to draft",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "draft",
+        "max_passes": 5
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "approved"
+      }
+    }
+  ]
+}

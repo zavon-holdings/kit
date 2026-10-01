@@ -1,0 +1,52 @@
+{
+  "name": "refused-a-timeout-edge-with-no-timeout",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "w"
+      },
+      {
+        "from": "w",
+        "to": "a"
+      },
+      {
+        "from": "w",
+        "label": "timeout",
+        "to": "b"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "event": [
+            "x.y"
+          ],
+          "match": "subject"
+        },
+        "id": "w",
+        "type": "wait_event"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "timeout_edge",
+      "node": "w"
+    }
+  ]
+}

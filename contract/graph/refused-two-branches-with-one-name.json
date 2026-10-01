@@ -1,0 +1,71 @@
+{
+  "name": "refused-two-branches-with-one-name",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "d"
+      },
+      {
+        "from": "d",
+        "label": "yes",
+        "to": "a",
+        "when": {
+          "field": "vars.x",
+          "op": "is",
+          "value": 1
+        }
+      },
+      {
+        "from": "d",
+        "label": "Yes",
+        "to": "b",
+        "when": {
+          "field": "vars.x",
+          "op": "is",
+          "value": 2
+        }
+      },
+      {
+        "default": true,
+        "from": "d",
+        "to": "c"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "d",
+        "type": "decision"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      },
+      {
+        "id": "c",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "duplicate_label",
+      "node": "d",
+      "edge": {
+        "from": "d",
+        "to": "b",
+        "label": "Yes"
+      }
+    }
+  ]
+}

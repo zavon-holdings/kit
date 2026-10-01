@@ -1,0 +1,51 @@
+{
+  "name": "refused-a-node-nothing-reaches",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "done"
+      },
+      {
+        "from": "orphan",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "welcome"
+        },
+        "id": "hello",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "template_code": "x"
+        },
+        "id": "orphan",
+        "type": "email"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "unreachable",
+      "node": "orphan"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "name": "refused-an-outcome-the-step-cannot-have",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "r"
+      },
+      {
+        "from": "r",
+        "label": "maybe",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "r",
+        "label": "otherwise",
+        "to": "b"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "outcomes": [
+            {
+              "name": "approved"
+            },
+            {
+              "name": "rejected"
+            }
+          ]
+        },
+        "id": "r",
+        "type": "review"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "outcome_unknown",
+      "node": "r",
+      "edge": {
+        "from": "r",
+        "to": "a",
+        "label": "maybe"
+      }
+    }
+  ]
+}

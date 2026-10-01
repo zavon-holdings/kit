@@ -1,0 +1,37 @@
+{
+  "name": "refused-a-loop-node-until-phase-d",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "each",
+        "type": "loop"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "not_yet",
+      "node": "each"
+    }
+  ]
+}

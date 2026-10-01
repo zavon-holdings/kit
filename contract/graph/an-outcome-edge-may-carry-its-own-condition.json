@@ -1,0 +1,89 @@
+{
+  "name": "an-outcome-edge-may-carry-its-own-condition",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "ask"
+      },
+      {
+        "from": "ask",
+        "label": "big gift",
+        "to": "big",
+        "when": {
+          "field": "steps.ask.output.amount",
+          "op": "gt",
+          "value": 1000
+        }
+      },
+      {
+        "default": true,
+        "from": "ask",
+        "label": "otherwise",
+        "to": "done"
+      },
+      {
+        "from": "big",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "ask",
+        "type": "form"
+      },
+      {
+        "id": "big",
+        "type": "review"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "ask",
+      "name": "ask",
+      "kind": "form",
+      "config": {}
+    },
+    {
+      "code": "ask--route",
+      "name": "After ask",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "big",
+            "when": {
+              "field": "steps.ask.output.amount",
+              "op": "gt",
+              "value": 1000
+            }
+          }
+        ],
+        "default": "done"
+      }
+    },
+    {
+      "code": "big",
+      "name": "big",
+      "kind": "review",
+      "config": {}
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "refused-an-edge-to-nowhere",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "done"
+      },
+      {
+        "from": "hello",
+        "to": "ghost"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "welcome"
+        },
+        "id": "hello",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "edge_unknown_node",
+      "edge": {
+        "from": "hello",
+        "to": "ghost"
+      }
+    }
+  ]
+}

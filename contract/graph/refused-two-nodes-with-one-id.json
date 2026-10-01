@@ -1,0 +1,44 @@
+{
+  "name": "refused-two-nodes-with-one-id",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "x"
+        },
+        "id": "hello",
+        "type": "email"
+      },
+      {
+        "id": "hello",
+        "type": "review"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "duplicate_id",
+      "node": "hello"
+    }
+  ]
+}

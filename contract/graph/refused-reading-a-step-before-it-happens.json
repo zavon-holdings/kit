@@ -1,0 +1,87 @@
+{
+  "name": "refused-reading-a-step-before-it-happens",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "pre"
+      },
+      {
+        "from": "pre",
+        "label": "yes",
+        "to": "finance"
+      },
+      {
+        "default": true,
+        "from": "pre",
+        "label": "no",
+        "to": "check"
+      },
+      {
+        "from": "finance",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "label": "ok",
+        "to": "a",
+        "when": {
+          "field": "steps.finance.output.approved",
+          "op": "is",
+          "value": true
+        }
+      },
+      {
+        "default": true,
+        "from": "check",
+        "to": "b"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.x",
+            "op": "is",
+            "value": 1
+          }
+        },
+        "id": "pre",
+        "type": "condition"
+      },
+      {
+        "id": "finance",
+        "type": "review"
+      },
+      {
+        "id": "check",
+        "type": "decision"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "scope_unavailable",
+      "node": "check",
+      "edge": {
+        "from": "check",
+        "to": "a",
+        "label": "ok"
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "refused-a-condition-it-cannot-read",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "d"
+      },
+      {
+        "from": "d",
+        "label": "x",
+        "to": "a",
+        "when": {
+          "field": "vars.x",
+          "op": "resembles",
+          "value": 1
+        }
+      },
+      {
+        "default": true,
+        "from": "d",
+        "to": "b"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "d",
+        "type": "decision"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "bad_condition",
+      "node": "d",
+      "edge": {
+        "from": "d",
+        "to": "a",
+        "label": "x"
+      }
+    }
+  ]
+}

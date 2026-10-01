@@ -1,0 +1,64 @@
+{
+  "name": "refused-an-empty-arm",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "f"
+      },
+      {
+        "from": "f",
+        "to": "a"
+      },
+      {
+        "from": "f",
+        "to": "j"
+      },
+      {
+        "from": "a",
+        "to": "j"
+      },
+      {
+        "from": "j",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "f",
+        "type": "fork"
+      },
+      {
+        "config": {
+          "template_code": "a"
+        },
+        "id": "a",
+        "type": "email"
+      },
+      {
+        "id": "j",
+        "type": "join"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "empty_arm",
+      "node": "f",
+      "edge": {
+        "from": "f",
+        "to": "j"
+      }
+    }
+  ]
+}

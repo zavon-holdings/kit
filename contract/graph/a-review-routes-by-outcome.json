@@ -1,0 +1,150 @@
+{
+  "name": "a-review-routes-by-outcome",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "approve"
+      },
+      {
+        "from": "approve",
+        "label": "approved",
+        "to": "publish"
+      },
+      {
+        "from": "approve",
+        "label": "rejected",
+        "to": "tell"
+      },
+      {
+        "default": true,
+        "from": "approve",
+        "label": "otherwise",
+        "to": "tell"
+      },
+      {
+        "from": "publish",
+        "to": "done"
+      },
+      {
+        "from": "tell",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "outcomes": [
+            {
+              "name": "approved"
+            },
+            {
+              "name": "rejected"
+            }
+          ]
+        },
+        "id": "approve",
+        "name": "Approve",
+        "type": "review"
+      },
+      {
+        "config": {
+          "action": "pages.publish"
+        },
+        "id": "publish",
+        "type": "call"
+      },
+      {
+        "config": {
+          "template_code": "declined"
+        },
+        "id": "tell",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "approve",
+      "name": "Approve",
+      "kind": "review",
+      "config": {
+        "outcomes": [
+          {
+            "name": "approved"
+          },
+          {
+            "name": "rejected"
+          }
+        ]
+      }
+    },
+    {
+      "code": "approve--route",
+      "name": "After Approve",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "publish",
+            "when": {
+              "field": "steps.approve.output.outcome",
+              "op": "is",
+              "value": "approved"
+            }
+          },
+          {
+            "goto": "tell",
+            "when": {
+              "field": "steps.approve.output.outcome",
+              "op": "is",
+              "value": "rejected"
+            }
+          }
+        ],
+        "default": "tell"
+      }
+    },
+    {
+      "code": "publish",
+      "name": "publish",
+      "kind": "call",
+      "config": {
+        "action": "pages.publish"
+      }
+    },
+    {
+      "code": "publish--goto",
+      "name": "Go to done",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "done"
+      }
+    },
+    {
+      "code": "tell",
+      "name": "tell",
+      "kind": "email",
+      "config": {
+        "template_code": "declined"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    }
+  ]
+}

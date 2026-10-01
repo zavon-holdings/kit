@@ -1,0 +1,48 @@
+{
+  "name": "decompile-a-task-type-is-not-drawn",
+  "direction": "decompile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "check",
+        "name": "Check",
+        "type": "review"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "check",
+      "name": "Check",
+      "kind": "review",
+      "config": {
+        "task_type": "review"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    }
+  ]
+}

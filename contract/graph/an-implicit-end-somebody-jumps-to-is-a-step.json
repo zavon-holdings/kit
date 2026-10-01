@@ -1,0 +1,105 @@
+{
+  "name": "an-implicit-end-somebody-jumps-to-is-a-step",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "big"
+      },
+      {
+        "from": "big",
+        "label": "yes",
+        "to": "end"
+      },
+      {
+        "default": true,
+        "from": "big",
+        "label": "no",
+        "to": "mail"
+      },
+      {
+        "from": "mail",
+        "to": "note"
+      },
+      {
+        "from": "note",
+        "to": "end"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.big",
+            "op": "is",
+            "value": true
+          }
+        },
+        "id": "big",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "template_code": "big"
+        },
+        "id": "mail",
+        "type": "email"
+      },
+      {
+        "id": "note",
+        "type": "review"
+      },
+      {
+        "id": "end",
+        "implicit": true,
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "big",
+      "name": "big",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "end",
+            "when": {
+              "field": "vars.big",
+              "op": "is",
+              "value": true
+            }
+          }
+        ],
+        "default": "mail"
+      }
+    },
+    {
+      "code": "mail",
+      "name": "mail",
+      "kind": "email",
+      "config": {
+        "template_code": "big"
+      }
+    },
+    {
+      "code": "note",
+      "name": "note",
+      "kind": "review",
+      "config": {}
+    },
+    {
+      "code": "end",
+      "name": "end",
+      "kind": "end",
+      "config": {}
+    }
+  ]
+}

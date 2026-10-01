@@ -1,0 +1,117 @@
+{
+  "name": "decision-reads-a-step-that-happened",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "finance"
+      },
+      {
+        "from": "finance",
+        "to": "check"
+      },
+      {
+        "from": "check",
+        "label": "approved",
+        "to": "pay",
+        "when": {
+          "field": "steps.finance.output.approved",
+          "op": "is",
+          "value": true
+        }
+      },
+      {
+        "default": true,
+        "from": "check",
+        "label": "otherwise",
+        "to": "stop"
+      },
+      {
+        "from": "pay",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "finance",
+        "type": "review"
+      },
+      {
+        "id": "check",
+        "type": "decision"
+      },
+      {
+        "config": {
+          "action": "pages.payment.request"
+        },
+        "id": "pay",
+        "type": "call"
+      },
+      {
+        "config": {
+          "outcome": "declined"
+        },
+        "id": "stop",
+        "type": "end"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "finance",
+      "name": "finance",
+      "kind": "review",
+      "config": {}
+    },
+    {
+      "code": "check",
+      "name": "check",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "pay",
+            "when": {
+              "field": "steps.finance.output.approved",
+              "op": "is",
+              "value": true
+            }
+          }
+        ],
+        "default": "stop"
+      }
+    },
+    {
+      "code": "pay",
+      "name": "pay",
+      "kind": "call",
+      "config": {
+        "action": "pages.payment.request"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    },
+    {
+      "code": "stop",
+      "name": "stop",
+      "kind": "end",
+      "config": {
+        "outcome": "declined"
+      }
+    }
+  ]
+}

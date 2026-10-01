@@ -1,0 +1,55 @@
+{
+  "name": "refused-reading-an-event-that-never-happened",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "c"
+      },
+      {
+        "from": "c",
+        "label": "yes",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "c",
+        "label": "no",
+        "to": "b"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "event.type",
+            "op": "is",
+            "value": "x.y"
+          }
+        },
+        "id": "c",
+        "type": "condition"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "scope_unavailable",
+      "node": "c"
+    }
+  ]
+}

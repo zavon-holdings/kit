@@ -1,0 +1,90 @@
+{
+  "name": "refused-a-decision-in-an-arm",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "f"
+      },
+      {
+        "from": "f",
+        "to": "d"
+      },
+      {
+        "from": "f",
+        "to": "b"
+      },
+      {
+        "from": "d",
+        "label": "x",
+        "to": "a",
+        "when": {
+          "field": "vars.x",
+          "op": "is",
+          "value": 1
+        }
+      },
+      {
+        "default": true,
+        "from": "d",
+        "to": "j"
+      },
+      {
+        "from": "a",
+        "to": "j"
+      },
+      {
+        "from": "b",
+        "to": "j"
+      },
+      {
+        "from": "j",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "f",
+        "type": "fork"
+      },
+      {
+        "id": "d",
+        "type": "decision"
+      },
+      {
+        "config": {
+          "template_code": "a"
+        },
+        "id": "a",
+        "type": "email"
+      },
+      {
+        "config": {
+          "template_code": "b"
+        },
+        "id": "b",
+        "type": "email"
+      },
+      {
+        "id": "j",
+        "type": "join"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "arm_not_plain",
+      "node": "d"
+    }
+  ]
+}

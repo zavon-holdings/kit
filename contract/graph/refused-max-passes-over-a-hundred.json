@@ -1,0 +1,41 @@
+{
+  "name": "refused-max-passes-over-a-hundred",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "welcome"
+        },
+        "id": "hello",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "max_passes": 101,
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "max_passes",
+      "node": "done"
+    }
+  ]
+}

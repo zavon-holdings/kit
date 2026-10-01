@@ -1,0 +1,119 @@
+{
+  "name": "a-decision-after-a-wait-reads-the-event",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "wait"
+      },
+      {
+        "from": "wait",
+        "to": "paid"
+      },
+      {
+        "from": "paid",
+        "label": "yes",
+        "to": "ok"
+      },
+      {
+        "default": true,
+        "from": "paid",
+        "label": "no",
+        "to": "no"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "event": [
+            "pages.payment.paid",
+            "pages.payment.failed"
+          ],
+          "match": "subject"
+        },
+        "id": "wait",
+        "type": "wait_event"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "event.type",
+            "op": "is",
+            "value": "pages.payment.paid"
+          }
+        },
+        "id": "paid",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "outcome": "paid"
+        },
+        "id": "ok",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "failed"
+        },
+        "id": "no",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "wait",
+      "name": "wait",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "pages.payment.paid",
+          "pages.payment.failed"
+        ],
+        "match": "subject"
+      }
+    },
+    {
+      "code": "paid",
+      "name": "paid",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "ok",
+            "when": {
+              "field": "event.type",
+              "op": "is",
+              "value": "pages.payment.paid"
+            }
+          }
+        ],
+        "default": "no"
+      }
+    },
+    {
+      "code": "ok",
+      "name": "ok",
+      "kind": "end",
+      "config": {
+        "outcome": "paid"
+      }
+    },
+    {
+      "code": "no",
+      "name": "no",
+      "kind": "end",
+      "config": {
+        "outcome": "failed"
+      }
+    }
+  ],
+  "normal": true
+}

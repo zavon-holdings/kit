@@ -1,0 +1,57 @@
+{
+  "name": "refused-a-decision-without-a-default",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "d"
+      },
+      {
+        "from": "d",
+        "label": "x",
+        "to": "a",
+        "when": {
+          "field": "vars.x",
+          "op": "is",
+          "value": 1
+        }
+      },
+      {
+        "from": "d",
+        "label": "y",
+        "to": "b",
+        "when": {
+          "field": "vars.x",
+          "op": "is",
+          "value": 2
+        }
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "d",
+        "type": "decision"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "needs_default",
+      "node": "d"
+    }
+  ]
+}

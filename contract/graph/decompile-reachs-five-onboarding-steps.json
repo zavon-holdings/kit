@@ -1,0 +1,125 @@
+{
+  "name": "decompile-reachs-five-onboarding-steps",
+  "direction": "decompile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "welcome"
+      },
+      {
+        "from": "welcome",
+        "to": "wait-1"
+      },
+      {
+        "from": "wait-1",
+        "to": "tips"
+      },
+      {
+        "from": "tips",
+        "to": "wait-2"
+      },
+      {
+        "from": "wait-2",
+        "to": "check-in"
+      },
+      {
+        "from": "check-in",
+        "to": "end"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "onboarding.step1"
+        },
+        "id": "welcome",
+        "name": "Welcome",
+        "type": "email"
+      },
+      {
+        "config": {
+          "unit": "days",
+          "value": 2
+        },
+        "id": "wait-1",
+        "name": "Two days",
+        "type": "delay"
+      },
+      {
+        "config": {
+          "template_code": "onboarding.step2"
+        },
+        "id": "tips",
+        "name": "Tips",
+        "type": "email"
+      },
+      {
+        "config": {
+          "unit": "weeks",
+          "value": 1
+        },
+        "id": "wait-2",
+        "name": "A week",
+        "type": "delay"
+      },
+      {
+        "id": "check-in",
+        "name": "Check in",
+        "type": "review"
+      },
+      {
+        "id": "end",
+        "implicit": true,
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "welcome",
+      "name": "Welcome",
+      "kind": "email",
+      "config": {
+        "template_code": "onboarding.step1"
+      }
+    },
+    {
+      "code": "wait-1",
+      "name": "Two days",
+      "kind": "delay",
+      "config": {
+        "unit": "days",
+        "value": 2
+      }
+    },
+    {
+      "code": "tips",
+      "name": "Tips",
+      "kind": "email",
+      "config": {
+        "template_code": "onboarding.step2"
+      }
+    },
+    {
+      "code": "wait-2",
+      "name": "A week",
+      "kind": "delay",
+      "config": {
+        "unit": "weeks",
+        "value": 1
+      }
+    },
+    {
+      "code": "check-in",
+      "name": "Check in",
+      "kind": "review",
+      "config": {}
+    }
+  ]
+}

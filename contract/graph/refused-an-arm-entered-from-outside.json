@@ -1,0 +1,93 @@
+{
+  "name": "refused-an-arm-entered-from-outside",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "pre"
+      },
+      {
+        "from": "pre",
+        "label": "yes",
+        "to": "f"
+      },
+      {
+        "default": true,
+        "from": "pre",
+        "label": "no",
+        "to": "a"
+      },
+      {
+        "from": "f",
+        "to": "a"
+      },
+      {
+        "from": "f",
+        "to": "b"
+      },
+      {
+        "from": "a",
+        "to": "j"
+      },
+      {
+        "from": "b",
+        "to": "j"
+      },
+      {
+        "from": "j",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.x",
+            "op": "is",
+            "value": 1
+          }
+        },
+        "id": "pre",
+        "type": "condition"
+      },
+      {
+        "id": "f",
+        "type": "fork"
+      },
+      {
+        "config": {
+          "template_code": "a"
+        },
+        "id": "a",
+        "type": "email"
+      },
+      {
+        "config": {
+          "template_code": "b"
+        },
+        "id": "b",
+        "type": "email"
+      },
+      {
+        "id": "j",
+        "type": "join"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "fork_unstructured",
+      "node": "a"
+    }
+  ]
+}

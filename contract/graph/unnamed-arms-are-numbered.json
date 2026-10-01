@@ -1,0 +1,109 @@
+{
+  "name": "unnamed-arms-are-numbered",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "split"
+      },
+      {
+        "from": "split",
+        "to": "a"
+      },
+      {
+        "from": "split",
+        "to": "b"
+      },
+      {
+        "from": "a",
+        "to": "meet"
+      },
+      {
+        "from": "b",
+        "to": "meet"
+      },
+      {
+        "from": "meet",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "split",
+        "type": "fork"
+      },
+      {
+        "config": {
+          "template_code": "a"
+        },
+        "id": "a",
+        "type": "email"
+      },
+      {
+        "config": {
+          "template_code": "b"
+        },
+        "id": "b",
+        "type": "email"
+      },
+      {
+        "id": "meet",
+        "type": "join"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "split",
+      "name": "split",
+      "kind": "parallel",
+      "config": {
+        "arms": {
+          "arm-1": [
+            "a"
+          ],
+          "arm-2": [
+            "b"
+          ]
+        },
+        "join": "all"
+      }
+    },
+    {
+      "code": "a",
+      "name": "a",
+      "kind": "email",
+      "config": {
+        "template_code": "a"
+      },
+      "parent": "split",
+      "branch": "arm-1"
+    },
+    {
+      "code": "b",
+      "name": "b",
+      "kind": "email",
+      "config": {
+        "template_code": "b"
+      },
+      "parent": "split",
+      "branch": "arm-2"
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    }
+  ]
+}

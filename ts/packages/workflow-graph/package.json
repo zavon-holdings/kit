@@ -1,0 +1,15 @@
+{
+  "name": "@zavon/workflow-graph",
+  "version": "1.3.0",
+  "description": "The workflow decision-tree compiler in the browser: validate, compile, decompile. Twin of core's app/workflow/graph; held together by kit/contract/graph.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts"],
+  "engines": { "node": ">=20" },
+  "peerDependencies": { "@zavon/conditions": "^1.2.0" },
+  "peerDependenciesMeta": { "@zavon/conditions": { "optional": true } },
+  "scripts": {
+    "test": "node --test"
+  }
+}

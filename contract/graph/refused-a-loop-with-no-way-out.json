@@ -1,0 +1,55 @@
+{
+  "name": "refused-a-loop-with-no-way-out",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "a"
+      },
+      {
+        "from": "a",
+        "to": "b"
+      },
+      {
+        "from": "b",
+        "to": "a"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "a"
+        },
+        "id": "a",
+        "type": "email"
+      },
+      {
+        "config": {
+          "template_code": "b"
+        },
+        "id": "b",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "unguarded_cycle",
+      "node": "a"
+    },
+    {
+      "code": "unreachable",
+      "node": "done"
+    }
+  ]
+}

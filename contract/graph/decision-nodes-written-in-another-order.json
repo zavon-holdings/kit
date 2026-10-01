@@ -1,0 +1,167 @@
+{
+  "name": "decision-nodes-written-in-another-order",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "other",
+        "to": "done"
+      },
+      {
+        "from": "site",
+        "to": "done"
+      },
+      {
+        "from": "route",
+        "label": "case-1",
+        "to": "site",
+        "when": {
+          "field": "vars.scope.type",
+          "op": "is",
+          "value": "site"
+        }
+      },
+      {
+        "from": "route",
+        "label": "case-2",
+        "to": "ministry",
+        "when": {
+          "field": "vars.scope.type",
+          "op": "is",
+          "value": "ministry"
+        }
+      },
+      {
+        "default": true,
+        "from": "route",
+        "label": "otherwise",
+        "to": "other"
+      },
+      {
+        "from": "start",
+        "to": "route"
+      },
+      {
+        "from": "ministry",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "config": {
+          "outcome": "routed"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "template_code": "leader"
+        },
+        "id": "ministry",
+        "type": "email"
+      },
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "office"
+        },
+        "id": "other",
+        "type": "email"
+      },
+      {
+        "config": {
+          "template_code": "pastor"
+        },
+        "id": "site",
+        "type": "email"
+      },
+      {
+        "id": "route",
+        "type": "decision"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "route",
+      "name": "route",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "site",
+            "when": {
+              "field": "vars.scope.type",
+              "op": "is",
+              "value": "site"
+            }
+          },
+          {
+            "goto": "ministry",
+            "when": {
+              "field": "vars.scope.type",
+              "op": "is",
+              "value": "ministry"
+            }
+          }
+        ],
+        "default": "other"
+      }
+    },
+    {
+      "code": "site",
+      "name": "site",
+      "kind": "email",
+      "config": {
+        "template_code": "pastor"
+      }
+    },
+    {
+      "code": "site--goto",
+      "name": "Go to done",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "done"
+      }
+    },
+    {
+      "code": "ministry",
+      "name": "ministry",
+      "kind": "email",
+      "config": {
+        "template_code": "leader"
+      }
+    },
+    {
+      "code": "ministry--goto",
+      "name": "Go to done",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "done"
+      }
+    },
+    {
+      "code": "other",
+      "name": "other",
+      "kind": "email",
+      "config": {
+        "template_code": "office"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "routed"
+      }
+    }
+  ]
+}

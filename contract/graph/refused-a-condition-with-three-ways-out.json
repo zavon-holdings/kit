@@ -1,0 +1,64 @@
+{
+  "name": "refused-a-condition-with-three-ways-out",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "c"
+      },
+      {
+        "from": "c",
+        "label": "yes",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "c",
+        "label": "no",
+        "to": "b"
+      },
+      {
+        "from": "c",
+        "label": "maybe",
+        "to": "z"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.x",
+            "op": "is",
+            "value": 1
+          }
+        },
+        "id": "c",
+        "type": "condition"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      },
+      {
+        "id": "z",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "choice_edges",
+      "node": "c"
+    }
+  ]
+}

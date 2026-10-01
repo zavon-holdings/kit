@@ -1,0 +1,120 @@
+{
+  "name": "condition-with-a-merge",
+  "direction": "compile",
+  "trigger": "event",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "big"
+      },
+      {
+        "from": "big",
+        "label": "yes",
+        "to": "inv"
+      },
+      {
+        "default": true,
+        "from": "big",
+        "label": "no",
+        "to": "thanks"
+      },
+      {
+        "from": "inv",
+        "to": "done"
+      },
+      {
+        "from": "thanks",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "event.vars.total_cents",
+            "op": "gte",
+            "value": 500000
+          }
+        },
+        "id": "big",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "action": "shop.invoice.issue"
+        },
+        "id": "inv",
+        "type": "call"
+      },
+      {
+        "config": {
+          "template_code": "thanks"
+        },
+        "id": "thanks",
+        "type": "email"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "big",
+      "name": "big",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "inv",
+            "when": {
+              "field": "event.vars.total_cents",
+              "op": "gte",
+              "value": 500000
+            }
+          }
+        ],
+        "default": "thanks"
+      }
+    },
+    {
+      "code": "inv",
+      "name": "inv",
+      "kind": "call",
+      "config": {
+        "action": "shop.invoice.issue"
+      }
+    },
+    {
+      "code": "inv--goto",
+      "name": "Go to done",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "done"
+      }
+    },
+    {
+      "code": "thanks",
+      "name": "thanks",
+      "kind": "email",
+      "config": {
+        "template_code": "thanks"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {}
+    }
+  ],
+  "normal": true
+}

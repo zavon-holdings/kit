@@ -1,0 +1,40 @@
+{
+  "name": "refused-a-sub-workflow-until-phase-g",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "child"
+      },
+      {
+        "from": "child",
+        "to": "done"
+      }
+    ],
+    "format": "zavon.workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "definition": "other"
+        },
+        "id": "child",
+        "type": "sub_workflow"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "not_yet",
+      "node": "child"
+    }
+  ]
+}
