@@ -22,7 +22,11 @@ export function routeEdges(edges: { from: string; to: string }[], boxes: Map<str
     const k = `${e.from}\u0000${e.to}`;
     pairs.set(k, [...(pairs.get(k) ?? []), i]);
   });
-  const lanes: { top: number; bottom: number }[] = [];
+  // Two sides: an edge going back up runs on the left of what it passes, one
+  // skipping down on the right, so a loop and a jump out of the same node
+  // never share a line. On each side, lanes that overlap in height, or leave
+  // the same node, each get their own.
+  const lanes: { side: -1 | 1; top: number; bottom: number; from: string }[] = [];
   return edges.map((e, i) => {
     const group = pairs.get(`${e.from}\u0000${e.to}`)!;
     const spread = group.indexOf(i) - (group.length - 1) / 2;
@@ -42,17 +46,19 @@ export function routeEdges(edges: { from: string; to: string }[], boxes: Map<str
       ([id, b]) => id !== e.from && id !== e.to && b.y < bottom && b.y + b.h > top && b.x < hi && b.x + b.w > lo,
     );
     if (!back && blocking.length === 0) return { spread };
-    const slot = lanes.filter((l) => l.top < bottom && l.bottom > top).length;
-    lanes.push({ top, bottom });
-    // Right of what it passes, then further right of anything else in the
-    // rows it runs beside, so the lane itself crosses no node.
+    const side: -1 | 1 = back ? -1 : 1;
+    const slot = lanes.filter((l) => l.side === side && ((l.top < bottom && l.bottom > top) || l.from === e.from)).length;
+    lanes.push({ side, top, bottom, from: e.from });
+    const step = GAP + slot * LANE_STEP;
     const band = [...boxes.values()].filter((b) => b.y < bottom + 14 && b.y + b.h > top - 14);
-    let lane = Math.max(s.x + s.w, t.x + t.w, ...blocking.map(([, b]) => b.x + b.w)) + GAP + slot * LANE_STEP;
+    const passed = [s, t, ...blocking.map(([, b]) => b)];
+    let lane = side > 0 ? Math.max(...passed.map((b) => b.x + b.w)) + step : Math.min(...passed.map((b) => b.x)) - step;
+    // Clear of anything else in the rows it runs beside.
     for (let moved = true; moved; ) {
       moved = false;
       for (const b of band) {
         if (b.x < lane + 4 && b.x + b.w > lane - 4) {
-          lane = b.x + b.w + GAP + slot * LANE_STEP;
+          lane = side > 0 ? b.x + b.w + step : b.x - step;
           moved = true;
         }
       }

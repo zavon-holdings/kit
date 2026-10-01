@@ -17,11 +17,18 @@ describe("edge routes", () => {
     expect(skip.lane).toBe(150 + 190 + 28);
   });
 
-  test("an edge back up always takes a lane, and lanes side by side do not overlap", () => {
+  test("an edge back up always takes a lane, on the left, and lanes side by side do not overlap", () => {
     const boxes = new Map([["a", box(0, 0)], ["b", box(0, 120)], ["c", box(0, 240)]]);
     const routes = routeEdges([{ from: "c", to: "a" }, { from: "b", to: "a" }], boxes);
-    expect(routes[0].lane).toBe(190 + 28);
-    expect(routes[1].lane).toBe(190 + 28 + 18);
+    expect(routes[0].lane).toBe(-28);
+    expect(routes[1].lane).toBe(-28 - 18);
+  });
+
+  test("a loop back and a jump on out of the same node never share a lane", () => {
+    const boxes = new Map([["a", box(0, 0)], ["b", box(0, 120)], ["c", box(0, 240)], ["d", box(0, 360)]]);
+    const [up, down] = routeEdges([{ from: "b", to: "a" }, { from: "b", to: "d" }], boxes);
+    expect(up.lane).toBeLessThan(0);
+    expect(down.lane).toBeGreaterThan(190);
   });
 
   test("edges with the same two ends spread their labels", () => {

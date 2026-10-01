@@ -1,6 +1,6 @@
 {
   "name": "@zavon/workflow-ui",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A workflow decision-tree editor for React: canvas, list twin, inspector, steps and simulate panels over @zavon/workflow-graph.",
   "type": "module",
   "main": "dist/index.js",
