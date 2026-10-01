@@ -25,11 +25,24 @@ export interface GraphEdge {
   default?: boolean;
 }
 
+/** A comment on the canvas. Presentation, like the layout: never compiled. */
+export interface Note {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  w?: number;
+  h?: number;
+  /** The node the note is about, when it is about one. */
+  node?: string;
+}
+
 export interface Graph {
   format: string;
   nodes: GraphNode[];
   edges: GraphEdge[];
   layout?: Record<string, unknown>;
+  notes?: Note[];
 }
 
 export interface Step {

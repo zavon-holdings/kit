@@ -51,6 +51,7 @@ export const PROBLEMS = Object.freeze({
   NEVER_ENDS: "never_ends",
   UNKNOWN_STEP: "unknown_step",
   SCOPE: "scope_unavailable",
+  NOTE: "note",
 });
 const P = PROBLEMS;
 
@@ -143,6 +144,17 @@ export function canonical(g) {
   edges.sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
   const out = { format: g.format, nodes, edges };
   if (g.layout && Object.keys(g.layout).length > 0) out.layout = canon(g.layout);
+  if (Array.isArray(g.notes) && g.notes.length > 0) {
+    out.notes = g.notes
+      .map((n) => {
+        const o = { id: n.id, text: typeof n.text === "string" ? n.text.trim() : "", x: n.x ?? 0, y: n.y ?? 0 };
+        if (n.w) o.w = n.w;
+        if (n.h) o.h = n.h;
+        if (n.node) o.node = n.node;
+        return o;
+      })
+      .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  }
   return out;
 }
 
@@ -303,6 +315,14 @@ function validateDocument(g) {
     }
   }
   if (starts !== 1) add(P.START, "", "a workflow starts in one place: exactly one start node");
+  const notes = new Set();
+  for (const nt of Array.isArray(g.notes) ? g.notes : []) {
+    const id = typeof nt?.id === "string" ? nt.id : "";
+    if (!id.trim()) add(P.NOTE, "", "every note on the canvas needs an id");
+    else if (notes.has(id)) add(P.NOTE, "", `two notes are called "${id}"`);
+    notes.add(id);
+    if (nt?.node && !seen.has(nt.node)) add(P.NOTE, "", `note "${id}" is about "${nt.node}", which is not in the graph`);
+  }
   return ps;
 }
 

@@ -1,0 +1,72 @@
+{
+  "name": "notes-on-the-canvas-compile-to-nothing",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "hello"
+      },
+      {
+        "from": "hello",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "template_code": "welcome"
+        },
+        "id": "hello",
+        "type": "email"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ],
+    "notes": [
+      {
+        "id": "n2",
+        "node": "hello",
+        "text": "Says hello first",
+        "x": 240,
+        "y": 100
+      },
+      {
+        "h": 90,
+        "id": "n1",
+        "text": "Ask the office before changing",
+        "w": 180,
+        "x": -200,
+        "y": 0
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "hello",
+      "name": "hello",
+      "kind": "email",
+      "config": {
+        "template_code": "welcome"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ]
+}
