@@ -36,7 +36,9 @@ export function Palette() {
     <nav className="zwf-palette" aria-label="Add a node">
       {PALETTE_GROUPS.map((group) => (
         <section key={group} className="zwf-palette-group" aria-label={group}>
-          <h4 className="zwf-subheading">{group}</h4>
+          <p className="zwf-subheading" aria-hidden="true">
+            {group}
+          </p>
           <ul className="zwf-plain">
             {NODE_KINDS.filter((k) => k.group === group).map((k) => {
               const why = ed.unavailable[k.type];

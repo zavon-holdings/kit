@@ -190,7 +190,7 @@ export function LoopInspector({ node, onChange, readOnly }: InspectorProps) {
 
 /** Another workflow, run as a step: which, about what, and whether to wait for its outcome. */
 export function SubWorkflowInspector({ node, onChange, readOnly }: InspectorProps) {
-  const config = (node.config ?? {}) as { definition?: string; version?: string | number; subject?: unknown; wait?: boolean };
+  const config = (node.config ?? {}) as { definition?: string; subject?: unknown; wait?: boolean };
   const set = (patch: Partial<typeof config>) => onChange({ ...config, ...patch });
   return (
     <fieldset className="zwf-group" disabled={readOnly}>
@@ -199,10 +199,7 @@ export function SubWorkflowInspector({ node, onChange, readOnly }: InspectorProp
         <span>Workflow (its code)</span>
         <input value={config.definition ?? ""} spellCheck={false} onChange={(e) => set({ definition: e.target.value })} />
       </label>
-      <label className="zwf-field">
-        <span>Version</span>
-        <input value={config.version === undefined ? "" : String(config.version)} placeholder="current" onChange={(e) => set({ version: e.target.value === "" ? undefined : /^\d+$/.test(e.target.value) ? Number(e.target.value) : e.target.value })} />
-      </label>
+      <p className="zwf-muted">It runs the workflow's current version when the step starts.</p>
       <label className="zwf-check">
         <input type="checkbox" checked={config.wait !== false} onChange={(e) => set({ wait: e.target.checked })} />
         <span>Wait for it to finish, and route on its outcome</span>
