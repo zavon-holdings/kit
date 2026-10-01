@@ -13,10 +13,9 @@
 #   5. commits "Kit vX.Y.Z" with the vendored bytes
 # Nothing is pushed unless --push is given.
 #
-# The fetch needs read access to the private kit repository, which is why it
-# happens here — on a developer's machine or in this script's CI — and never in
-# a consumer's build: a consumer builds from its committed vendor/ with no
-# credential at all.
+# Kit is public (2026-10-01), so the fetch needs no credential. It still
+# happens here — on a developer's machine or in this script's CI — and never
+# in a consumer's build: a consumer builds from its committed vendor/.
 set -euo pipefail
 
 usage() { sed -n '2,20p' "$0"; exit 2; }

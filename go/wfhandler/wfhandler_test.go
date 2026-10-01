@@ -479,3 +479,330 @@ func replay(mux *http.ServeMux, v Vector) *httptest.ResponseRecorder {
 	mux.ServeHTTP(rec, req)
 	return rec
 }
+
+/* ── the transactional door ── */
+
+// memDB is a database with two tables — the app's effects and
+// workflow_actions — and transactions that stage writes and apply them at
+// Commit, where the replay key's uniqueness is checked the way a primary key
+// would refuse it. Enough to prove the door's atomicity without a driver.
+type memDB struct {
+	mu       sync.Mutex
+	effects  []string
+	answers  map[string]Stored
+	begun    int
+	commits  int
+	failNext error // the next Commit fails with this
+	hold     chan struct{}
+}
+
+type memTx struct {
+	db      *memDB
+	effects []string
+	answers map[string]Stored
+	done    bool
+}
+
+func (db *memDB) Begin(context.Context) (Tx, error) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	db.begun++
+	return &memTx{db: db, answers: map[string]Stored{}}, nil
+}
+
+func (tx *memTx) Exec(_ context.Context, sql string, args ...any) (any, error) {
+	if strings.Contains(sql, "INSERT INTO workflow_actions") {
+		if strings.Contains(sql, "ON CONFLICT") {
+			return nil, errors.New("the transactional door must insert plainly, so a racing twin is refused rather than ignored")
+		}
+		if _, isString := args[3].(string); !isString {
+			return nil, fmt.Errorf("JSONB must be passed as a string, got %T", args[3])
+		}
+		key := args[0].(string)
+		// Postgres makes the second inserter WAIT for the first transaction
+		// and then refuses it at the unique key; here the committed table is
+		// what a waiting inserter would see.
+		tx.db.mu.Lock()
+		_, taken := tx.db.answers[key]
+		tx.db.mu.Unlock()
+		if taken {
+			return nil, errors.New(`duplicate key value violates unique constraint "workflow_actions_pkey"`)
+		}
+		tx.answers[key] = Stored{Action: args[1].(string), Status: args[2].(int), Response: json.RawMessage(args[3].(string))}
+		return nil, nil
+	}
+	// Anything else is the handler's own effect.
+	tx.effects = append(tx.effects, fmt.Sprint(sql, args))
+	return nil, nil
+}
+
+func (tx *memTx) QueryRow(_ context.Context, _ string, args ...any) Row {
+	tx.db.mu.Lock()
+	defer tx.db.mu.Unlock()
+	if s, ok := tx.db.answers[args[0].(string)]; ok {
+		return fakeRow{s: &s}
+	}
+	return fakeRow{err: errors.New("no rows in result set")}
+}
+
+func (tx *memTx) Commit(context.Context) error {
+	tx.db.mu.Lock()
+	defer tx.db.mu.Unlock()
+	if tx.done {
+		return errors.New("tx is closed")
+	}
+	tx.done = true
+	if err := tx.db.failNext; err != nil {
+		tx.db.failNext = nil
+		return err
+	}
+	for k := range tx.answers {
+		if _, taken := tx.db.answers[k]; taken {
+			return errors.New(`duplicate key value violates unique constraint "workflow_actions_pkey"`)
+		}
+	}
+	for k, v := range tx.answers {
+		if tx.db.answers == nil {
+			tx.db.answers = map[string]Stored{}
+		}
+		tx.db.answers[k] = v
+	}
+	tx.db.effects = append(tx.db.effects, tx.effects...)
+	tx.db.commits++
+	return nil
+}
+
+func (tx *memTx) Rollback(context.Context) error {
+	tx.db.mu.Lock()
+	defer tx.db.mu.Unlock()
+	tx.done = true
+	return nil
+}
+
+// txRig mounts DoorTx over a memDB, counting handler runs.
+type txRig struct {
+	srv   *httptest.Server
+	db    *memDB
+	calls int
+	mu    sync.Mutex
+}
+
+func newTxRig(t *testing.T, h TxHandlers) *txRig {
+	r := &txRig{db: &memDB{}}
+	counted := TxHandlers{}
+	for name, fn := range h {
+		fn := fn
+		counted[name] = func(ctx context.Context, tx Tx, c Call) (Answer, error) {
+			r.mu.Lock()
+			r.calls++
+			r.mu.Unlock()
+			return fn(ctx, tx, c)
+		}
+	}
+	mux := http.NewServeMux()
+	MountTx(mux, "/api/workflow", secrets, counted, r.db, Options{Now: func() time.Time { return clock }})
+	r.srv = httptest.NewServer(mux)
+	t.Cleanup(r.srv.Close)
+	return r
+}
+
+func (r *txRig) post(t *testing.T, body, key string) (int, map[string]any) {
+	t.Helper()
+	req, _ := http.NewRequest("POST", r.srv.URL+"/api/workflow/actions", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Idempotency-Key", key)
+	webhooksig.SignRequest(req, secrets, []byte(body), clock)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	var out map[string]any
+	_ = json.NewDecoder(resp.Body).Decode(&out)
+	return resp.StatusCode, out
+}
+
+// publishing is a handler whose effect is one row, written through the tx.
+func publishing(tx Tx, c Call) (Answer, error) {
+	if _, err := tx.Exec(context.Background(), `UPDATE pages SET published_at = now() WHERE pid = $1`, c.Subject.PID); err != nil {
+		return Answer{}, err
+	}
+	return Done(map[string]any{"published_at": "2026-09-30T10:00:00Z"}), nil
+}
+
+func TestTheTransactionalDoorCommitsTheEffectWithItsRecord(t *testing.T) {
+	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
+	status, out := r.post(t, publishCall, "run:r1:step:publish")
+	if status != 200 || out["status"] != "done" {
+		t.Fatalf("first delivery: %d %v", status, out)
+	}
+	if len(r.db.effects) != 1 || r.db.answers["run:r1:step:publish"].Status != 200 || r.db.commits != 1 {
+		t.Fatalf("after one delivery: effects %v answers %v commits %d — the effect and its record land together", r.db.effects, r.db.answers, r.db.commits)
+	}
+	// Asked again: the same answer, no handler, no second effect.
+	status, out = r.post(t, publishCall, "run:r1:step:publish")
+	if status != 200 || out["status"] != "done" || r.calls != 1 || len(r.db.effects) != 1 {
+		t.Fatalf("replay: %d %v, handler ran %d times, effects %v", status, out, r.calls, r.db.effects)
+	}
+	// A refusal commits too: the decision is remembered, and whatever the
+	// handler wrote beside it (a row saying why) lands with it.
+	r2 := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
+		_, _ = tx.Exec(context.Background(), `INSERT INTO page_notes (pid, note) VALUES ($1, 'refused')`, c.Subject.PID)
+		return Answer{Refusal: "The page was deleted.", Status: 410}, nil
+	}})
+	if status, out := r2.post(t, publishCall, "k"); status != 410 || out["refusal"] == nil {
+		t.Fatalf("refusal: %d %v", status, out)
+	}
+	if r2.db.answers["k"].Status != 410 || len(r2.db.effects) != 1 {
+		t.Fatalf("a refusal was not committed with its record: %v %v", r2.db.answers, r2.db.effects)
+	}
+}
+
+func TestAFaultRollsTheEffectBackAndRemembersNothing(t *testing.T) {
+	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
+		_, _ = tx.Exec(context.Background(), `UPDATE pages SET published_at = now()`)
+		return Answer{}, errors.New("the snapshot sha does not match")
+	}})
+	status, _ := r.post(t, publishCall, "k")
+	if status != 500 {
+		t.Fatalf("a fault -> %d, want 500 so core retries", status)
+	}
+	if len(r.db.effects) != 0 || len(r.db.answers) != 0 || r.db.commits != 0 {
+		t.Fatalf("after a fault: effects %v answers %v commits %d — nothing may land", r.db.effects, r.db.answers, r.db.commits)
+	}
+	// The retry runs the handler again (nothing was remembered).
+	r.post(t, publishCall, "k")
+	if r.calls != 2 {
+		t.Fatalf("handler ran %d times across a fault and its retry, want 2", r.calls)
+	}
+}
+
+func TestACommitThatFailsIsAFaultNotADecision(t *testing.T) {
+	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
+	r.db.failNext = errors.New("connection reset by peer")
+	status, out := r.post(t, publishCall, "k")
+	if status != 500 || !strings.Contains(fmt.Sprint(out["error"]), "did not commit") {
+		t.Fatalf("a failed commit -> %d %v, want 500 saying nothing was kept", status, out)
+	}
+	if len(r.db.effects) != 0 || len(r.db.answers) != 0 {
+		t.Fatalf("a failed commit left %v %v", r.db.effects, r.db.answers)
+	}
+}
+
+// Two deliveries of ONE key through two transactions at once: Door's
+// post-hoc Put (ON CONFLICT DO NOTHING) would let both effects commit and
+// silently drop the second record. The transactional door inserts plainly,
+// so exactly one effect lands, exactly one answer is remembered, and the
+// loser answers 5xx for core to retry into a replay of the winner.
+func TestTwoDeliveriesOfOneKeyProduceOneEffect(t *testing.T) {
+	gate := make(chan struct{})
+	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
+		<-gate // both handlers are inside their transactions before either commits
+		return publishing(tx, c)
+	}})
+	type res struct {
+		status int
+	}
+	results := make(chan res, 2)
+	for i := 0; i < 2; i++ {
+		go func() {
+			status, _ := r.post(t, publishCall, "run:r1:step:publish")
+			results <- res{status}
+		}()
+	}
+	// Let both in, then release them together.
+	deadline := time.After(5 * time.Second)
+	for {
+		r.mu.Lock()
+		n := r.calls
+		r.mu.Unlock()
+		if n == 2 {
+			break
+		}
+		select {
+		case <-deadline:
+			t.Fatalf("only %d handler(s) started", n)
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	close(gate)
+	a, b := <-results, <-results
+	codes := []int{a.status, b.status}
+	sort.Ints(codes)
+	if codes[0] != 200 || codes[1] != 500 {
+		t.Fatalf("answers %v, want one 200 and one 500", codes)
+	}
+	if len(r.db.effects) != 1 || len(r.db.answers) != 1 || r.db.commits != 1 {
+		t.Fatalf("effects %v answers %v commits %d — exactly one of each", r.db.effects, r.db.answers, r.db.commits)
+	}
+	// And the loser's retry is a replay of the winner.
+	status, out := r.post(t, publishCall, "run:r1:step:publish")
+	if status != 200 || out["status"] != "done" || r.calls != 2 {
+		t.Fatalf("retry: %d %v, handler ran %d times", status, out, r.calls)
+	}
+}
+
+func TestTheTransactionalDoorKeepsTheDoorsRefusals(t *testing.T) {
+	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
+	// Unknown action: a decided no, and no transaction is left open.
+	status, out := r.post(t, strings.Replace(publishCall, "pages.publish", "pages.archive", 1), "k2")
+	if status != 404 || out["refusal"] == nil || r.db.commits != 0 {
+		t.Fatalf("unknown action: %d %v commits %d", status, out, r.db.commits)
+	}
+	// No key, bad signature: refused before any transaction opens.
+	req, _ := http.NewRequest("POST", r.srv.URL+"/api/workflow/actions", strings.NewReader(publishCall))
+	webhooksig.SignRequest(req, secrets, []byte(publishCall), clock)
+	resp, _ := http.DefaultClient.Do(req)
+	resp.Body.Close()
+	if resp.StatusCode != 400 {
+		t.Fatalf("no key -> %d", resp.StatusCode)
+	}
+	req, _ = http.NewRequest("POST", r.srv.URL+"/api/workflow/actions", strings.NewReader(publishCall))
+	req.Header.Set("Idempotency-Key", "k")
+	webhooksig.SignRequest(req, []string{"wrong"}, []byte(publishCall), clock)
+	resp, _ = http.DefaultClient.Do(req)
+	resp.Body.Close()
+	if resp.StatusCode != 403 {
+		t.Fatalf("bad signature -> %d", resp.StatusCode)
+	}
+	// Only the admitted call (the unknown action) opened a transaction. A
+	// refused signature or a missing key never touches the database.
+	if r.db.begun != 1 {
+		t.Fatalf("transactions begun: %d, want 1", r.db.begun)
+	}
+	// And a door with no store is closed, saying so.
+	mux := http.NewServeMux()
+	MountTx(mux, "/api/workflow", secrets, TxHandlers{}, nil, Options{Now: func() time.Time { return clock }})
+	v := vectorCases()[0]
+	v.Headers["X-Zavon-Timestamp"] = strconv.FormatInt(clock.Unix(), 10)
+	v.Headers["X-Zavon-Signature"] = webhooksig.Header(v.Secrets, clock.Unix(), []byte(v.Body))
+	if rec := replay(mux, v); rec.Code != 503 {
+		t.Fatalf("no store -> %d, want 503", rec.Code)
+	}
+}
+
+// The wire is the same through either door: every recorded vector produces
+// the recorded answer through DoorTx too.
+func TestTheTransactionalDoorAnswersEveryVectorTheSame(t *testing.T) {
+	txh := TxHandlers{}
+	for name, fn := range deciding() {
+		fn := fn
+		txh[name] = func(ctx context.Context, _ Tx, c Call) (Answer, error) { return fn(ctx, c) }
+	}
+	for _, v := range vectorCases() {
+		raw, err := os.ReadFile(filepath.Join("..", "..", "contract", "callback", v.Name+".json"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var recorded Vector
+		if err := json.Unmarshal(raw, &recorded); err != nil {
+			t.Fatal(err)
+		}
+		mux := http.NewServeMux()
+		MountTx(mux, "/api/workflow", secrets, txh, &memDB{}, Options{Now: func() time.Time { return clock }})
+		rec := replay(mux, recorded)
+		if rec.Code != recorded.Answer.Status || strings.TrimSpace(rec.Body.String()) != recorded.Answer.Body {
+			t.Errorf("%s through DoorTx: %d %s, vector says %d %s", v.Name, rec.Code, rec.Body.String(), recorded.Answer.Status, recorded.Answer.Body)
+		}
+	}
+}

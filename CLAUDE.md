@@ -13,7 +13,11 @@ go/        module github.com/zavon-holdings/kit/go, zero dependencies
               (code "unconfigured": the engine is not set up) — the code
               tells the two 503s apart, both carry detail.reason
   wfhandler   an app's callback door (§7.4): Mount verifies, dedupes on
-              Idempotency-Key, shapes done/accepted/refused; DDL + SQLReplayStore
+              Idempotency-Key, shapes done/accepted/refused; DDL + SQLReplayStore.
+              MountTx/DoorTx (v1.1.0): the handler receives the transaction
+              and the replay record is written inside it — effect and record
+              land together or not at all; a racing twin is refused at the
+              key and rolled back. New apps use DoorTx.
   outbox      at-least-once outbox (AddTx in the caller's tx, Drain by cron)
   permits     the permits cache (§10.3): Snapshot, Cache, the four refresh
               triggers, Decide over policy. READ-ONLY until Accounts ships
@@ -65,6 +69,14 @@ and a `[]byte` there is a bytea literal a jsonb column refuses.
   `KIT_WRITE_VECTORS=1 go test ./webhooksig ./wfclient ./wfhandler -run TestContractVectors`
   rewrites `contract/*/*.json`; every other run (Go and TS) checks against
   them. A vector changing is a wire change and needs a major.
+- **The transactional door inserts its record plainly, never ON CONFLICT DO
+  NOTHING.** Inside one transaction a conflict is the signal that another
+  delivery of the same key has committed its effect; ignoring it would let
+  both effects land. `Door` (post-hoc) keeps ON CONFLICT, because there the
+  first decision stands and a late duplicate is harmless.
+- **Kit is public** (decided 2026-10-01, plan §15 Q10). It holds no secrets
+  and no business logic, so consumers' CI and `bump.sh` fetch it with no
+  credential.
 - **Consumers vendor with the command their repo builds with.** A repository
   with a `go.work` (admin has one) vendors with `go work vendor`; `go mod
   vendor` there produces a tree the build ignores. `scripts/bump.sh` picks.
