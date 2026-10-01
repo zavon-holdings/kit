@@ -25,8 +25,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install
+        working-directory: ts
+        run: npm ci
       - name: Pack
         working-directory: ts
+        # workflow-ui builds its dist/ in prepack.
         run: |
           mkdir -p ../dist
           for pkg in packages/*/; do

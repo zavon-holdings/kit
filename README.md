@@ -1,7 +1,8 @@
 # kit
 
-Small, dependency-free libraries for talking to a workflow service over HTTP:
-request signing, a client, a callback handler, and a few helpers around them.
+Small libraries for talking to a workflow service over HTTP: request signing,
+a client, a callback handler, and a few helpers around them — dependency-free,
+bar the one React editor below.
 Each library is held to a set of JSON contract vectors so that the Go and
 TypeScript twins, and any server that implements the same wire, agree byte for
 byte.
@@ -28,6 +29,34 @@ are passed as strings.
 | `@zavon/webhooksig`      | The signature, for Node and the browser. Twin of `go/webhooksig`. |
 | `@zavon/conditions`      | The workflow condition language: parse, evaluate, describe, fields. |
 | `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. |
+| `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
+
+### `@zavon/workflow-ui`
+
+Controlled: the host holds the graph and saves it; the editor proposes the
+next graph through `onChange`. It holds no fetch code — the host passes an
+`api` (`validate`, `simulate`) routed through its own backend, and its own
+inspectors per node type. `readOnly` draws a graph without editing it.
+
+```tsx
+import "@xyflow/react/dist/base.css";
+import "@zavon/workflow-ui/styles.css";
+import { WorkflowBuilder } from "@zavon/workflow-ui";
+
+<WorkflowBuilder graph={graph} onChange={setGraph} trigger="event" api={api} inspectors={inspectors} />
+```
+
+- Peers: `react`, `react-dom`, `@zavon/workflow-graph`, `@zavon/conditions`
+  (install all three kit packs). Depends on `@xyflow/react` (MIT), which
+  brings `@xyflow/system`, `zustand`, `classcat` (MIT) and the `d3-*` modules
+  it uses (ISC, `d3-ease` BSD-3-Clause), all from npm and bundled by the host.
+- No typography of its own; colours are `--zwf-*` CSS variables a host sets
+  on any element around the editor. Status is tint, dot and words.
+- Every canvas edit is possible in the List tab with ordinary controls;
+  nodes are one tab stop (arrows move along edges), edges connect by menu,
+  zoom has buttons, and `prefers-reduced-motion` turns off animated pans.
+- Built with `tsc` into `dist/` when packed; `npm test` typechecks and runs
+  vitest with testing-library.
 
 ## Contract vectors (`contract/`)
 
@@ -49,7 +78,7 @@ versions are additive.
 
 ```bash
 cd go && gofmt -l . && go vet ./... && go test ./... -race
-cd ts && npm test
+cd ts && npm ci && npm test
 ```
 
 ## Licence
