@@ -367,6 +367,15 @@ func vectorCases() []Vector {
 		mk("action-unknown", "/actions", "run:r1:step:archive", strings.Replace(publishCall, "pages.publish", "pages.archive", 1), "unknown"),
 		mk("resolve-recipient", "/actions", "run:r1:step:notify-owner:resolve",
 			`{"action":"pages.resolve_recipient","tenant":"shofar","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"shofar","property":"pages-by-zavon"},"step":{"code":"notify-owner","kind":"email"},"subject":{"property":"pages-by-zavon","type":"page","pid":"p1"},"input":{"role":"owner"},"attempt":1}`, "done"),
+		// A notification step's phone channel goes through Reach until the
+		// channel lift (expansion plan §2.4): one call per recipient, keyed
+		// by the step and the number; Reach answers done with the delivery,
+		// or a decided no (no consent, outside the session window) that
+		// skips that recipient.
+		mk("channel-send", "/actions", "run:r1:step:ping:+27821234567",
+			`{"action":"reach.channel.send","tenant":"shofar","run":{"uid":"r1","definition":"order-ready","version":1,"kind":"workflow","tenant":"shofar","property":"shop"},"step":{"code":"ping","kind":"notification"},"subject":{"property":"shop","type":"order","pid":"o1","label":"Order 1048"},"input":{"channel":"whatsapp","to":"+27821234567","name":"Thandi","template":"hsm_order_ready_v1","vars":{"order":"1048"}},"vars":{"order":"1048"},"attempt":1}`, "done"),
+		mk("channel-send-refused", "/actions", "run:r1:step:ping:+27820000000",
+			`{"action":"reach.channel.send","tenant":"shofar","run":{"uid":"r1","definition":"order-ready","version":1,"kind":"workflow","tenant":"shofar","property":"shop"},"step":{"code":"ping","kind":"notification"},"subject":{"property":"shop","type":"order","pid":"o1","label":"Order 1048"},"input":{"channel":"whatsapp","to":"+27820000000","template":"hsm_order_ready_v1","vars":{"order":"1048"}},"vars":{"order":"1048"},"attempt":1}`, "refused"),
 		mk("hook-finished", "/hooks", "run:r1:hook:finished",
 			`{"action":"pages.notify","tenant":"shofar","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"shofar","property":"pages-by-zavon"},"step":{"code":"","kind":"hook"},"subject":{"property":"pages-by-zavon","type":"page","pid":"p1"},"input":{"event":"finished","state":"done","outcome":"approved","pause_reason":""},"attempt":1}`, "done"),
 	}
@@ -377,7 +386,7 @@ func vectorCases() []Vector {
 // this package returns for the same call.
 func deciding() Handlers {
 	h := Handlers{}
-	for _, name := range []string{"pages.publish", "pages.resolve_recipient", "pages.notify"} {
+	for _, name := range []string{"pages.publish", "pages.resolve_recipient", "pages.notify", "reach.channel.send"} {
 		name := name
 		h[name] = func(_ context.Context, c Call) (Answer, error) {
 			switch {
@@ -389,6 +398,11 @@ func deciding() Handlers {
 				return Done(map[string]any{"email": "nomsa@example.test", "name": "Nomsa"}), nil
 			case name == "pages.notify":
 				return Done(nil), nil
+			case name == "reach.channel.send":
+				if c.Input["to"] == "+27820000000" {
+					return Refuse("no consent for this number"), nil
+				}
+				return Done(map[string]any{"delivery_uids": []string{"dl_01J9"}}), nil
 			}
 			return Done(map[string]any{"published_at": "2026-09-30T10:00:00Z"}), nil
 		}

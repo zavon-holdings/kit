@@ -1,0 +1,21 @@
+{
+  "name": "channel-send",
+  "path": "/actions",
+  "secrets": [
+    "door-secret"
+  ],
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "run:r1:step:ping:+27821234567",
+    "X-Zavon-Delivery": "dv-channel-send",
+    "X-Zavon-Signature": "v1=e7b3c81b10706e9da487adf210fd5b10412d54b7afaa4ddda62ec3f3078384bb",
+    "X-Zavon-Timestamp": "1790000000",
+    "Zavon-Workflow-Version": "1"
+  },
+  "body": "{\"action\":\"reach.channel.send\",\"tenant\":\"shofar\",\"run\":{\"uid\":\"r1\",\"definition\":\"order-ready\",\"version\":1,\"kind\":\"workflow\",\"tenant\":\"shofar\",\"property\":\"shop\"},\"step\":{\"code\":\"ping\",\"kind\":\"notification\"},\"subject\":{\"property\":\"shop\",\"type\":\"order\",\"pid\":\"o1\",\"label\":\"Order 1048\"},\"input\":{\"channel\":\"whatsapp\",\"to\":\"+27821234567\",\"name\":\"Thandi\",\"template\":\"hsm_order_ready_v1\",\"vars\":{\"order\":\"1048\"}},\"vars\":{\"order\":\"1048\"},\"attempt\":1}",
+  "decision": "done",
+  "answer": {
+    "status": 200,
+    "body": "{\"output\":{\"delivery_uids\":[\"dl_01J9\"]},\"status\":\"done\"}"
+  }
+}
