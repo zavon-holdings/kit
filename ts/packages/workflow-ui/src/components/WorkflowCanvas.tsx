@@ -25,12 +25,12 @@ import {
 } from "@xyflow/react";
 import { typeLabel } from "../catalogue.js";
 import { autoLayout, positions } from "../layout.js";
-import { connect, nodeById, setLayout, setPosition } from "../model.js";
+import { connect, nodeById, notesOf, removeNote, setLayout, setNote, setPosition } from "../model.js";
 import { GRID } from "../arrange.js";
 import { lanePath, routeEdges, type Box } from "../routing.js";
 import { nextFocus } from "../nav.js";
 import { edgeKey, pathNodes, problemCount } from "../analysis.js";
-import type { GraphNode, Point } from "../types.js";
+import type { GraphNode, Note, Point } from "../types.js";
 import { nameOf, useEditor } from "./context.js";
 
 type NodeData = {
@@ -159,7 +159,42 @@ function LabelEdgeImpl({ id, sourceX, sourceY, targetX, targetY, sourcePosition,
 }
 const LabelEdge = memo(LabelEdgeImpl);
 
-const nodeTypes = { zwf: NodeCard };
+type NoteData = { note: Note; about?: string };
+
+/** A comment on the canvas: a box of text, dragged like a node, never compiled. */
+function NoteCardImpl({ data }: NodeProps<Node<NoteData>>) {
+  const ed = useEditor();
+  const { note, about } = data;
+  const [draft, setDraft] = useState(note.text);
+  useEffect(() => setDraft(note.text), [note.text]);
+  return (
+    <div className="zwf-note" data-note={note.id}>
+      <span className="zwf-note-head">
+        Note{about ? ` about ${about}` : ""}
+        {!ed.readOnly && (
+          <button type="button" className="zwf-link nodrag" onClick={() => ed.update((g) => removeNote(g, note.id))} aria-label={`Remove note ${note.id}`}>
+            Remove
+          </button>
+        )}
+      </span>
+      <textarea
+        className="nodrag nowheel"
+        aria-label={`Note ${note.id}${about ? ` about ${about}` : ""}`}
+        value={draft}
+        readOnly={ed.readOnly}
+        rows={3}
+        onChange={(e) => {
+          setDraft(e.target.value);
+          const text = e.target.value;
+          ed.update((g) => setNote(g, note.id, { text }), { coalesce: `note:${note.id}` });
+        }}
+      />
+    </div>
+  );
+}
+const NoteCard = memo(NoteCardImpl);
+
+const nodeTypes = { zwf: NodeCard, zwfNote: NoteCard };
 const edgeTypes = { zwf: LabelEdge };
 
 function Zoom() {
@@ -256,18 +291,35 @@ function Canvas() {
     [graph, at, analysis, pathSet, stepNumber, chosen, readOnly, ed.marks],
   );
 
-  const [rfNodes, setRfNodes] = useState<Node<NodeData>[]>(derived);
+  const noteNodes = useMemo(
+    () =>
+      notesOf(graph).map(
+        (n) =>
+          ({
+            id: `note:${n.id}`,
+            type: "zwfNote",
+            position: { x: n.x, y: n.y },
+            data: { note: n, about: n.node ? nameOf(graph, n.node) : undefined },
+            draggable: !readOnly,
+            connectable: false,
+            selectable: false,
+          }) as unknown as Node<NodeData>,
+      ),
+    [graph, readOnly],
+  );
+  const all = useMemo(() => [...derived, ...noteNodes], [derived, noteNodes]);
+  const [rfNodes, setRfNodes] = useState<Node<NodeData>[]>(all);
   useEffect(() => {
     setRfNodes((prev) => {
       const before = new Map(prev.map((p) => [p.id, p]));
-      return derived.map((d) => {
+      return all.map((d) => {
         const p = before.get(d.id);
         return p ? { ...d, measured: p.measured, width: p.width, height: p.height } : d;
       });
     });
-  }, [derived]);
+  }, [all]);
 
-  const heights = useMemo(() => new Map(rfNodes.map((n) => [n.id, n.measured?.height ?? NODE_HEIGHT])), [rfNodes]);
+  const heights = useMemo(() => new Map(rfNodes.filter((n) => !n.id.startsWith("note:")).map((n) => [n.id, n.measured?.height ?? NODE_HEIGHT])), [rfNodes]);
   const routes = useMemo(() => {
     const boxes = new Map<string, Box>(graph.nodes.map((n) => [n.id, { ...(at[n.id] ?? { x: 0, y: 0 }), w: NODE_WIDTH, h: heights.get(n.id) ?? NODE_HEIGHT }]));
     return routeEdges(graph.edges, boxes);
@@ -316,7 +368,10 @@ function Canvas() {
         onNodeDragStop={(_, __, dragged) => {
           ed.update((g) => {
             let out = g;
-            for (const n of dragged) out = setPosition(out, n.id, n.position);
+            for (const n of dragged) {
+              if (n.id.startsWith("note:")) out = setNote(out, n.id.slice(5), { x: n.position.x, y: n.position.y });
+              else out = setPosition(out, n.id, n.position);
+            }
             return out;
           });
         }}
@@ -327,6 +382,7 @@ function Canvas() {
           return !!a && !!b && a.type !== "end" && b.type !== "start" && c.source !== c.target;
         }}
         onNodeClick={(e, n) => {
+          if (n.id.startsWith("note:")) return;
           if (e.shiftKey || e.metaKey || e.ctrlKey) {
             // Add to (or take out of) the selection.
             const now = new Set(ed.selectedIds);
@@ -341,6 +397,7 @@ function Canvas() {
         }}
         onSelectionChange={({ nodes }) => {
           // A box drawn with Shift held: the nodes inside it become the selection.
+          nodes = nodes.filter((n) => !n.id.startsWith("note:"));
           if (nodes.length < 2) return;
           const ids = graph.nodes.map((x) => x.id).filter((id) => nodes.some((n) => n.id === id));
           const same = ids.length === ed.selectedIds.length && ids.every((id, i) => ed.selectedIds[i] === id);

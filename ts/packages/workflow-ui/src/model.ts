@@ -16,9 +16,9 @@
  * wrong (a decision without a default yet) is allowed, and the problem shows
  * on the canvas until it is fixed, exactly as the server would say it.
  */
-import { TIMEOUT_LABEL, FORMAT } from "@zavon/workflow-graph";
-import { chooses, edgeRole, isTask, kindOf, type EdgeRole } from "./catalogue.js";
-import type { Graph, GraphEdge, GraphNode, Point } from "./types.js";
+import { TIMEOUT_LABEL, FORMAT, BODY_LABEL, NEXT_LABEL } from "@zavon/workflow-graph";
+import { chooses, edgeRole, FALLBACK_OUTCOME, FIXED_OUTCOMES, isTask, kindOf, type EdgeRole } from "./catalogue.js";
+import type { Graph, GraphEdge, GraphNode, Note, Point } from "./types.js";
 
 /** A step id: lower-case words, digits and _, joined by single hyphens. */
 export const STEP_ID = /^[a-z0-9_]+(-[a-z0-9_]+)*$/;
@@ -105,7 +105,8 @@ export function addNode(
 ): { graph: Graph; id: string } {
   if (type === "start" && g.nodes.some((n) => n.type === "start")) return { graph: g, id: "" };
   const kind = kindOf(type);
-  const id = options.id && !nodeById(g, options.id) ? options.id : freshId(g, type === "wait_event" ? "wait" : type.replace("_", "-"));
+  const base = type === "wait_event" ? "wait" : type === "payment_request" ? "pay" : type === "sub_workflow" ? "sub" : type.replace("_", "-");
+  const id = options.id && !nodeById(g, options.id) ? options.id : freshId(g, base);
   const node: GraphNode = { id, type };
   if (options.name) node.name = options.name;
   if (kind.config) node.config = structuredClone(kind.config);
@@ -121,10 +122,21 @@ export function removeNode(g: Graph, id: string): Graph {
   if (!n || n.type === "start") return g;
   const layout = { ...layoutOf(g) };
   delete layout[id];
-  return withLayout(
+  const out = withLayout(
     { ...g, nodes: g.nodes.filter((x) => x.id !== id), edges: g.edges.filter((e) => e.from !== id && e.to !== id) },
     layout,
   );
+  // A note about the node stays, about nothing in particular.
+  if (!g.notes) return out;
+  return {
+    ...out,
+    notes: (g.notes as Note[]).map((n) => {
+      if (n.node !== id) return n;
+      const loose = { ...n };
+      delete loose.node;
+      return loose;
+    }),
+  };
 }
 
 export class EditError extends Error {}
@@ -149,6 +161,7 @@ export function renameNode(g: Graph, from: string, to: string): Graph {
       ...g,
       nodes: g.nodes.map((n) => (n.id === from ? { ...n, id: next } : n)),
       edges: g.edges.map((e) => ({ ...e, from: e.from === from ? next : e.from, to: e.to === from ? next : e.to })),
+      ...(g.notes ? { notes: (g.notes as Note[]).map((n) => (n.node === from ? { ...n, node: next } : n)) } : {}),
     },
     layout,
   );
@@ -187,6 +200,7 @@ export function setMaxPasses(g: Graph, id: string, value: number | undefined): G
 }
 
 function outcomeNames(n: GraphNode): string[] {
+  if (FIXED_OUTCOMES[n.type]) return [...FIXED_OUTCOMES[n.type]];
   const outcomes = (n.config as { outcomes?: unknown } | undefined)?.outcomes;
   if (!Array.isArray(outcomes)) return [];
   return outcomes
@@ -210,6 +224,19 @@ function newEdgeShape(g: Graph, from: GraphNode): Pick<GraphEdge, "label" | "def
     case "decision":
       if (!hasDefault && outs.length > 0) return { label: "otherwise", default: true };
       return { label: nextCase() };
+    case "loop":
+      if (!used.has(BODY_LABEL)) return { label: BODY_LABEL };
+      if (!used.has(NEXT_LABEL)) return { label: NEXT_LABEL };
+      return { label: nextCase() };
+    case "payment_request":
+    case "invoice": {
+      const names = outcomeNames(from).filter((name) => !used.has(name));
+      const fallback = FALLBACK_OUTCOME[from.type];
+      if (names.length === 0) return { label: nextCase() };
+      // The fallback outcome is the default; take the others first.
+      const pick = names.find((x) => x !== fallback) ?? names[0];
+      return pick === fallback && !hasDefault ? { label: pick, default: true } : { label: pick };
+    }
     case "wait_event": {
       const normal = outs.filter((e) => e.label !== TIMEOUT_LABEL);
       if (normal.length > 0 && !outs.some((e) => e.label === TIMEOUT_LABEL)) return { label: TIMEOUT_LABEL };
@@ -336,4 +363,47 @@ export function isLastDefault(g: Graph, index: number): boolean {
   const e = g.edges[index];
   if (!e || !e.default) return false;
   return chooses(roleOf(g, e.from));
+}
+
+
+/* ── Notes: comments on the canvas, presentation only ── */
+
+export const notesOf = (g: Graph): Note[] => (g.notes ?? []) as Note[];
+
+const withNotes = (g: Graph, notes: Note[]): Graph => {
+  const out: Graph = { ...g };
+  if (notes.length) out.notes = notes;
+  else delete out.notes;
+  return out;
+};
+
+/** Adds a note at a point, about a node when one is named. Answers its id. */
+export function addNote(g: Graph, at: Point, text = "", node?: string): { graph: Graph; id: string } {
+  const taken = new Set(notesOf(g).map((n) => n.id));
+  let i = 1;
+  while (taken.has(`note-${i}`)) i++;
+  const note: Note = { id: `note-${i}`, text, x: Math.round(at.x), y: Math.round(at.y) };
+  if (node && nodeById(g, node)) note.node = node;
+  return { graph: withNotes(g, [...notesOf(g), note]), id: note.id };
+}
+
+export function setNote(g: Graph, id: string, patch: Partial<Omit<Note, "id">>): Graph {
+  return withNotes(
+    g,
+    notesOf(g).map((n) => {
+      if (n.id !== id) return n;
+      const out: Note = { ...n, ...patch };
+      if (patch.x !== undefined) out.x = Math.round(patch.x);
+      if (patch.y !== undefined) out.y = Math.round(patch.y);
+      if (!out.node) delete out.node;
+      return out;
+    }),
+  );
+}
+
+export function removeNote(g: Graph, id: string): Graph {
+  return withNotes(
+    g,
+    notesOf(g).filter((n) => n.id !== id),
+  );
 }

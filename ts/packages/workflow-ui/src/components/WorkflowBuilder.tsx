@@ -5,6 +5,8 @@ import { analyse } from "../analysis.js";
 import { copyNodes, parseFragment, pasteFragment, type Fragment } from "../clipboard.js";
 import { emptyHistory, record, redo as redoHistory, undo as undoHistory, type History } from "../history.js";
 import { moveNodes, removeNodes, GRID } from "../arrange.js";
+import { addNote } from "../model.js";
+import { positions } from "../layout.js";
 import { isTyping, shortcutFor } from "../shortcuts.js";
 import type { ApiError, Graph, Inspectors, Problem, Sample, Selection, Step, WorkflowApi } from "../types.js";
 import type { CatalogueEvent, Interrupt, Trigger } from "../trigger.js";
@@ -417,6 +419,23 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
                 </button>
                 <button type="button" className="zwf-button" onClick={() => update(layoutAll)}>
                   Tidy the layout
+                </button>
+                <button
+                  type="button"
+                  className="zwf-button"
+                  onClick={() => {
+                    const about = ids.length === 1 ? ids[0] : undefined;
+                    update((g) => {
+                      const at = positions(g);
+                      const p = about ? at[about] : undefined;
+                      const xs = Object.values(at).map((q) => q.x);
+                      const spot = p ? { x: p.x + 220, y: p.y } : { x: (xs.length ? Math.max(...xs) : 0) + 260, y: 0 };
+                      return addNote(g, spot, "", about).graph;
+                    });
+                    setSaid(about ? "Added a note beside the selected node." : "Added a note.");
+                  }}
+                >
+                  Add a note
                 </button>
               </>
             )}

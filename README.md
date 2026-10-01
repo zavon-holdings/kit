@@ -73,6 +73,10 @@ confidence, each piece also exported on its own:
   drawings side by side with what changed marked, and the steps aligned by
   code. `GraphView` draws any graph read only.
 - **Starters** (`STARTERS`): small trees that compile as they stand.
+- **Every node type the compiler draws**, with a built-in inspector where a
+  host has none: loops (`body` and `next`), approvals, sub-workflows, and
+  the money nodes (payment request, invoice) whose ways out are their
+  outcomes; **notes** on the canvas, presentation only like the layout.
 
 The `api` is optional member by member (`validate`, `simulate`,
 `previewAssignees`, `listScenarios`, `saveScenario`, `deleteScenario`,

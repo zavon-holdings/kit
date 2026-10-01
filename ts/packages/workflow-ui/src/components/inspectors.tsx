@@ -104,9 +104,174 @@ export function EndInspector({ node, onChange, readOnly }: InspectorProps) {
   );
 }
 
-/** The structural inspectors the package always has. A host's own win. */
+type Span = { value?: number; unit?: string };
+const UNITS = ["minutes", "hours", "days", "weeks", "business_days", "business_hours"];
+
+function SpanField({ label, value, onChange }: { label: string; value: Span | undefined; onChange: (v: Span) => void }) {
+  const v = value ?? {};
+  return (
+    <div className="zwf-row">
+      <label className="zwf-field">
+        <span>{label}</span>
+        <input type="number" min={1} value={v.value ?? ""} onChange={(e) => onChange({ ...v, value: Number(e.target.value) || undefined })} />
+      </label>
+      <label className="zwf-field">
+        <span>{label}: unit</span>
+        <select value={v.unit ?? "days"} onChange={(e) => onChange({ ...v, unit: e.target.value })}>
+          {UNITS.map((u) => (
+            <option key={u} value={u}>
+              {u.replace("_", " ")}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
+}
+
+/** What a loop repeats over: a count, a list in a run value, or while a condition holds. */
+export function LoopInspector({ node, onChange, readOnly }: InspectorProps) {
+  const ed = useEditor();
+  const config = (node.config ?? {}) as { over?: { count?: number; var?: string; while?: unknown }; item_var?: string; index_var?: string; max_iterations?: number; on_limit?: string };
+  const over = config.over ?? {};
+  const mode = over.var !== undefined ? "var" : over.while !== undefined ? "while" : "count";
+  const set = (patch: Partial<typeof config>) => onChange({ ...config, ...patch });
+  return (
+    <fieldset className="zwf-group" disabled={readOnly}>
+      <legend>Repeat</legend>
+      <label className="zwf-field">
+        <span>Repeat</span>
+        <select
+          value={mode}
+          onChange={(e) =>
+            set({ over: e.target.value === "var" ? { var: "vars.items" } : e.target.value === "while" ? { while: {} } : { count: 3 } })
+          }
+        >
+          <option value="count">a number of times</option>
+          <option value="var">for each item in a list</option>
+          <option value="while">while a condition holds</option>
+        </select>
+      </label>
+      {mode === "count" && (
+        <label className="zwf-field">
+          <span>Times</span>
+          <input type="number" min={1} value={over.count ?? ""} onChange={(e) => set({ over: { count: Number(e.target.value) || undefined } })} />
+        </label>
+      )}
+      {mode === "var" && (
+        <>
+          <label className="zwf-field">
+            <span>The list (a run value)</span>
+            <input value={over.var ?? ""} spellCheck={false} onChange={(e) => set({ over: { var: e.target.value } })} />
+          </label>
+          <label className="zwf-field">
+            <span>Each item is called</span>
+            <input value={config.item_var ?? ""} placeholder="item" spellCheck={false} onChange={(e) => set({ item_var: e.target.value || undefined })} />
+          </label>
+        </>
+      )}
+      {mode === "while" && (
+        <ConditionBuilder legend="Keep going while" value={over.while} readOnly={readOnly} fields={fieldSuggestions(ed.graph, ed.sample)} onChange={(w) => set({ over: { while: w } })} />
+      )}
+      <label className="zwf-field">
+        <span>At most this many times (a while loop must say)</span>
+        <input type="number" min={1} max={1000} value={config.max_iterations ?? ""} onChange={(e) => set({ max_iterations: Number(e.target.value) || undefined })} />
+      </label>
+      <label className="zwf-field">
+        <span>On reaching it</span>
+        <select value={config.on_limit ?? "continue"} onChange={(e) => set({ on_limit: e.target.value })}>
+          <option value="continue">go on to what follows</option>
+          <option value="pause">pause the run</option>
+        </select>
+      </label>
+    </fieldset>
+  );
+}
+
+/** Another workflow, run as a step: which, about what, and whether to wait for its outcome. */
+export function SubWorkflowInspector({ node, onChange, readOnly }: InspectorProps) {
+  const config = (node.config ?? {}) as { definition?: string; version?: string | number; subject?: unknown; wait?: boolean };
+  const set = (patch: Partial<typeof config>) => onChange({ ...config, ...patch });
+  return (
+    <fieldset className="zwf-group" disabled={readOnly}>
+      <legend>Run another workflow</legend>
+      <label className="zwf-field">
+        <span>Workflow (its code)</span>
+        <input value={config.definition ?? ""} spellCheck={false} onChange={(e) => set({ definition: e.target.value })} />
+      </label>
+      <label className="zwf-field">
+        <span>Version</span>
+        <input value={config.version === undefined ? "" : String(config.version)} placeholder="current" onChange={(e) => set({ version: e.target.value === "" ? undefined : /^\d+$/.test(e.target.value) ? Number(e.target.value) : e.target.value })} />
+      </label>
+      <label className="zwf-check">
+        <input type="checkbox" checked={config.wait !== false} onChange={(e) => set({ wait: e.target.checked })} />
+        <span>Wait for it to finish, and route on its outcome</span>
+      </label>
+    </fieldset>
+  );
+}
+
+/** A payment request or an invoice: the app's action, the amount, and how long it stands. */
+export function MoneyInspector({ node, onChange, readOnly }: InspectorProps) {
+  const invoice = node.type === "invoice";
+  const config = (node.config ?? {}) as { action?: string; amount?: number | { var: string }; currency?: string; description?: string; expires?: Span; due?: Span; reminders?: { after: Span }[] };
+  const set = (patch: Partial<typeof config>) => onChange({ ...config, ...patch });
+  const amountIsVar = typeof config.amount === "object" && config.amount !== null;
+  return (
+    <fieldset className="zwf-group" disabled={readOnly}>
+      <legend>{invoice ? "The invoice" : "The payment"}</legend>
+      <label className="zwf-field">
+        <span>App action</span>
+        <input value={config.action ?? ""} placeholder={invoice ? "billing.invoice.issue" : "billing.payment.request"} spellCheck={false} onChange={(e) => set({ action: e.target.value })} />
+      </label>
+      <label className="zwf-field">
+        <span>Amount, in cents (or a run value, vars.…)</span>
+        <input
+          value={amountIsVar ? (config.amount as { var: string }).var : (config.amount ?? "").toString()}
+          onChange={(e) => set({ amount: /^\d+$/.test(e.target.value) ? Number(e.target.value) : e.target.value ? { var: e.target.value } : undefined })}
+        />
+      </label>
+      <label className="zwf-field">
+        <span>Currency</span>
+        <input value={config.currency ?? ""} maxLength={3} onChange={(e) => set({ currency: e.target.value.toUpperCase() })} />
+      </label>
+      <label className="zwf-field">
+        <span>What it is for</span>
+        <input value={config.description ?? ""} onChange={(e) => set({ description: e.target.value || undefined })} />
+      </label>
+      {invoice ? (
+        <SpanField label="Due in" value={config.due} onChange={(due) => set({ due })} />
+      ) : (
+        <SpanField label="Expires after" value={config.expires} onChange={(expires) => set({ expires })} />
+      )}
+      {invoice && (
+        <div className="zwf-group">
+          <p className="zwf-muted">Reminders while it is unpaid</p>
+          {(config.reminders ?? []).map((r, i) => (
+            <div key={i} className="zwf-row">
+              <SpanField label={`Reminder ${i + 1} after`} value={r.after} onChange={(after) => set({ reminders: (config.reminders ?? []).map((x, k) => (k === i ? { ...x, after } : x)) })} />
+              <button type="button" className="zwf-button zwf-quiet" onClick={() => set({ reminders: (config.reminders ?? []).filter((_, k) => k !== i) })}>
+                Remove reminder {i + 1}
+              </button>
+            </div>
+          ))}
+          <button type="button" className="zwf-button" onClick={() => set({ reminders: [...(config.reminders ?? []), { after: { value: 3, unit: "business_days" } }] })}>
+            Add a reminder
+          </button>
+        </div>
+      )}
+      <p className="zwf-muted">Its ways out are its outcomes: {invoice ? "paid, voided, overdue (the default)" : "paid, failed, expired (the default)"}.</p>
+    </fieldset>
+  );
+}
+
+/** The inspectors the package always has. A host's own win. */
 export const BUILT_IN_INSPECTORS = {
   condition: ConditionInspector,
   join: JoinInspector,
   end: EndInspector,
+  loop: LoopInspector,
+  sub_workflow: SubWorkflowInspector,
+  payment_request: MoneyInspector,
+  invoice: MoneyInspector,
 } as const;

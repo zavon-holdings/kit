@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { TIMEOUT_LABEL } from "@zavon/workflow-graph";
-import { chooses, isTask, typeLabel } from "../catalogue.js";
+import { chooses, FIXED_OUTCOMES, isTask, typeLabel } from "../catalogue.js";
 import { fieldSuggestions } from "../fields.js";
 import {
   connect,
@@ -228,9 +228,13 @@ function WaysOut({ node, focusEdge }: { node: GraphNode; focusEdge?: number }) {
   if (node.type === "end") return <p className="zwf-muted">The run ends here, so nothing follows.</p>;
 
   const candidates = ed.graph.nodes.filter((n) => n.id !== node.id && n.type !== "start");
-  const outcomeNames = isTask(node.type)
-    ? (((node.config as { outcomes?: { name?: string }[] } | undefined)?.outcomes ?? []).map((o) => o?.name ?? "").filter(Boolean) as string[])
-    : [];
+  const outcomeNames = FIXED_OUTCOMES[node.type]
+    ? [...FIXED_OUTCOMES[node.type]]
+    : role === "loop"
+      ? ["body", "next"]
+      : isTask(node.type)
+        ? (((node.config as { outcomes?: { name?: string }[] } | undefined)?.outcomes ?? []).map((o) => o?.name ?? "").filter(Boolean) as string[])
+        : [];
 
   return (
     <section className="zwf-section" aria-labelledby={`${id}-ways`}>
@@ -298,7 +302,7 @@ function WayOut({
   const problems = ed.analysis.byEdge.get(edgeKey(edge)) ?? [];
   const targetName = nameOf(ed.graph, edge.to);
   const isTimeout = role === "wait" && edge.label === TIMEOUT_LABEL;
-  const labelled = chooses(role) || role === "fork";
+  const labelled = chooses(role) || role === "fork" || role === "loop";
   const lastDefault = isLastDefault(ed.graph, index);
   const sample = ed.sample;
 
@@ -321,7 +325,9 @@ function WayOut({
         {isTimeout && <p className="zwf-muted">Taken when the wait times out.</p>}
         {labelled && !isTimeout && (
           <label className="zwf-field">
-            <span>{role === "fork" ? "Arm name (optional; a step-code word)" : role === "routes" ? "Outcome" : "Branch name"}</span>
+            <span>
+              {role === "fork" ? "Arm name (optional; a step-code word)" : role === "routes" ? "Outcome" : role === "loop" ? "Way (body or next)" : "Branch name"}
+            </span>
             <input
               value={edge.label ?? ""}
               list={outcomeNames.length ? `${id}-outcomes` : undefined}

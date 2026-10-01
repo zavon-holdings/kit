@@ -17,7 +17,7 @@ export function graphToJson(g: Graph): string {
   return `${JSON.stringify(g, null, 2)}\n`;
 }
 
-const KNOWN_KEYS = new Set(["format", "nodes", "edges", "layout"]);
+const KNOWN_KEYS = new Set(["format", "nodes", "edges", "layout", "notes"]);
 
 /**
  * Reads a graph from a file's text. Refuses what core would refuse on
@@ -89,6 +89,12 @@ export function graphSvg(g: Graph, options: SvgOptions = {}): string {
     maxX = Math.max(maxX, b.x + b.w);
     maxY = Math.max(maxY, b.y + b.h);
   }
+  for (const note of (g.notes ?? []) as { x: number; y: number }[]) {
+    minX = Math.min(minX, note.x);
+    minY = Math.min(minY, note.y);
+    maxX = Math.max(maxX, note.x + 180);
+    maxY = Math.max(maxY, note.y + 64);
+  }
   for (const r of routes) {
     if (r.lane !== undefined) {
       minX = Math.min(minX, r.lane - 20);
@@ -146,6 +152,14 @@ export function graphSvg(g: Graph, options: SvgOptions = {}): string {
       out.push(`<text x="${lxs}" y="${ly + 4}" font-size="11" text-anchor="middle" fill="#222222">${xml(words)}</text>`);
     }
   });
+  for (const note of (g.notes ?? []) as { id: string; text: string; x: number; y: number }[]) {
+    out.push(`<g data-note="${xml(note.id)}"><rect x="${note.x}" y="${note.y}" width="180" height="64" fill="#fff8db" stroke="#a08a2c"/>`);
+    note.text
+      .split("\n")
+      .slice(0, 3)
+      .forEach((line, i) => out.push(`<text x="${note.x + 8}" y="${note.y + 18 + i * 15}" font-size="11" fill="#333333">${xml(fit(line, 30))}</text>`));
+    out.push(`</g>`);
+  }
   for (const n of g.nodes) {
     const b = boxes.get(n.id)!;
     const name = n.name?.trim() || (n.type === "start" ? "Start" : n.id);

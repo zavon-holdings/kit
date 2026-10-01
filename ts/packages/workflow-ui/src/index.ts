@@ -12,7 +12,16 @@ export { StepsPanel } from "./components/StepsPanel.js";
 export { SimulatePanel } from "./components/SimulatePanel.js";
 export { ProblemsPanel } from "./components/ProblemsPanel.js";
 export { ConditionBuilder, readCondition, type ConditionBuilderProps } from "./components/ConditionBuilder.js";
-export { JsonInspector, ConditionInspector, JoinInspector, EndInspector, BUILT_IN_INSPECTORS } from "./components/inspectors.js";
+export {
+  JsonInspector,
+  ConditionInspector,
+  JoinInspector,
+  EndInspector,
+  LoopInspector,
+  SubWorkflowInspector,
+  MoneyInspector,
+  BUILT_IN_INSPECTORS,
+} from "./components/inspectors.js";
 export { EditorContext, useEditor, useReducedMotion, type Editor, type TriggerEditor } from "./components/context.js";
 export { TriggerPanel, InterruptsPanel, type TriggerPanelProps, type InterruptsPanelProps } from "./components/TriggerPanel.js";
 export { AssigneePreview, ASKS_PEOPLE } from "./components/AssigneePreview.js";
@@ -34,7 +43,21 @@ export { STARTERS, type Starter } from "./starters.js";
 export * from "./model.js";
 export { autoLayout, positions, backEdges, LAYOUT } from "./layout.js";
 export { analyse, edgeKey, problemCount, type Analysis } from "./analysis.js";
-export { NODE_KINDS, PALETTE_GROUPS, kindOf, typeLabel, edgeRole, chooses, isTask, type NodeKind, type NodeGroup, type EdgeRole } from "./catalogue.js";
+export {
+  NODE_KINDS,
+  PALETTE_GROUPS,
+  FIXED_OUTCOMES,
+  FALLBACK_OUTCOME,
+  kindOf,
+  typeLabel,
+  edgeRole,
+  chooses,
+  isTask,
+  isMoney,
+  type NodeKind,
+  type NodeGroup,
+  type EdgeRole,
+} from "./catalogue.js";
 export { toRows, fromRows, parseValue, valueText, type Row, type Rows } from "./conditionRows.js";
 export { fieldSuggestions } from "./fields.js";
 export { nextFocus } from "./nav.js";

@@ -1,6 +1,6 @@
 {
   "name": "@zavon/workflow-graph",
-  "version": "1.4.1",
+  "version": "1.6.0",
   "description": "A workflow decision-tree compiler: validate, compile and decompile graphs to step lists. Held to the vectors in contract/graph.",
   "type": "module",
   "main": "index.js",

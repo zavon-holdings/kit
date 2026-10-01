@@ -1,8 +1,8 @@
 import type { ComponentType } from "react";
-import type { Graph, GraphEdge, GraphNode, Problem, Step } from "@zavon/workflow-graph";
+import type { Graph, GraphEdge, GraphNode, Note, Problem, Step } from "@zavon/workflow-graph";
 import type { Scenario, ScenarioResult } from "./scenarios.js";
 
-export type { Graph, GraphEdge, GraphNode, Problem, Step };
+export type { Graph, GraphEdge, GraphNode, Note, Problem, Step };
 
 /** A node's position on the canvas. Presentation only: never compiled. */
 export type Point = { x: number; y: number };
