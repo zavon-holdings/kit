@@ -1,5 +1,5 @@
 {
-  "name": "decompile-reachs-five-onboarding-steps",
+  "name": "decompile-a-five-step-linear-flow",
   "direction": "decompile",
   "graph": {
     "edges": [
@@ -28,7 +28,7 @@
         "to": "end"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -36,7 +36,7 @@
       },
       {
         "config": {
-          "template_code": "onboarding.step1"
+          "template_code": "intro.step1"
         },
         "id": "welcome",
         "name": "Welcome",
@@ -53,7 +53,7 @@
       },
       {
         "config": {
-          "template_code": "onboarding.step2"
+          "template_code": "intro.step2"
         },
         "id": "tips",
         "name": "Tips",
@@ -86,7 +86,7 @@
       "name": "Welcome",
       "kind": "email",
       "config": {
-        "template_code": "onboarding.step1"
+        "template_code": "intro.step1"
       }
     },
     {
@@ -103,7 +103,7 @@
       "name": "Tips",
       "kind": "email",
       "config": {
-        "template_code": "onboarding.step2"
+        "template_code": "intro.step2"
       }
     },
     {

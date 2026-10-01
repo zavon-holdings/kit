@@ -23,7 +23,7 @@
         "to": "no"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -32,8 +32,8 @@
       {
         "config": {
           "event": [
-            "pages.payment.paid",
-            "pages.payment.failed"
+            "billing.payment.paid",
+            "billing.payment.failed"
           ],
           "match": "subject"
         },
@@ -45,7 +45,7 @@
           "when": {
             "field": "event.type",
             "op": "is",
-            "value": "pages.payment.paid"
+            "value": "billing.payment.paid"
           }
         },
         "id": "paid",
@@ -74,8 +74,8 @@
       "kind": "wait_event",
       "config": {
         "event": [
-          "pages.payment.paid",
-          "pages.payment.failed"
+          "billing.payment.paid",
+          "billing.payment.failed"
         ],
         "match": "subject"
       }
@@ -91,7 +91,7 @@
             "when": {
               "field": "event.type",
               "op": "is",
-              "value": "pages.payment.paid"
+              "value": "billing.payment.paid"
             }
           }
         ],

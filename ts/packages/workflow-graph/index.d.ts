@@ -1,4 +1,4 @@
-export declare const FORMAT: "zavon.workflow.graph/1";
+export declare const FORMAT: "workflow.graph/1";
 export declare const SUFFIX_GOTO: "--goto";
 export declare const SUFFIX_ROUTE: "--route";
 export declare const SUFFIX_JOIN: "--join";

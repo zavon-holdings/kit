@@ -24,11 +24,11 @@
       {
         "from": "route",
         "label": "case-2",
-        "to": "ministry",
+        "to": "team",
         "when": {
           "field": "vars.scope.type",
           "op": "is",
-          "value": "ministry"
+          "value": "team"
         }
       },
       {
@@ -42,11 +42,11 @@
         "to": "route"
       },
       {
-        "from": "ministry",
+        "from": "team",
         "to": "done"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "config": {
@@ -59,7 +59,7 @@
         "config": {
           "template_code": "leader"
         },
-        "id": "ministry",
+        "id": "team",
         "type": "email"
       },
       {
@@ -75,7 +75,7 @@
       },
       {
         "config": {
-          "template_code": "pastor"
+          "template_code": "approver"
         },
         "id": "site",
         "type": "email"
@@ -102,11 +102,11 @@
             }
           },
           {
-            "goto": "ministry",
+            "goto": "team",
             "when": {
               "field": "vars.scope.type",
               "op": "is",
-              "value": "ministry"
+              "value": "team"
             }
           }
         ],
@@ -118,7 +118,7 @@
       "name": "site",
       "kind": "email",
       "config": {
-        "template_code": "pastor"
+        "template_code": "approver"
       }
     },
     {
@@ -131,15 +131,15 @@
       }
     },
     {
-      "code": "ministry",
-      "name": "ministry",
+      "code": "team",
+      "name": "team",
       "kind": "email",
       "config": {
         "template_code": "leader"
       }
     },
     {
-      "code": "ministry--goto",
+      "code": "team--goto",
       "name": "Go to done",
       "kind": "branch",
       "config": {

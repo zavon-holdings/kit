@@ -28,7 +28,7 @@
         "to": "done"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -47,7 +47,7 @@
       },
       {
         "config": {
-          "action": "shop.invoice.issue"
+          "action": "billing.invoice.issue"
         },
         "id": "inv",
         "type": "call"
@@ -89,7 +89,7 @@
       "name": "inv",
       "kind": "call",
       "config": {
-        "action": "shop.invoice.issue"
+        "action": "billing.invoice.issue"
       }
     },
     {

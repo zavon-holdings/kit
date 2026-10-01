@@ -32,7 +32,7 @@
         "to": "done"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -55,7 +55,7 @@
       },
       {
         "config": {
-          "action": "pages.publish"
+          "action": "cms.publish"
         },
         "id": "publish",
         "type": "call"
@@ -120,7 +120,7 @@
       "name": "publish",
       "kind": "call",
       "config": {
-        "action": "pages.publish"
+        "action": "cms.publish"
       }
     },
     {

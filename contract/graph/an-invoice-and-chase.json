@@ -1,5 +1,5 @@
 {
-  "name": "the-plans-invoice-and-chase",
+  "name": "an-invoice-and-chase",
   "direction": "compile",
   "trigger": "event",
   "graph": {
@@ -30,7 +30,7 @@
         "when": {
           "field": "event.type",
           "op": "is",
-          "value": "shop.invoice.paid"
+          "value": "billing.invoice.paid"
         }
       },
       {
@@ -40,7 +40,7 @@
         "when": {
           "field": "event.type",
           "op": "is",
-          "value": "shop.invoice.overdue"
+          "value": "billing.invoice.overdue"
         }
       },
       {
@@ -85,7 +85,7 @@
         "to": "done"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -105,9 +105,9 @@
       {
         "config": {
           "event": [
-            "shop.invoice.paid",
-            "shop.invoice.overdue",
-            "shop.invoice.voided"
+            "billing.invoice.paid",
+            "billing.invoice.overdue",
+            "billing.invoice.voided"
           ],
           "match": "subject"
         },
@@ -153,7 +153,7 @@
       },
       {
         "config": {
-          "action": "shop.fulfilment.transition",
+          "action": "orders.fulfilment.transition",
           "input": {
             "to": "to_pick"
           }
@@ -216,9 +216,9 @@
       "kind": "wait_event",
       "config": {
         "event": [
-          "shop.invoice.paid",
-          "shop.invoice.overdue",
-          "shop.invoice.voided"
+          "billing.invoice.paid",
+          "billing.invoice.overdue",
+          "billing.invoice.voided"
         ],
         "match": "subject"
       }
@@ -234,7 +234,7 @@
             "when": {
               "field": "event.type",
               "op": "is",
-              "value": "shop.invoice.paid"
+              "value": "billing.invoice.paid"
             }
           },
           {
@@ -242,7 +242,7 @@
             "when": {
               "field": "event.type",
               "op": "is",
-              "value": "shop.invoice.overdue"
+              "value": "billing.invoice.overdue"
             }
           }
         ],
@@ -270,7 +270,7 @@
       "name": "ship",
       "kind": "call",
       "config": {
-        "action": "shop.fulfilment.transition",
+        "action": "orders.fulfilment.transition",
         "input": {
           "to": "to_pick"
         }

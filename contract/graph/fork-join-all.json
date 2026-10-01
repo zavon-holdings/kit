@@ -14,19 +14,19 @@
       },
       {
         "from": "both",
-        "label": "ministry",
-        "to": "ministry-mail"
+        "label": "team",
+        "to": "team-mail"
       },
       {
         "from": "finance",
         "to": "both--join"
       },
       {
-        "from": "ministry-mail",
-        "to": "ministry"
+        "from": "team-mail",
+        "to": "team"
       },
       {
-        "from": "ministry",
+        "from": "team",
         "to": "both--join"
       },
       {
@@ -38,7 +38,7 @@
         "to": "done"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -54,13 +54,13 @@
       },
       {
         "config": {
-          "template_code": "ministry"
+          "template_code": "team"
         },
-        "id": "ministry-mail",
+        "id": "team-mail",
         "type": "email"
       },
       {
-        "id": "ministry",
+        "id": "team",
         "type": "review"
       },
       {
@@ -93,9 +93,9 @@
           "finance": [
             "finance"
           ],
-          "ministry": [
-            "ministry-mail",
-            "ministry"
+          "team": [
+            "team-mail",
+            "team"
           ]
         },
         "join": "all"
@@ -110,22 +110,22 @@
       "branch": "finance"
     },
     {
-      "code": "ministry-mail",
-      "name": "ministry-mail",
+      "code": "team-mail",
+      "name": "team-mail",
       "kind": "email",
       "config": {
-        "template_code": "ministry"
+        "template_code": "team"
       },
       "parent": "both",
-      "branch": "ministry"
+      "branch": "team"
     },
     {
-      "code": "ministry",
-      "name": "ministry",
+      "code": "team",
+      "name": "team",
       "kind": "review",
       "config": {},
       "parent": "both",
-      "branch": "ministry"
+      "branch": "team"
     },
     {
       "code": "after",

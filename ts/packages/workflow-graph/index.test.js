@@ -22,7 +22,7 @@ const vectorProblems = (ps) =>
 
 test("there are graph vectors, and they are many", () => assert.ok(vectors.length >= 40));
 
-test("every problem code core uses has a vector, or is core's alone", () => {
+test("every problem code has a vector, or a unit test below", () => {
   const used = new Set(vectors.flatMap((v) => (v.problems ?? []).map((p) => p.code)));
   // Covered by a vector, or only reachable through a shape a vector cannot
   // build more simply than the unit tests below do.
@@ -31,7 +31,7 @@ test("every problem code core uses has a vector, or is core's alone", () => {
 });
 
 for (const v of vectors) {
-  test(`vector ${v.name}: the same answer as Go`, () => {
+  test(`vector ${v.name}: the same answer as the vector`, () => {
     const options = { trigger: v.trigger ?? "", conditions };
     if (v.direction === "compile") {
       const got = compile(v.graph, options);
@@ -41,7 +41,7 @@ for (const v of vectors) {
         return;
       }
       assert.ok(!got.problems, `refused: ${JSON.stringify(got.problems)}`);
-      // Strict: the same rows in the same order, as core writes them.
+      // Strict: the same rows in the same order as the vector.
       assert.equal(got.steps.length, v.steps.length);
       got.steps.forEach((s, i) => {
         const w = v.steps[i];
@@ -75,13 +75,13 @@ for (const v of vectors) {
   });
 }
 
-const g = (nodes, edges) => ({ format: "zavon.workflow.graph/1", nodes, edges });
+const g = (nodes, edges) => ({ format: "workflow.graph/1", nodes, edges });
 
 test("validate needs the condition language passed in", () => {
   assert.throws(() => validate(g([], []), {}), /@zavon\/conditions/);
 });
 
-test("the shapes no vector builds are refused as core refuses them", () => {
+test("the shapes no vector builds are refused", () => {
   const problems = (graph) => validate(graph, { conditions }).map((p) => p.code);
   // A step's one way out carries no label.
   assert.deepEqual(problems(g([{ id: "start", type: "start" }, { id: "a", type: "email" }, { id: "e", type: "end" }],

@@ -27,7 +27,7 @@
         "to": "done"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -40,8 +40,8 @@
             "op": "holds",
             "value": {
               "action": "page.publish",
-              "app": "pages",
-              "resource": "org/shofar/pages/*"
+              "app": "cms",
+              "resource": "org/org-a/cms/*"
             }
           }
         },
@@ -50,7 +50,7 @@
       },
       {
         "config": {
-          "action": "pages.publish"
+          "action": "cms.publish"
         },
         "id": "publish",
         "type": "call"
@@ -79,8 +79,8 @@
               "op": "holds",
               "value": {
                 "action": "page.publish",
-                "app": "pages",
-                "resource": "org/shofar/pages/*"
+                "app": "cms",
+                "resource": "org/org-a/cms/*"
               }
             }
           }
@@ -93,7 +93,7 @@
       "name": "publish",
       "kind": "call",
       "config": {
-        "action": "pages.publish"
+        "action": "cms.publish"
       }
     },
     {

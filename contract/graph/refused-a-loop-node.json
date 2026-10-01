@@ -1,29 +1,26 @@
 {
-  "name": "refused-a-sub-workflow-until-phase-g",
+  "name": "refused-a-loop-node",
   "direction": "compile",
   "graph": {
     "edges": [
       {
         "from": "start",
-        "to": "child"
+        "to": "each"
       },
       {
-        "from": "child",
+        "from": "each",
         "to": "done"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
         "type": "start"
       },
       {
-        "config": {
-          "definition": "other"
-        },
-        "id": "child",
-        "type": "sub_workflow"
+        "id": "each",
+        "type": "loop"
       },
       {
         "id": "done",
@@ -34,7 +31,7 @@
   "problems": [
     {
       "code": "not_yet",
-      "node": "child"
+      "node": "each"
     }
   ]
 }

@@ -12,7 +12,7 @@
         "to": "done"
       }
     ],
-    "format": "zavon.workflow.graph/9",
+    "format": "workflow.graph/9",
     "nodes": [
       {
         "id": "start",

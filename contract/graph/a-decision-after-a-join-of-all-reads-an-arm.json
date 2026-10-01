@@ -14,15 +14,15 @@
       },
       {
         "from": "both",
-        "label": "pastor",
-        "to": "pastor"
+        "label": "approver",
+        "to": "approver"
       },
       {
         "from": "finance",
         "to": "meet"
       },
       {
-        "from": "pastor",
+        "from": "approver",
         "to": "meet"
       },
       {
@@ -41,7 +41,7 @@
         "to": "no"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -56,7 +56,7 @@
         "type": "review"
       },
       {
-        "id": "pastor",
+        "id": "approver",
         "type": "review"
       },
       {
@@ -94,11 +94,11 @@
       "kind": "parallel",
       "config": {
         "arms": {
+          "approver": [
+            "approver"
+          ],
           "finance": [
             "finance"
-          ],
-          "pastor": [
-            "pastor"
           ]
         },
         "join": "all"
@@ -113,12 +113,12 @@
       "branch": "finance"
     },
     {
-      "code": "pastor",
-      "name": "pastor",
+      "code": "approver",
+      "name": "approver",
       "kind": "review",
       "config": {},
       "parent": "both",
-      "branch": "pastor"
+      "branch": "approver"
     },
     {
       "code": "ok",

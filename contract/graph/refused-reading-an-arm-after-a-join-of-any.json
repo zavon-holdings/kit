@@ -13,14 +13,14 @@
       },
       {
         "from": "both",
-        "to": "pastor"
+        "to": "approver"
       },
       {
         "from": "finance",
         "to": "meet"
       },
       {
-        "from": "pastor",
+        "from": "approver",
         "to": "meet"
       },
       {
@@ -39,7 +39,7 @@
         "to": "no"
       }
     ],
-    "format": "zavon.workflow.graph/1",
+    "format": "workflow.graph/1",
     "nodes": [
       {
         "id": "start",
@@ -54,7 +54,7 @@
         "type": "review"
       },
       {
-        "id": "pastor",
+        "id": "approver",
         "type": "review"
       },
       {

@@ -1,16 +1,15 @@
-// The workflow decision-tree compiler, in the browser (expansion plan §5).
+// A workflow decision-tree compiler: validate a graph, compile it to a linear
+// step list, decompile a step list back into a graph.
 //
-// Twin of core's app/workflow/graph, which is the AUTHORITY: a save sends
-// {graph, steps} and core recompiles the graph itself, refusing a steps list
-// that differs (422 compile_mismatch). This twin exists for the builder's live
-// preview and its problem badges, and both are held to the same vectors in
-// kit/contract/graph, which core writes.
+// The server that stores workflows runs the authoritative compiler and
+// recompiles every graph it is sent; this one is for an editor's live preview
+// and problem badges. Both are held to the vectors in contract/graph.
 //
-// The condition language is not re-implemented here: validate and compile
-// take @zavon/conditions as options.conditions ({parse, fields}), so a builder
-// that already vendors it passes it in, and this package depends on nothing.
+// The condition language is not re-implemented here: validate and compile take
+// @zavon/conditions as options.conditions ({parse, fields}), so an editor that
+// already bundles it passes it in, and this package depends on nothing.
 
-export const FORMAT = "zavon.workflow.graph/1";
+export const FORMAT = "workflow.graph/1";
 export const SUFFIX_GOTO = "--goto";
 export const SUFFIX_ROUTE = "--route";
 export const SUFFIX_JOIN = "--join";
@@ -62,12 +61,12 @@ const STRUCTURAL = new Set(["start", "end", "fork", "join", "condition", "decisi
 const knownType = (t) => STRUCTURAL.has(t) || isStepType(t);
 
 export const NOT_YET = Object.freeze({
-  loop: "a loop is saved as steps until the canvas draws regions (expansion plan phase D)",
-  sub_workflow: "sub-workflows arrive with phase G of the expansion plan",
-  payment_request: "a payment request arrives with phase F of the expansion plan",
-  invoice: "an invoice arrives with phase F of the expansion plan",
-  approval: "approvals arrive with phase 3 of the workflow plan",
-  task: "a task node is a review or a form until phase 3's task types",
+  loop: "loop nodes are not supported by this compiler version; save the loop as steps",
+  sub_workflow: "sub-workflow nodes are not supported by this compiler version",
+  payment_request: "payment request nodes are not supported by this compiler version",
+  invoice: "invoice nodes are not supported by this compiler version",
+  approval: "approval nodes are not supported by this compiler version",
+  task: "a task node is a review or a form",
   branch: "draw a branch as a decision or a condition",
   parallel: "draw a parallel block as a fork and a join",
 });
@@ -263,7 +262,7 @@ function needConditions(options) {
 
 /**
  * What is wrong with a graph; empty means it compiles. Layer by layer, as
- * core does: the document, then the shape, then the scope.
+ * the server does: the document, then the shape, then the scope.
  */
 export function validate(g, options = {}) {
   const conditions = needConditions(options);
@@ -778,7 +777,7 @@ function validateScope(x, options, conditions) {
 
 /**
  * Compile a graph into the engine's steps: {steps} or {problems}. The same
- * rows core writes, in the same order.
+ * rows the server's compiler writes, in the same order.
  */
 export function compile(g, options = {}) {
   const problems = validate(g, options);
@@ -982,7 +981,7 @@ export class NotDrawableError extends Error {
 
 const intOf = (v) => (Number.isInteger(v) ? v : null);
 
-/** Steps back into a graph, as core does; throws NotDrawableError rather than guessing. */
+/** Steps back into a graph; throws NotDrawableError rather than guessing. */
 export function decompile(steps) {
   const g = { format: FORMAT, nodes: [], edges: [] };
   const top = [];
