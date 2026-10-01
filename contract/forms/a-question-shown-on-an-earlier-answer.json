@@ -1,0 +1,31 @@
+{
+  "name": "a-question-shown-on-an-earlier-answer",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "has_allergies",
+            "label": "Any allergies?",
+            "type": "yes_no"
+          },
+          {
+            "key": "allergies",
+            "label": "Tell us",
+            "show_when": {
+              "field": "answers.has_allergies",
+              "op": "is",
+              "value": true
+            },
+            "type": "paragraph"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": true
+}

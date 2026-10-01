@@ -1,0 +1,56 @@
+{
+  "name": "clean-multi-choice-and-address",
+  "kind": "clean",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "tracks",
+            "label": "Tracks",
+            "max": 2,
+            "min": 1,
+            "options": [
+              "Fintech",
+              "Health",
+              "Agri"
+            ],
+            "type": "multi_choice"
+          },
+          {
+            "key": "home",
+            "label": "Address",
+            "type": "address"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "answers": {
+    "home": {
+      "city": "Cape Town",
+      "evil": "x",
+      "line1": "1 Main Rd"
+    },
+    "tracks": [
+      "fintech",
+      "Health",
+      "Fintech"
+    ]
+  },
+  "final": true,
+  "now": "2026-10-01T10:00:00Z",
+  "keep": {
+    "home": {
+      "city": "Cape Town",
+      "line1": "1 Main Rd"
+    },
+    "tracks": [
+      "Fintech",
+      "Health"
+    ]
+  }
+}

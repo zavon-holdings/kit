@@ -1,0 +1,29 @@
+{
+  "name": "a-page-break-becomes-a-page",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "type": "text"
+          },
+          {
+            "label": "Second",
+            "type": "page_break"
+          },
+          {
+            "key": "b",
+            "label": "B",
+            "type": "text"
+          }
+        ],
+        "title": "First"
+      }
+    ],
+    "title": "T"
+  },
+  "valid": true
+}

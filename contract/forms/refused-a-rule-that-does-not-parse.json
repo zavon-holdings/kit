@@ -1,0 +1,36 @@
+{
+  "name": "refused-a-rule-that-does-not-parse",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "type": "text"
+          },
+          {
+            "key": "b",
+            "label": "B",
+            "show_when": {
+              "field": "answers.a",
+              "op": "near"
+            },
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "b"
+    }
+  ]
+}

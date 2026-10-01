@@ -1,0 +1,36 @@
+{
+  "name": "refused-a-rule-outside-the-scope",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "type": "text"
+          },
+          {
+            "key": "b",
+            "label": "B",
+            "show_when": {
+              "field": "steps.x.status",
+              "op": "exists"
+            },
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "b"
+    }
+  ]
+}

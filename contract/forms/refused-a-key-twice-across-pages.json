@@ -1,0 +1,38 @@
+{
+  "name": "refused-a-key-twice-across-pages",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      },
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "Again",
+            "type": "text"
+          }
+        ],
+        "key": "q",
+        "title": "Q"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "q",
+      "field": "a"
+    }
+  ]
+}

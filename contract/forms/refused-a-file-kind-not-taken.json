@@ -1,0 +1,30 @@
+{
+  "name": "refused-a-file-kind-not-taken",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "accept": [
+              ".exe"
+            ],
+            "key": "a",
+            "label": "CV",
+            "type": "file"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "a"
+    }
+  ]
+}

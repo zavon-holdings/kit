@@ -1,0 +1,128 @@
+{
+  "name": "every-field-type",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "full_name",
+            "label": "Full name",
+            "required": true,
+            "type": "text"
+          },
+          {
+            "key": "bio",
+            "label": "A few words",
+            "type": "paragraph"
+          },
+          {
+            "key": "age",
+            "label": "Age",
+            "max": 130,
+            "min": 0,
+            "type": "number"
+          },
+          {
+            "key": "email",
+            "label": "Email",
+            "required": true,
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "label": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "born",
+            "label": "Date of birth",
+            "type": "date"
+          },
+          {
+            "key": "home",
+            "label": "Home address",
+            "type": "address"
+          }
+        ],
+        "key": "about_you",
+        "title": "About you"
+      },
+      {
+        "fields": [
+          {
+            "help": "Choose as many as you like.",
+            "label": "Pick what applies",
+            "type": "section"
+          },
+          {
+            "key": "size",
+            "label": "Size",
+            "options": [
+              "Small",
+              "Large"
+            ],
+            "other": true,
+            "type": "single_choice"
+          },
+          {
+            "key": "tracks",
+            "label": "Tracks",
+            "max": 2,
+            "min": 1,
+            "options": [
+              "One",
+              "Two",
+              "Three"
+            ],
+            "type": "multi_choice"
+          },
+          {
+            "key": "returning",
+            "label": "Have you been before?",
+            "type": "yes_no"
+          }
+        ],
+        "key": "choices",
+        "title": "Choices"
+      },
+      {
+        "fields": [
+          {
+            "accept": [
+              ".pdf"
+            ],
+            "key": "cv",
+            "label": "Your CV",
+            "type": "file"
+          },
+          {
+            "key": "id_no",
+            "label": "Identity number",
+            "type": "id_number"
+          },
+          {
+            "key": "allergies",
+            "label": "Allergies",
+            "type": "health"
+          },
+          {
+            "key": "income",
+            "label": "Household income",
+            "type": "finance"
+          },
+          {
+            "key": "agree",
+            "label": "I agree to the terms",
+            "required": true,
+            "type": "acknowledgement"
+          }
+        ],
+        "key": "papers",
+        "title": "Papers"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": true
+}

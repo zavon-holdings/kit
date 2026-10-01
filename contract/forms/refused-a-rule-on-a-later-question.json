@@ -1,0 +1,36 @@
+{
+  "name": "refused-a-rule-on-a-later-question",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "show_when": {
+              "field": "answers.b",
+              "op": "exists"
+            },
+            "type": "text"
+          },
+          {
+            "key": "b",
+            "label": "B",
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "a"
+    }
+  ]
+}

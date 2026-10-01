@@ -1,0 +1,12 @@
+{
+  "name": "refused-no-pages",
+  "kind": "definition",
+  "definition": {
+    "pages": [],
+    "title": "T"
+  },
+  "valid": false,
+  "problems": [
+    {}
+  ]
+}

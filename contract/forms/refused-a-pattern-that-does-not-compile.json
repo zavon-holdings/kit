@@ -1,0 +1,28 @@
+{
+  "name": "refused-a-pattern-that-does-not-compile",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "pattern": "(",
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "a"
+    }
+  ]
+}

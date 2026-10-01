@@ -98,8 +98,10 @@ The `api` is optional member by member (`validate`, `simulate`,
 ## Contract vectors (`contract/`)
 
 JSON files every implementation's tests replay: `signature/`, `callback/`,
-`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`.
-A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
+`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`.
+`forms/` holds form definitions (valid, or refused at a page and question),
+which pages and questions a respondent sees for given answers, and what a
+submit keeps. A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
 `runs/` and `errors/` vectors are written by kit's own Go tests
 (`KIT_WRITE_VECTORS=1 go test ./webhooksig ./wfclient ./wfhandler -run
 TestContractVectors`); the rest are written by the server implementation and

@@ -1,0 +1,98 @@
+{
+  "name": "clean-refuses-a-shown-required-question",
+  "kind": "clean",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "full_name",
+            "label": "Full name",
+            "required": true,
+            "type": "text"
+          },
+          {
+            "key": "has_company",
+            "label": "Do you already have a company?",
+            "required": true,
+            "type": "yes_no"
+          },
+          {
+            "key": "company_name",
+            "label": "Company name",
+            "required": true,
+            "show_when": {
+              "field": "answers.has_company",
+              "op": "is",
+              "value": true
+            },
+            "type": "text"
+          },
+          {
+            "key": "company_stage",
+            "label": "Stage",
+            "options": [
+              "Idea",
+              "Revenue"
+            ],
+            "required": true,
+            "show_when": {
+              "field": "answers.company_name",
+              "op": "exists"
+            },
+            "type": "single_choice"
+          }
+        ],
+        "key": "about_you",
+        "title": "About you"
+      },
+      {
+        "fields": [
+          {
+            "key": "revenue",
+            "label": "Annual revenue",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "key": "funding",
+        "show_when": {
+          "field": "answers.company_stage",
+          "op": "is",
+          "value": "Revenue"
+        },
+        "title": "Funding"
+      },
+      {
+        "fields": [
+          {
+            "label": "Before you send",
+            "type": "section"
+          },
+          {
+            "key": "agree",
+            "label": "I confirm what I have written is true",
+            "required": true,
+            "type": "acknowledgement"
+          }
+        ],
+        "key": "consent",
+        "title": "Consent"
+      }
+    ],
+    "title": "Accelerator application"
+  },
+  "problems": [
+    {
+      "page": "about_you",
+      "field": "company_name"
+    }
+  ],
+  "answers": {
+    "agree": true,
+    "full_name": "Ana",
+    "has_company": true
+  },
+  "final": true,
+  "now": "2026-10-01T10:00:00Z"
+}

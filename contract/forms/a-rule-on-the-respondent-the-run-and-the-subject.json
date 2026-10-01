@@ -1,0 +1,46 @@
+{
+  "name": "a-rule-on-the-respondent-the-run-and-the-subject",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "show_when": {
+              "field": "respondent.email",
+              "op": "ends_with",
+              "value": "@example.org"
+            },
+            "type": "text"
+          },
+          {
+            "key": "b",
+            "label": "B",
+            "show_when": {
+              "field": "run.vars.tier",
+              "op": "is",
+              "value": "gold"
+            },
+            "type": "text"
+          },
+          {
+            "key": "c",
+            "label": "C",
+            "show_when": {
+              "field": "subject.type",
+              "op": "is",
+              "value": "order"
+            },
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": true
+}

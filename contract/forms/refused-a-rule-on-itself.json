@@ -1,0 +1,31 @@
+{
+  "name": "refused-a-rule-on-itself",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "show_when": {
+              "field": "answers.a",
+              "op": "exists"
+            },
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "a"
+    }
+  ]
+}

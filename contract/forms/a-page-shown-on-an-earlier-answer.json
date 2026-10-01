@@ -1,0 +1,41 @@
+{
+  "name": "a-page-shown-on-an-earlier-answer",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "plan",
+            "label": "Plan",
+            "options": [
+              "Basic",
+              "Full"
+            ],
+            "type": "single_choice"
+          }
+        ],
+        "key": "first",
+        "title": "First"
+      },
+      {
+        "fields": [
+          {
+            "key": "why",
+            "label": "Why",
+            "type": "text"
+          }
+        ],
+        "key": "extra",
+        "show_when": {
+          "field": "answers.plan",
+          "op": "is",
+          "value": "Full"
+        },
+        "title": "Extra"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": true
+}

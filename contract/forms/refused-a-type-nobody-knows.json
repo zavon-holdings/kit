@@ -1,0 +1,28 @@
+{
+  "name": "refused-a-type-nobody-knows",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "Sign",
+            "type": "signature"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "a"
+    },
+    {}
+  ]
+}

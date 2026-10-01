@@ -1,0 +1,31 @@
+{
+  "name": "refused-an-option-twice",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "Pick",
+            "options": [
+              "X",
+              "x"
+            ],
+            "type": "multi_choice"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "a"
+    }
+  ]
+}

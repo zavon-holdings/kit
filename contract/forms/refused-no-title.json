@@ -1,0 +1,24 @@
+{
+  "name": "refused-no-title",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": ""
+  },
+  "valid": false,
+  "problems": [
+    {}
+  ]
+}

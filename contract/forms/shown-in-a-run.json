@@ -1,0 +1,90 @@
+{
+  "name": "shown-in-a-run",
+  "kind": "shown",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "staff_note",
+            "label": "For staff",
+            "show_when": {
+              "field": "respondent.email",
+              "op": "ends_with",
+              "value": "@example.org"
+            },
+            "type": "text"
+          },
+          {
+            "key": "gold_extra",
+            "label": "Gold members only",
+            "show_when": {
+              "field": "run.vars.tier",
+              "op": "is",
+              "value": "gold"
+            },
+            "type": "text"
+          },
+          {
+            "key": "order_ref",
+            "label": "Order reference",
+            "show_when": {
+              "field": "subject.type",
+              "op": "is",
+              "value": "order"
+            },
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "cases": [
+    {
+      "name": "a gold member from outside, about an order",
+      "answers": {},
+      "respondent": {
+        "email": "ana@elsewhere.test",
+        "name": ""
+      },
+      "run_vars": {
+        "tier": "gold"
+      },
+      "subject": {
+        "pid": "o-1",
+        "type": "order"
+      },
+      "pages": {
+        "p": true
+      },
+      "fields": {
+        "gold_extra": true,
+        "order_ref": true,
+        "staff_note": false
+      }
+    },
+    {
+      "name": "staff, no run vars, about a person",
+      "answers": {},
+      "respondent": {
+        "email": "sam@example.org",
+        "name": ""
+      },
+      "subject": {
+        "pid": "p-1",
+        "type": "person"
+      },
+      "pages": {
+        "p": true
+      },
+      "fields": {
+        "gold_extra": false,
+        "order_ref": false,
+        "staff_note": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "refused-a-bad-key",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "Full Name",
+            "label": "Name",
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p",
+      "field": "Full Name"
+    }
+  ]
+}

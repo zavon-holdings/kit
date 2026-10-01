@@ -1,0 +1,23 @@
+{
+  "name": "refused-a-form-that-asks-nothing",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "label": "Hello",
+            "type": "section"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {}
+  ]
+}

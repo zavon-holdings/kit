@@ -1,0 +1,26 @@
+{
+  "name": "refused-a-page-without-a-title",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "a",
+            "label": "A",
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": ""
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p"
+    }
+  ]
+}
