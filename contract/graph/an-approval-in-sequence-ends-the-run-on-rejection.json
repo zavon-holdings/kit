@@ -1,0 +1,95 @@
+{
+  "name": "an-approval-in-sequence-ends-the-run-on-rejection",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "sign"
+      },
+      {
+        "from": "sign",
+        "to": "publish"
+      },
+      {
+        "from": "publish",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "assignees": [
+            {
+              "people": [
+                {
+                  "email": "lead@example.test",
+                  "name": "Lead"
+                }
+              ]
+            }
+          ],
+          "mode": "any"
+        },
+        "id": "sign",
+        "type": "approval"
+      },
+      {
+        "config": {
+          "action": "content.page.publish"
+        },
+        "id": "publish",
+        "type": "call"
+      },
+      {
+        "config": {
+          "outcome": "approved"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "sign",
+      "name": "sign",
+      "kind": "approval",
+      "config": {
+        "assignees": [
+          {
+            "people": [
+              {
+                "email": "lead@example.test",
+                "name": "Lead"
+              }
+            ]
+          }
+        ],
+        "mode": "any"
+      }
+    },
+    {
+      "code": "publish",
+      "name": "publish",
+      "kind": "call",
+      "config": {
+        "action": "content.page.publish"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "approved"
+      }
+    }
+  ],
+  "normal": true
+}

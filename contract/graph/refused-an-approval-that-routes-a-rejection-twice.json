@@ -1,0 +1,61 @@
+{
+  "name": "refused-an-approval-that-routes-a-rejection-twice",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "sign"
+      },
+      {
+        "from": "sign",
+        "label": "approved",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "sign",
+        "label": "rejected",
+        "to": "b"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "assignees": [
+            {
+              "people": [
+                {
+                  "email": "lead@example.test",
+                  "name": "Lead"
+                }
+              ]
+            }
+          ],
+          "on_reject": "goto:a"
+        },
+        "id": "sign",
+        "type": "approval"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "outcome_twice",
+      "node": "sign"
+    }
+  ]
+}

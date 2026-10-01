@@ -1,0 +1,136 @@
+{
+  "name": "an-approval-routes-by-outcome",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "sign"
+      },
+      {
+        "from": "sign",
+        "label": "approved",
+        "to": "publish"
+      },
+      {
+        "default": true,
+        "from": "sign",
+        "label": "rejected",
+        "to": "back"
+      },
+      {
+        "from": "publish",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "assignees": [
+            {
+              "people": [
+                {
+                  "email": "lead@example.test",
+                  "name": "Lead"
+                }
+              ]
+            }
+          ],
+          "mode": "any"
+        },
+        "id": "sign",
+        "name": "Sign off",
+        "type": "approval"
+      },
+      {
+        "config": {
+          "action": "content.page.publish"
+        },
+        "id": "publish",
+        "type": "call"
+      },
+      {
+        "config": {
+          "outcome": "approved"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "rejected"
+        },
+        "id": "back",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "sign",
+      "name": "Sign off",
+      "kind": "approval",
+      "config": {
+        "assignees": [
+          {
+            "people": [
+              {
+                "email": "lead@example.test",
+                "name": "Lead"
+              }
+            ]
+          }
+        ],
+        "mode": "any",
+        "on_reject": "continue"
+      }
+    },
+    {
+      "code": "sign--route",
+      "name": "After Sign off",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "publish",
+            "when": {
+              "field": "steps.sign.output.outcome",
+              "op": "is",
+              "value": "approved"
+            }
+          }
+        ],
+        "default": "back"
+      }
+    },
+    {
+      "code": "publish",
+      "name": "publish",
+      "kind": "call",
+      "config": {
+        "action": "content.page.publish"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "approved"
+      }
+    },
+    {
+      "code": "back",
+      "name": "back",
+      "kind": "end",
+      "config": {
+        "outcome": "rejected"
+      }
+    }
+  ]
+}

@@ -61,7 +61,11 @@ export const PROBLEMS = Object.freeze({
 const P = PROBLEMS;
 
 const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook"]);
-const isTask = (t) => t === "review" || t === "form";
+const isTask = (t) => t === "review" || t === "form" || t === "approval";
+/** The only outcomes a node type can finish with, when the type decides them. */
+const FIXED_OUTCOMES = Object.freeze({ approval: ["approved", "rejected"] });
+/** A routing approval completes on a rejection, and the route decides. */
+const REJECT_CONTINUE = "continue";
 const isStepType = (t) => PLAIN.has(t) || isTask(t) || t === "wait_event";
 const STRUCTURAL = new Set(["start", "end", "fork", "join", "condition", "decision", "loop"]);
 const knownType = (t) => STRUCTURAL.has(t) || isStepType(t);
@@ -70,7 +74,6 @@ export const NOT_YET = Object.freeze({
   sub_workflow: "sub-workflow nodes are not supported by this compiler version",
   payment_request: "payment request nodes are not supported by this compiler version",
   invoice: "invoice nodes are not supported by this compiler version",
-  approval: "approval nodes are not supported by this compiler version",
   task: "a task node is a review or a form",
   branch: "draw a branch as a decision or a condition",
   parallel: "draw a parallel block as a fork and a join",
@@ -488,7 +491,14 @@ function choiceEdges(x, ps, n, cfg, conditions) {
     ps.push({ code: P.NODE_CONFIG, node: n.id, message: `${displayName(n)}: a decision's questions are on its edges; it has no settings` });
   const outcomes = new Set();
   const names = [];
-  if (isTask(n.type)) {
+  for (const name of FIXED_OUTCOMES[n.type] ?? []) {
+    outcomes.add(name);
+    names.push(name);
+  }
+  const onReject = typeof cfg.on_reject === "string" ? cfg.on_reject : "";
+  if (n.type === "approval" && onReject && onReject !== REJECT_CONTINUE)
+    ps.push({ code: P.OUTCOME_TWICE, node: n.id, message: `${displayName(n)} routes by outcome twice: drop on_reject "${onReject}", the edges say where a rejection goes` });
+  if (isTask(n.type) && !FIXED_OUTCOMES[n.type]) {
     for (const o of Array.isArray(cfg.outcomes) ? cfg.outcomes : []) {
       const name = isObject(o) && typeof o.name === "string" ? o.name : "";
       const to = isObject(o) && typeof o.to === "string" ? o.to : "";
@@ -1020,6 +1030,7 @@ class Compiler {
       }
     } else {
       const cfg = object(n.config) ?? {};
+      if (n.type === "approval" && x.routes(n)) cfg.on_reject = REJECT_CONTINUE;
       if (n.type === "wait_event") {
         const [, timeout] = x.waitEdges(id);
         if (timeout.length) cfg.on_timeout = `branch:${x.edge(timeout[0]).to}`;
@@ -1199,8 +1210,10 @@ export function decompile(steps) {
       timeoutTo = cfg.on_timeout.slice("branch:".length);
       delete cfg.on_timeout;
     }
+    const routed = isTask(s.kind) && i + 1 < top.length && top[i + 1].code === s.code + SUFFIX_ROUTE && top[i + 1].kind === "branch";
+    if (routed && s.kind === "approval" && cfg.on_reject === REJECT_CONTINUE) delete cfg.on_reject;
     g.nodes.push(withConfig(named({ id: s.code, type: s.kind }, s), cfg));
-    if (isTask(s.kind) && i + 1 < top.length && top[i + 1].code === s.code + SUFFIX_ROUTE && top[i + 1].kind === "branch") {
+    if (routed) {
       consumed.add(i + 1);
       const [cases, def0, m] = readBranch(object(top[i + 1].config) ?? {});
       const def = def0 || onwardFrom(i + 2);

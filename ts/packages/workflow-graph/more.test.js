@@ -42,3 +42,20 @@ test("a loop with no body, or a body on another arm, is not drawn rather than gu
     NotDrawableError,
   );
 });
+
+test("a stored approval is drawn without the store's task_type or the compiler's on_reject", () => {
+  const g = decompile([
+    { code: "sign", name: "sign", kind: "approval", config: { task_type: "approval", mode: "any", on_reject: "continue", assignees: [] } },
+    { code: "sign--route", name: "After sign", kind: "branch", config: { cases: [{ when: { field: "steps.sign.output.outcome", op: "is", value: "approved" }, goto: "ok" }], default: "no" } },
+    { code: "ok", name: "ok", kind: "end", config: {} },
+    { code: "no", name: "no", kind: "end", config: {} },
+  ]);
+  const sign = g.nodes.find((n) => n.id === "sign");
+  assert.equal(sign.type, "approval");
+  assert.deepEqual(sign.config, { mode: "any", assignees: [] });
+  const plain = decompile([
+    { code: "sign", name: "sign", kind: "approval", config: { task_type: "approval", on_reject: "continue", assignees: [] } },
+    { code: "ok", name: "ok", kind: "end", config: {} },
+  ]);
+  assert.equal(plain.nodes.find((n) => n.id === "sign").config.on_reject, "continue");
+});
