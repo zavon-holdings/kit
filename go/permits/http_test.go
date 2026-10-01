@@ -29,29 +29,29 @@ func TestHTTPRefresherReadsTheIdentityServicesAnswer(t *testing.T) {
 		_, _ = w.Write(raw)
 	}))
 	defer srv.Close()
-	h := HTTPRefresher{BaseURL: srv.URL, Token: "zvn_k.s"}
-	s, err := h.Fetch(context.Background(), "shofar", "pages", 0)
+	h := HTTPRefresher{BaseURL: srv.URL, Token: "tok_k.s"}
+	s, err := h.Fetch(context.Background(), "org-a", "cms", 0)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if auth != "Bearer zvn_k.s" || path != "/api/orgs/shofar/permits?app=pages" || inm != "" {
+	if auth != "Bearer tok_k.s" || path != "/api/orgs/org-a/permits?app=cms" || inm != "" {
 		t.Fatalf("asked %s with %q, If-None-Match %q", path, auth, inm)
 	}
-	if s.Version != 12 || len(s.Members) != 2 || !s.Members[1].Staff || s.Org != "shofar" || s.App != "pages" {
+	if s.Version != 12 || len(s.Members) != 2 || !s.Members[1].Staff || s.Org != "org-a" || s.App != "cms" {
 		t.Fatalf("snapshot = %+v", s)
 	}
-	if !Decide(s, "thandi@shofar.org", "pages:page:publish", "org/shofar/pages/ministry/youth").Allowed {
+	if !Decide(s, "ana@example.test", "cms:page:publish", "org/org-a/cms/team/alpha").Allowed {
 		t.Fatal("the vector's statement must decide as written")
 	}
-	if !Decide(s, "ops@zavon.test", "shop:order:refund", "org/anyone/shop/order/1").Allowed {
+	if !Decide(s, "ops@example.test", "orders:order:refund", "org/anyone/orders/order/1").Allowed {
 		t.Fatal("staff hold * on *")
 	}
-	if _, err := h.Fetch(context.Background(), "shofar", "pages", 12); !errors.Is(err, ErrNotModified) {
+	if _, err := h.Fetch(context.Background(), "org-a", "cms", 12); !errors.Is(err, ErrNotModified) {
 		t.Fatalf("If-None-Match at the version -> %v", err)
 	}
 }
 
-func TestHTTPRefresherKeepsAccountsFailuresApart(t *testing.T) {
+func TestHTTPRefresherKeepsTheServicesFailuresApart(t *testing.T) {
 	for status, want := range map[int]string{
 		http.StatusServiceUnavailable: "could not verify",
 		http.StatusUnauthorized:       "not active",
@@ -62,7 +62,7 @@ func TestHTTPRefresherKeepsAccountsFailuresApart(t *testing.T) {
 			w.WriteHeader(status)
 			_, _ = w.Write([]byte(`{"error":"x"}`))
 		}))
-		_, err := HTTPRefresher{BaseURL: srv.URL, Token: "t"}.Fetch(context.Background(), "shofar", "pages", 0)
+		_, err := HTTPRefresher{BaseURL: srv.URL, Token: "t"}.Fetch(context.Background(), "org-a", "cms", 0)
 		srv.Close()
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%d -> %v, want %q", status, err, want)

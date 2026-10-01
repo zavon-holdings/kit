@@ -13,7 +13,7 @@
       "duplicate": false,
       "index": 1,
       "status": 403,
-      "error": "shofar's shop.* events are not this property's to raise",
+      "error": "org-a's orders.* events are not this property's to raise",
       "code": "namespace"
     }
   ]

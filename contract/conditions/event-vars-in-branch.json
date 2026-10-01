@@ -2,9 +2,9 @@
   "name": "event-vars-in-branch",
   "mode": "branch",
   "condition": {
-    "field": "event.vars.campus",
+    "field": "event.vars.area",
     "op": "is",
-    "value": "stellenbosch"
+    "value": "north"
   },
   "scope": {
     "vars": {
@@ -29,20 +29,20 @@
         "uid": "l1"
       },
       "submitter": {
-        "email": "Thandi@Example.test"
+        "email": "Ana@Example.test"
       },
       "tags": [
-        "youth",
-        "camp"
+        "vip",
+        "beta"
       ]
     },
     "subject": {
-      "label": "Easter",
+      "label": "Launch",
       "pid": "p1",
-      "property": "pages-by-zavon",
+      "property": "site-a",
       "type": "page",
       "vars": {
-        "location": "stellenbosch"
+        "location": "north"
       }
     },
     "steps": {
@@ -61,9 +61,9 @@
     "event": {
       "occurred_at": "2026-10-01T09:59:00Z",
       "ref": "payment:PAY-1:paid",
-      "type": "pages.payment.paid",
+      "type": "cms.payment.paid",
       "vars": {
-        "campus": "Stellenbosch",
+        "area": "North",
         "status": "paid"
       }
     }

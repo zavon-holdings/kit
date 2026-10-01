@@ -1,6 +1,6 @@
 {
   "name": "@zavon/conditions",
-  "version": "1.2.0",
+  "version": "1.4.2",
   "description": "A workflow condition language: parse, evaluate and describe conditions. Held to the vectors in contract/conditions.",
   "type": "module",
   "main": "index.js",

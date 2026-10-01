@@ -43,7 +43,7 @@
         "email": "a@x.org",
         "kind": "user",
         "name": "A",
-        "property": "pages-by-bantuhr",
+        "property": "site-a",
         "sub": "s-a"
       },
       "created_at": "<created_at>",
@@ -61,7 +61,7 @@
   "mode": "all",
   "outcome": "",
   "permits_version": 0,
-  "property": "pages-by-bantuhr",
+  "property": "site-a",
   "quorum": 1,
   "reject_mode": "any",
   "run_state": "open",
@@ -73,9 +73,9 @@
     "name": "Approve"
   },
   "subject": {
-    "label": "Easter Sunday",
+    "label": "Launch day",
     "pid": "p1",
-    "property": "pages-by-bantuhr",
+    "property": "site-a",
     "type": "page"
   },
   "submitter": {
@@ -84,8 +84,8 @@
     "sub": "s-author"
   },
   "task_type": "approval",
-  "tenant": "shofar",
-  "title": "Approve Easter Sunday",
+  "tenant": "org-a",
+  "title": "Approve Launch day",
   "uid": "<uid>",
   "unassignable": false
 }

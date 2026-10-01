@@ -5,8 +5,8 @@
     "field": "vars.submitter.email",
     "op": "holds",
     "value": {
-      "app": "pages",
-      "action": "pages:page:publish",
+      "app": "cms",
+      "action": "cms:page:publish",
       "resource": "x"
     }
   },
@@ -33,20 +33,20 @@
         "uid": "l1"
       },
       "submitter": {
-        "email": "Thandi@Example.test"
+        "email": "Ana@Example.test"
       },
       "tags": [
-        "youth",
-        "camp"
+        "vip",
+        "beta"
       ]
     },
     "subject": {
-      "label": "Easter",
+      "label": "Launch",
       "pid": "p1",
-      "property": "pages-by-zavon",
+      "property": "site-a",
       "type": "page",
       "vars": {
-        "location": "stellenbosch"
+        "location": "north"
       }
     },
     "steps": {
@@ -65,9 +65,9 @@
     "event": {
       "occurred_at": "2026-10-01T09:59:00Z",
       "ref": "payment:PAY-1:paid",
-      "type": "pages.payment.paid",
+      "type": "cms.payment.paid",
       "vars": {
-        "campus": "Stellenbosch",
+        "area": "North",
         "status": "paid"
       }
     }

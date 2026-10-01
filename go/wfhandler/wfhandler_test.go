@@ -100,11 +100,11 @@ func (r *rig) post(path, body, key string, sign []string) (int, map[string]any) 
 	return resp.StatusCode, out
 }
 
-const publishCall = `{"action":"pages.publish","delivery":"dv1","tenant":"shofar","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"shofar","property":"pages-by-zavon"},"step":{"code":"publish","kind":"action"},"subject":{"property":"pages-by-zavon","type":"page","pid":"p1","label":"Easter"},"input":{"scope":"site"},"vars":{},"attempt":1}`
+const publishCall = `{"action":"cms.publish","delivery":"dv1","tenant":"org-a","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"org-a","property":"site-a"},"step":{"code":"publish","kind":"action"},"subject":{"property":"site-a","type":"page","pid":"p1","label":"Launch"},"input":{"scope":"site"},"vars":{},"attempt":1}`
 
 func handlers() Handlers {
 	return Handlers{
-		"pages.publish": func(_ context.Context, c Call) (Answer, error) {
+		"cms.publish": func(_ context.Context, c Call) (Answer, error) {
 			if c.Subject.PID == "gone" {
 				return Answer{Refusal: "The page was deleted.", Status: 410}, nil
 			}
@@ -116,10 +116,10 @@ func handlers() Handlers {
 			}
 			return Done(map[string]any{"published_at": "2026-09-30T10:00:00Z", "key": c.IdempotencyKey}), nil
 		},
-		"pages.resolve_recipient": func(context.Context, Call) (Answer, error) {
-			return Done(map[string]any{"email": "nomsa@example.test", "name": "Nomsa"}), nil
+		"cms.resolve_recipient": func(context.Context, Call) (Answer, error) {
+			return Done(map[string]any{"email": "cara@example.test", "name": "Cara"}), nil
 		},
-		"pages.notify": func(_ context.Context, c Call) (Answer, error) {
+		"cms.notify": func(_ context.Context, c Call) (Answer, error) {
 			if c.Input["event"] != "finished" {
 				return Refuse("only finished is heard"), nil
 			}
@@ -220,7 +220,7 @@ func TestEachAnswerHasItsShape(t *testing.T) {
 		t.Fatalf("refused with a chosen status: %d %v", status, body)
 	}
 	// A refusal with a status the workflow service would retry is corrected to 422.
-	r3 := newRig(t, Handlers{"pages.publish": func(context.Context, Call) (Answer, error) {
+	r3 := newRig(t, Handlers{"cms.publish": func(context.Context, Call) (Answer, error) {
 		return Answer{Refusal: "no", Status: 500}, nil
 	}}, secrets)
 	if status, body := r3.post("/api/workflow/actions", publishCall, "k", secrets); status != 422 || body["refusal"] != "no" {
@@ -235,15 +235,15 @@ func TestEachAnswerHasItsShape(t *testing.T) {
 	if status, _ := r.post("/api/workflow/actions", with("broken"), "k-broken", secrets); status != 500 || r.calls != before+1 {
 		t.Fatalf("a retried fault: %d, calls %d→%d", status, before, r.calls)
 	}
-	status, body = r.post("/api/workflow/actions", strings.Replace(publishCall, "pages.publish", "pages.unknown", 1), "k-unknown", secrets)
-	if status != 404 || !strings.Contains(fmt.Sprint(body["refusal"]), "pages.unknown") {
+	status, body = r.post("/api/workflow/actions", strings.Replace(publishCall, "cms.publish", "cms.unknown", 1), "k-unknown", secrets)
+	if status != 404 || !strings.Contains(fmt.Sprint(body["refusal"]), "cms.unknown") {
 		t.Fatalf("unknown action: %d %v", status, body)
 	}
 	if status, body := r.post("/api/workflow/actions", `{"nope":1}`, "k-bad", secrets); status != 400 || body["error"] == nil {
 		t.Fatalf("not a call: %d %v", status, body)
 	}
 	// Hooks arrive at the other path and are served by the same handlers.
-	hook := `{"action":"pages.notify","tenant":"shofar","run":{"uid":"r1"},"step":{"code":"","kind":"hook"},"subject":{"property":"pages-by-zavon","type":"page","pid":"p1"},"input":{"event":"finished","state":"done","outcome":"approved"},"attempt":1}`
+	hook := `{"action":"cms.notify","tenant":"org-a","run":{"uid":"r1"},"step":{"code":"","kind":"hook"},"subject":{"property":"site-a","type":"page","pid":"p1"},"input":{"event":"finished","state":"done","outcome":"approved"},"attempt":1}`
 	if status, body := r.post("/api/workflow/hooks", hook, "run:r1:hook:finished", secrets); status != 200 || body["status"] != "done" || body["output"] != nil {
 		t.Fatalf("hook: %d %v", status, body)
 	}
@@ -307,14 +307,14 @@ func TestTheSQLStoreKeepsDecisionsNotFaults(t *testing.T) {
 	if got, err := s.Get(ctx, "k"); err != nil || got != nil {
 		t.Fatalf("empty: %v %v", got, err)
 	}
-	if err := s.Put(ctx, "k", Stored{Action: "pages.publish", Status: 200, Response: json.RawMessage(`{"status":"done"}`)}); err != nil {
+	if err := s.Put(ctx, "k", Stored{Action: "cms.publish", Status: 200, Response: json.RawMessage(`{"status":"done"}`)}); err != nil {
 		t.Fatal(err)
 	}
 	got, err := s.Get(ctx, "k")
-	if err != nil || got == nil || got.Status != 200 || string(got.Response) != `{"status":"done"}` || got.Action != "pages.publish" {
+	if err != nil || got == nil || got.Status != 200 || string(got.Response) != `{"status":"done"}` || got.Action != "cms.publish" {
 		t.Fatalf("stored: %+v %v", got, err)
 	}
-	if err := s.Put(ctx, "k", Stored{Action: "pages.publish", Status: 410, Response: json.RawMessage(`{"refusal":"x"}`)}); err != nil {
+	if err := s.Put(ctx, "k", Stored{Action: "cms.publish", Status: 410, Response: json.RawMessage(`{"refusal":"x"}`)}); err != nil {
 		t.Fatal(err)
 	}
 	if got, _ := s.Get(ctx, "k"); got.Status != 200 {
@@ -364,20 +364,20 @@ func vectorCases() []Vector {
 		mk("action-done", "/actions", "run:r1:step:publish", publishCall, "done"),
 		mk("action-accepted", "/actions", "run:r1:step:publish", strings.Replace(publishCall, `"pid":"p1"`, `"pid":"slow"`, 1), "accepted"),
 		mk("action-refused", "/actions", "run:r1:step:publish", strings.Replace(publishCall, `"pid":"p1"`, `"pid":"gone"`, 1), "refused"),
-		mk("action-unknown", "/actions", "run:r1:step:archive", strings.Replace(publishCall, "pages.publish", "pages.archive", 1), "unknown"),
+		mk("action-unknown", "/actions", "run:r1:step:archive", strings.Replace(publishCall, "cms.publish", "cms.archive", 1), "unknown"),
 		mk("resolve-recipient", "/actions", "run:r1:step:notify-owner:resolve",
-			`{"action":"pages.resolve_recipient","tenant":"shofar","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"shofar","property":"pages-by-zavon"},"step":{"code":"notify-owner","kind":"email"},"subject":{"property":"pages-by-zavon","type":"page","pid":"p1"},"input":{"role":"owner"},"attempt":1}`, "done"),
-		// A notification step's phone channel goes through Reach until the
-		// channel lift (expansion plan §2.4): one call per recipient, keyed
-		// by the step and the number; Reach answers done with the delivery,
+			`{"action":"cms.resolve_recipient","tenant":"org-a","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"org-a","property":"site-a"},"step":{"code":"notify-owner","kind":"email"},"subject":{"property":"site-a","type":"page","pid":"p1"},"input":{"role":"owner"},"attempt":1}`, "done"),
+		// A notification step's phone channel goes through a messaging app:
+		// one call per recipient, keyed by the step and the number; the app
+		// answers done with the delivery,
 		// or a decided no (no consent, outside the session window) that
 		// skips that recipient.
-		mk("channel-send", "/actions", "run:r1:step:ping:+27821234567",
-			`{"action":"reach.channel.send","tenant":"shofar","run":{"uid":"r1","definition":"order-ready","version":1,"kind":"workflow","tenant":"shofar","property":"shop"},"step":{"code":"ping","kind":"notification"},"subject":{"property":"shop","type":"order","pid":"o1","label":"Order 1048"},"input":{"channel":"whatsapp","to":"+27821234567","name":"Thandi","template":"hsm_order_ready_v1","vars":{"order":"1048"}},"vars":{"order":"1048"},"attempt":1}`, "done"),
-		mk("channel-send-refused", "/actions", "run:r1:step:ping:+27820000000",
-			`{"action":"reach.channel.send","tenant":"shofar","run":{"uid":"r1","definition":"order-ready","version":1,"kind":"workflow","tenant":"shofar","property":"shop"},"step":{"code":"ping","kind":"notification"},"subject":{"property":"shop","type":"order","pid":"o1","label":"Order 1048"},"input":{"channel":"whatsapp","to":"+27820000000","template":"hsm_order_ready_v1","vars":{"order":"1048"}},"vars":{"order":"1048"},"attempt":1}`, "refused"),
+		mk("channel-send", "/actions", "run:r1:step:ping:+15555550100",
+			`{"action":"messaging.channel.send","tenant":"org-a","run":{"uid":"r1","definition":"order-ready","version":1,"kind":"workflow","tenant":"org-a","property":"store-a"},"step":{"code":"ping","kind":"notification"},"subject":{"property":"store-a","type":"order","pid":"o1","label":"Order 1048"},"input":{"channel":"whatsapp","to":"+15555550100","name":"Ana","template":"hsm_order_ready_v1","vars":{"order":"1048"}},"vars":{"order":"1048"},"attempt":1}`, "done"),
+		mk("channel-send-refused", "/actions", "run:r1:step:ping:+15555550199",
+			`{"action":"messaging.channel.send","tenant":"org-a","run":{"uid":"r1","definition":"order-ready","version":1,"kind":"workflow","tenant":"org-a","property":"store-a"},"step":{"code":"ping","kind":"notification"},"subject":{"property":"store-a","type":"order","pid":"o1","label":"Order 1048"},"input":{"channel":"whatsapp","to":"+15555550199","template":"hsm_order_ready_v1","vars":{"order":"1048"}},"vars":{"order":"1048"},"attempt":1}`, "refused"),
 		mk("hook-finished", "/hooks", "run:r1:hook:finished",
-			`{"action":"pages.notify","tenant":"shofar","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"shofar","property":"pages-by-zavon"},"step":{"code":"","kind":"hook"},"subject":{"property":"pages-by-zavon","type":"page","pid":"p1"},"input":{"event":"finished","state":"done","outcome":"approved","pause_reason":""},"attempt":1}`, "done"),
+			`{"action":"cms.notify","tenant":"org-a","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"org-a","property":"site-a"},"step":{"code":"","kind":"hook"},"subject":{"property":"site-a","type":"page","pid":"p1"},"input":{"event":"finished","state":"done","outcome":"approved","pause_reason":""},"attempt":1}`, "done"),
 	}
 }
 
@@ -386,7 +386,7 @@ func vectorCases() []Vector {
 // this package returns for the same call.
 func deciding() Handlers {
 	h := Handlers{}
-	for _, name := range []string{"pages.publish", "pages.resolve_recipient", "pages.notify", "reach.channel.send"} {
+	for _, name := range []string{"cms.publish", "cms.resolve_recipient", "cms.notify", "messaging.channel.send"} {
 		name := name
 		h[name] = func(_ context.Context, c Call) (Answer, error) {
 			switch {
@@ -394,12 +394,12 @@ func deciding() Handlers {
 				return Accepted(), nil
 			case c.Subject.PID == "gone":
 				return Answer{Refusal: "The page was deleted.", Status: 410}, nil
-			case name == "pages.resolve_recipient":
-				return Done(map[string]any{"email": "nomsa@example.test", "name": "Nomsa"}), nil
-			case name == "pages.notify":
+			case name == "cms.resolve_recipient":
+				return Done(map[string]any{"email": "cara@example.test", "name": "Cara"}), nil
+			case name == "cms.notify":
 				return Done(nil), nil
-			case name == "reach.channel.send":
-				if c.Input["to"] == "+27820000000" {
+			case name == "messaging.channel.send":
+				if c.Input["to"] == "+15555550199" {
 					return Refuse("no consent for this number"), nil
 				}
 				return Done(map[string]any{"delivery_uids": []string{"dl_01J9"}}), nil
@@ -645,7 +645,7 @@ func publishing(tx Tx, c Call) (Answer, error) {
 }
 
 func TestTheTransactionalDoorCommitsTheEffectWithItsRecord(t *testing.T) {
-	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
+	r := newTxRig(t, TxHandlers{"cms.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
 	status, out := r.post(t, publishCall, "run:r1:step:publish")
 	if status != 200 || out["status"] != "done" {
 		t.Fatalf("first delivery: %d %v", status, out)
@@ -660,7 +660,7 @@ func TestTheTransactionalDoorCommitsTheEffectWithItsRecord(t *testing.T) {
 	}
 	// A refusal commits too: the decision is remembered, and whatever the
 	// handler wrote beside it (a row saying why) lands with it.
-	r2 := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
+	r2 := newTxRig(t, TxHandlers{"cms.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
 		_, _ = tx.Exec(context.Background(), `INSERT INTO page_notes (pid, note) VALUES ($1, 'refused')`, c.Subject.PID)
 		return Answer{Refusal: "The page was deleted.", Status: 410}, nil
 	}})
@@ -673,7 +673,7 @@ func TestTheTransactionalDoorCommitsTheEffectWithItsRecord(t *testing.T) {
 }
 
 func TestAFaultRollsTheEffectBackAndRemembersNothing(t *testing.T) {
-	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
+	r := newTxRig(t, TxHandlers{"cms.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
 		_, _ = tx.Exec(context.Background(), `UPDATE pages SET published_at = now()`)
 		return Answer{}, errors.New("the snapshot sha does not match")
 	}})
@@ -692,7 +692,7 @@ func TestAFaultRollsTheEffectBackAndRemembersNothing(t *testing.T) {
 }
 
 func TestACommitThatFailsIsAFaultNotADecision(t *testing.T) {
-	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
+	r := newTxRig(t, TxHandlers{"cms.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
 	r.db.failNext = errors.New("connection reset by peer")
 	status, out := r.post(t, publishCall, "k")
 	if status != 500 || !strings.Contains(fmt.Sprint(out["error"]), "did not commit") {
@@ -710,7 +710,7 @@ func TestACommitThatFailsIsAFaultNotADecision(t *testing.T) {
 // loser answers 5xx for the workflow service to retry into a replay of the winner.
 func TestTwoDeliveriesOfOneKeyProduceOneEffect(t *testing.T) {
 	gate := make(chan struct{})
-	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
+	r := newTxRig(t, TxHandlers{"cms.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {
 		<-gate // both handlers are inside their transactions before either commits
 		return publishing(tx, c)
 	}})
@@ -757,9 +757,9 @@ func TestTwoDeliveriesOfOneKeyProduceOneEffect(t *testing.T) {
 }
 
 func TestTheTransactionalDoorKeepsTheDoorsRefusals(t *testing.T) {
-	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
+	r := newTxRig(t, TxHandlers{"cms.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) { return publishing(tx, c) }})
 	// Unknown action: a decided no, and no transaction is left open.
-	status, out := r.post(t, strings.Replace(publishCall, "pages.publish", "pages.archive", 1), "k2")
+	status, out := r.post(t, strings.Replace(publishCall, "cms.publish", "cms.archive", 1), "k2")
 	if status != 404 || out["refusal"] == nil || r.db.commits != 0 {
 		t.Fatalf("unknown action: %d %v commits %d", status, out, r.db.commits)
 	}

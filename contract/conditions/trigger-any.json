@@ -4,30 +4,30 @@
   "condition": {
     "any": [
       {
-        "field": "campus",
+        "field": "area",
         "op": "is",
-        "value": "Somerset West"
+        "value": "South"
       },
       {
-        "field": "campus",
+        "field": "area",
         "op": "is",
-        "value": "Stellenbosch"
+        "value": "North"
       }
     ]
   },
   "scope": {
     "subject": {
       "pid": "f1",
-      "property": "pages-by-zavon",
+      "property": "site-a",
       "type": "form_submission"
     },
     "event": {
       "ref": "f1",
-      "type": "pages.form.submitted",
+      "type": "cms.form.submitted",
       "vars": {
         "age": 17,
-        "campus": "Stellenbosch",
-        "form": "youth-camp",
+        "area": "North",
+        "form": "vip-signup",
         "kind": "member"
       }
     }

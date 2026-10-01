@@ -1,6 +1,6 @@
 {
   "name": "@zavon/webhooksig",
-  "version": "1.0.0",
+  "version": "1.4.2",
   "description": "Sign and verify the X-Zavon-* request signature. Twin of kit/go/webhooksig.",
   "type": "module",
   "main": "index.js",

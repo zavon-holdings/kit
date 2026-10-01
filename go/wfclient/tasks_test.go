@@ -77,7 +77,7 @@ func TestTaskRefusalsArriveAsErrorsWithTheirCodes(t *testing.T) {
 			w.WriteHeader(r.Status)
 			_, _ = w.Write(r.Body)
 		}))
-		_, err := New(srv.URL, "zvn_x.y").DecideTask(context.Background(), "t1", Decide{Actor: Actor{Email: "a@x.org"}, Decision: "approve"}, "k")
+		_, err := New(srv.URL, "tok_x.y").DecideTask(context.Background(), "t1", Decide{Actor: Actor{Email: "a@x.org"}, Decision: "approve"}, "k")
 		srv.Close()
 		var e *Error
 		if !errors.As(err, &e) || e.Code != want[i] || e.Status != r.Status {
@@ -99,10 +99,10 @@ func TestTheTaskCallsSayWhatTheyAreAndNameThePerson(t *testing.T) {
 		_, _ = w.Write([]byte(`{"uid":"t1"}`))
 	}))
 	defer srv.Close()
-	c := New(srv.URL, "zvn_x.y")
+	c := New(srv.URL, "tok_x.y")
 	ctx := context.Background()
 	me := Actor{Email: "a@x.org"}
-	if _, _, err := c.ListTasks(ctx, TaskFilter{Tenant: "shofar", Assignee: "a@x.org", Status: "open", Kind: "approval"}); err != nil {
+	if _, _, err := c.ListTasks(ctx, TaskFilter{Tenant: "org-a", Assignee: "a@x.org", Status: "open", Kind: "approval"}); err != nil {
 		t.Fatal(err)
 	}
 	_, _ = c.GetTask(ctx, "t1", "a@x.org")
@@ -110,18 +110,18 @@ func TestTheTaskCallsSayWhatTheyAreAndNameThePerson(t *testing.T) {
 	_, _ = c.ClaimTask(ctx, "t1", me, false)
 	_, _ = c.ClaimTask(ctx, "t1", me, true)
 	_, _ = c.DelegateTask(ctx, "t1", me, TaskPerson{Email: "b@x.org"}, "away", "d1")
-	_, _ = c.ReassignTask(ctx, "t1", me, []TaskPerson{{Email: "c@x.org"}}, nil, "Easter", "r1")
+	_, _ = c.ReassignTask(ctx, "t1", me, []TaskPerson{{Email: "c@x.org"}}, nil, "Launch", "r1")
 	_, _ = c.EscalateTask(ctx, "t1", me, "away", "e1")
 	_, _ = c.RemindTask(ctx, "t1")
 	_, _ = c.CompleteTask(ctx, "t1", Completion{Actor: me, Outcome: "ok"}, "c1")
 	want := []string{
-		"GET /api/workflows/tasks?assignee=a%40x.org&kind=approval&status=open&tenant=shofar  ",
+		"GET /api/workflows/tasks?assignee=a%40x.org&kind=approval&status=open&tenant=org-a  ",
 		"GET /api/workflows/tasks/t1?as=a%40x.org  ",
 		`POST /api/workflows/tasks/t1/decide? review:1:a {"actor":{"email":"a@x.org"},"decision":"approve","permits_version":0,"subject_sha256":"abc"}`,
 		`POST /api/workflows/tasks/t1/claim?  {"actor":{"email":"a@x.org"}}`,
 		`POST /api/workflows/tasks/t1/release?  {"actor":{"email":"a@x.org"}}`,
 		`POST /api/workflows/tasks/t1/delegate? d1 {"actor":{"email":"a@x.org"},"note":"away","to":{"email":"b@x.org"}}`,
-		`POST /api/workflows/tasks/t1/reassign? r1 {"actor":{"email":"a@x.org"},"add":[{"email":"c@x.org"}],"reason":"Easter","remove":null}`,
+		`POST /api/workflows/tasks/t1/reassign? r1 {"actor":{"email":"a@x.org"},"add":[{"email":"c@x.org"}],"reason":"Launch","remove":null}`,
 		`POST /api/workflows/tasks/t1/escalate? e1 {"actor":{"email":"a@x.org"},"reason":"away"}`,
 		"POST /api/workflows/tasks/t1/remind?  {}",
 		`POST /api/workflows/tasks/t1/complete? c1 {"actor":{"email":"a@x.org"},"outcome":"ok"}`,

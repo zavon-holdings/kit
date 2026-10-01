@@ -1,29 +1,29 @@
 {
-  "app": "pages",
+  "app": "cms",
   "members": [
     {
-      "email": "thandi@shofar.org",
-      "name": "Thandi",
+      "email": "ana@example.test",
+      "name": "Ana",
       "roles": [
-        "ministry_leader"
+        "team_lead"
       ],
       "staff": false,
       "statements": [
         {
           "actions": [
-            "pages:page:publish"
+            "cms:page:publish"
           ],
           "effect": "Allow",
           "resources": [
-            "org/shofar/pages/ministry/youth"
+            "org/org-a/cms/team/alpha"
           ],
-          "sid": "lead-this-ministry"
+          "sid": "lead-this-team"
         }
       ],
       "sub": "0b9c…"
     },
     {
-      "email": "ops@zavon.test",
+      "email": "ops@example.test",
       "name": "Ops",
       "roles": [],
       "staff": true,
@@ -42,6 +42,6 @@
       "sub": "4f1a…"
     }
   ],
-  "org": "shofar",
+  "org": "org-a",
   "version": 12
 }

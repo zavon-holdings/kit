@@ -26,8 +26,8 @@ func vectors() []vector {
 	at := time.Date(2026, 9, 30, 10, 0, 0, 0, time.UTC)
 	return []vector{
 		{filepath.Join("events", "request.json"), Event{
-			Type: "shop.order.paid", Ref: "ord_1001", Tenant: "shofar", OccurredAt: &at,
-			Subject: &SubjectRef{Property: "zavon-shop", Type: "order", PID: "ord_1001", Label: "Order #1001", URL: "https://example.test/orders/1001"},
+			Type: "orders.order.paid", Ref: "ord_1001", Tenant: "org-a", OccurredAt: &at,
+			Subject: &SubjectRef{Property: "store-a", Type: "order", PID: "ord_1001", Label: "Order #1001", URL: "https://example.test/orders/1001"},
 			Vars:    map[string]any{"total_cents": 12500, "currency": "ZAR"},
 		}},
 		{filepath.Join("events", "response.json"), EventResult{EventUID: "ev_01J9", Matched: 1, Advanced: true}},
@@ -35,11 +35,11 @@ func vectors() []vector {
 			Results []EventResult `json:"results"`
 		}{[]EventResult{
 			{Index: 0, Status: 202, EventUID: "ev_01J9", Matched: 1, Advanced: true},
-			{Index: 1, Status: 403, Error: "shofar's shop.* events are not this property's to raise", Code: "namespace"},
+			{Index: 1, Status: 403, Error: "org-a's orders.* events are not this property's to raise", Code: "namespace"},
 		}}},
 		{filepath.Join("runs", "start.json"), StartRun{
-			Tenant: "shofar", Definition: "page-review",
-			Subject: SubjectRef{Property: "pages-by-zavon", Type: "page", PID: "p_42", Label: "Easter", URL: "https://example.test/pages/p_42"},
+			Tenant: "org-a", Definition: "page-review",
+			Subject: SubjectRef{Property: "site-a", Type: "page", PID: "p_42", Label: "Launch", URL: "https://example.test/pages/p_42"},
 			Vars:    map[string]any{"scope": "site"},
 		}},
 		{filepath.Join("errors", "shape.json"), struct {

@@ -1,10 +1,10 @@
 {
-  "type": "shop.order.paid",
+  "type": "orders.order.paid",
   "ref": "ord_1001",
-  "tenant": "shofar",
+  "tenant": "org-a",
   "occurred_at": "2026-09-30T10:00:00Z",
   "subject": {
-    "property": "zavon-shop",
+    "property": "store-a",
     "type": "order",
     "pid": "ord_1001",
     "label": "Order #1001",

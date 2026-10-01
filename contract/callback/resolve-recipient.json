@@ -8,14 +8,14 @@
     "Content-Type": "application/json",
     "Idempotency-Key": "run:r1:step:notify-owner:resolve",
     "X-Zavon-Delivery": "dv-resolve-recipient",
-    "X-Zavon-Signature": "v1=af1cc1d6225370c5898fd8da1acddbe0bf377acc53b853dabca2cb9089c4d3b1",
+    "X-Zavon-Signature": "v1=aeeffac41b046ffcfc15f5a97f64758a37b9367cadf77c7354786a3a45f3f34a",
     "X-Zavon-Timestamp": "1790000000",
     "Zavon-Workflow-Version": "1"
   },
-  "body": "{\"action\":\"pages.resolve_recipient\",\"tenant\":\"shofar\",\"run\":{\"uid\":\"r1\",\"definition\":\"page-review\",\"version\":2,\"kind\":\"approval\",\"tenant\":\"shofar\",\"property\":\"pages-by-zavon\"},\"step\":{\"code\":\"notify-owner\",\"kind\":\"email\"},\"subject\":{\"property\":\"pages-by-zavon\",\"type\":\"page\",\"pid\":\"p1\"},\"input\":{\"role\":\"owner\"},\"attempt\":1}",
+  "body": "{\"action\":\"cms.resolve_recipient\",\"tenant\":\"org-a\",\"run\":{\"uid\":\"r1\",\"definition\":\"page-review\",\"version\":2,\"kind\":\"approval\",\"tenant\":\"org-a\",\"property\":\"site-a\"},\"step\":{\"code\":\"notify-owner\",\"kind\":\"email\"},\"subject\":{\"property\":\"site-a\",\"type\":\"page\",\"pid\":\"p1\"},\"input\":{\"role\":\"owner\"},\"attempt\":1}",
   "decision": "done",
   "answer": {
     "status": 200,
-    "body": "{\"output\":{\"email\":\"nomsa@example.test\",\"name\":\"Nomsa\"},\"status\":\"done\"}"
+    "body": "{\"output\":{\"email\":\"cara@example.test\",\"name\":\"Cara\"},\"status\":\"done\"}"
   }
 }
