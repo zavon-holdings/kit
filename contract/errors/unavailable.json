@@ -1,0 +1,7 @@
+{
+  "error": "The workflow store did not answer; nothing was changed. Try again.",
+  "code": "unavailable",
+  "detail": {
+    "reason": "failed to connect to the database"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "error": "workflows unconfigured",
+  "code": "unconfigured",
+  "detail": {
+    "reason": "the wf_* tables are not applied yet (run sync-secrets with redeploy=true)"
+  }
+}

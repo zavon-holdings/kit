@@ -43,6 +43,18 @@ func IsUnavailable(err error) bool {
 	return errors.As(err, &e) && e.Status >= 500
 }
 
+// IsUnconfigured says whether core answered that its workflow engine is not
+// set up — no database, or the wf_* tables not applied yet (§7.5
+// `unconfigured`). It is a state for a screen to render, not a fault to
+// retry: nothing will change until somebody finishes the deployment. It is
+// ALSO unavailable (a 503), so a caller that only wants "try later" need not
+// tell them apart; one that wants to say WHY reads this first. The code is
+// what tells, never the presence of a reason — a store fault (`unavailable`)
+// carries detail.reason too.
+func IsUnconfigured(err error) bool {
+	return Code(err) == "unconfigured"
+}
+
 // Code is the §7.5 code of an error, or "".
 func Code(err error) string {
 	var e *Error

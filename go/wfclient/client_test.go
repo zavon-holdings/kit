@@ -391,9 +391,19 @@ func TestErrorsCarryCoresCodeAndTellUnavailableFromRefused(t *testing.T) {
 	}
 	f.header = http.Header{}
 
-	f.status, f.answer = 503, `{"error":"workflows unconfigured","code":"unavailable"}`
-	if _, err := c.GetRun(ctx, "r1"); !IsUnavailable(err) || Code(err) != "unavailable" {
+	f.status, f.answer = 503, `{"error":"The workflow store did not answer.","code":"unavailable","detail":{"reason":"dial tcp: connection refused"}}`
+	if _, err := c.GetRun(ctx, "r1"); !IsUnavailable(err) || Code(err) != "unavailable" || IsUnconfigured(err) {
 		t.Fatalf("a 503 = %v", err)
+	}
+	// Off for want of configuration is its own code (§7.5): still unavailable
+	// (nobody should retry into it), and unconfigured, which a screen renders
+	// as a state. A reason rides on BOTH 503s, so the code is what tells.
+	f.status, f.answer = 503, `{"error":"workflows unconfigured","code":"unconfigured","detail":{"reason":"the wf_* tables are not applied yet (run sync-secrets with redeploy=true)"}}`
+	if _, err := c.GetRun(ctx, "r1"); !IsUnavailable(err) || !IsUnconfigured(err) || Code(err) != "unconfigured" {
+		t.Fatalf("an unconfigured 503 = %v", err)
+	}
+	if IsUnconfigured(errors.New("plain")) || IsUnconfigured(nil) {
+		t.Fatal("an error with no code read as unconfigured")
 	}
 	f.status, f.answer = 502, `bad gateway`
 	if _, err := c.GetRun(ctx, "r1"); !IsUnavailable(err) || !strings.Contains(err.Error(), "bad gateway") {

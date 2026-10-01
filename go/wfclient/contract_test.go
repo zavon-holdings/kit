@@ -47,6 +47,18 @@ func vectors() []vector {
 			Code   string          `json:"code"`
 			Detail json.RawMessage `json:"detail,omitempty"`
 		}{"That page already has a live review.", "run_already_live", json.RawMessage(`{"run_uid":"r_7"}`)}},
+		// The two 503s (§7.5): off for want of configuration, and a store that
+		// did not answer. Both carry detail.reason; the code tells them apart.
+		{filepath.Join("errors", "unconfigured.json"), struct {
+			Error  string          `json:"error"`
+			Code   string          `json:"code"`
+			Detail json.RawMessage `json:"detail,omitempty"`
+		}{"workflows unconfigured", "unconfigured", json.RawMessage(`{"reason":"the wf_* tables are not applied yet (run sync-secrets with redeploy=true)"}`)}},
+		{filepath.Join("errors", "unavailable.json"), struct {
+			Error  string          `json:"error"`
+			Code   string          `json:"code"`
+			Detail json.RawMessage `json:"detail,omitempty"`
+		}{"The workflow store did not answer; nothing was changed. Try again.", "unavailable", json.RawMessage(`{"reason":"failed to connect to the database"}`)}},
 	}
 }
 
@@ -88,6 +100,16 @@ func TestContractVectors(t *testing.T) {
 	var e Error
 	if err := json.Unmarshal(raw, &e); err != nil || e.Code != "run_already_live" || e.Message == "" || len(e.Detail) == 0 {
 		t.Fatalf("errors/shape: %+v %v", e, err)
+	}
+	raw, _ = os.ReadFile(filepath.Join(root, "errors", "unconfigured.json"))
+	var off Error
+	if err := json.Unmarshal(raw, &off); err != nil || !IsUnconfigured(&off) || !IsUnavailable(&Error{Status: 503, Code: off.Code}) {
+		t.Fatalf("errors/unconfigured: %+v %v", off, err)
+	}
+	raw, _ = os.ReadFile(filepath.Join(root, "errors", "unavailable.json"))
+	var fault Error
+	if err := json.Unmarshal(raw, &fault); err != nil || IsUnconfigured(&fault) || fault.Code != "unavailable" || len(fault.Detail) == 0 {
+		t.Fatalf("errors/unavailable: %+v %v", fault, err)
 	}
 	raw, _ = os.ReadFile(filepath.Join(root, "runs", "start.json"))
 	var sr StartRun

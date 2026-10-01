@@ -8,7 +8,10 @@ go/        module github.com/zavon-holdings/kit/go, zero dependencies
   webhooksig  sign/verify X-Zavon-Signature (byte-identical to core's auth.Sign)
   policy      the statement evaluator (deny beats allow, default deny)
   wfclient    client for core's /api/workflows/* (§7): definitions, runs,
-              events, manifest, deliveries; errors carry core's {code}
+              events, manifest, deliveries; errors carry core's {code};
+              IsUnavailable (any 5xx or no answer) and IsUnconfigured
+              (code "unconfigured": the engine is not set up) — the code
+              tells the two 503s apart, both carry detail.reason
   wfhandler   an app's callback door (§7.4): Mount verifies, dedupes on
               Idempotency-Key, shapes done/accepted/refused; DDL + SQLReplayStore
   outbox      at-least-once outbox (AddTx in the caller's tx, Drain by cron)
