@@ -171,7 +171,8 @@ type Page struct {
 }
 
 // StartRun is the body of POST /runs. Exactly one of Definition (a uid or a
-// code in the tenant) and Select is given; Select is phase 3.
+// code in the tenant) and Select ("auto": the most specific approval flow
+// that applies, by binding — core v3 of the plan) is given.
 type StartRun struct {
 	Tenant     string         `json:"tenant"`
 	Definition string         `json:"definition,omitempty"`

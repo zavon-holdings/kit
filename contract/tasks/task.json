@@ -1,0 +1,91 @@
+{
+  "allow_self": false,
+  "assignees": [
+    {
+      "added_at": "<added_at>",
+      "email": "a@x.org",
+      "notified_at": "<notified_at>",
+      "reminded_count": 0,
+      "source": "named",
+      "state": "approved"
+    },
+    {
+      "added_at": "<added_at>",
+      "email": "author@x.org",
+      "notified_at": "<notified_at>",
+      "reminded_count": 0,
+      "source": "named",
+      "state": "pending"
+    },
+    {
+      "added_at": "<added_at>",
+      "email": "b@x.org",
+      "notified_at": "<notified_at>",
+      "reminded_count": 0,
+      "source": "named",
+      "state": "pending"
+    }
+  ],
+  "claimed_at": null,
+  "claimed_by": null,
+  "completed_at": null,
+  "counts": {
+    "approved": 1,
+    "counted": 2,
+    "needed": 2,
+    "pending": 1,
+    "rejected": 0
+  },
+  "created_at": "<created_at>",
+  "decisions": [
+    {
+      "actor": {
+        "email": "a@x.org",
+        "kind": "user",
+        "name": "A",
+        "property": "pages-by-bantuhr",
+        "sub": "s-a"
+      },
+      "created_at": "<created_at>",
+      "decision": "approve",
+      "note": "Looks right",
+      "permits_version": 0,
+      "subject_sha256": "abc"
+    }
+  ],
+  "delegation": "",
+  "due_at": null,
+  "escalation_level": 0,
+  "escalations": 0,
+  "kind": "approval",
+  "mode": "all",
+  "outcome": "",
+  "permits_version": 0,
+  "property": "pages-by-bantuhr",
+  "quorum": 1,
+  "reject_mode": "any",
+  "run_state": "open",
+  "run_uid": "<run_uid>",
+  "self_if_sole": false,
+  "status": "open",
+  "step": {
+    "code": "approve",
+    "name": "Approve"
+  },
+  "subject": {
+    "label": "Easter Sunday",
+    "pid": "p1",
+    "property": "pages-by-bantuhr",
+    "type": "page"
+  },
+  "submitter": {
+    "email": "author@x.org",
+    "kind": "user",
+    "sub": "s-author"
+  },
+  "task_type": "approval",
+  "tenant": "shofar",
+  "title": "Approve Easter Sunday",
+  "uid": "<uid>",
+  "unassignable": false
+}

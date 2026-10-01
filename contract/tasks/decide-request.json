@@ -1,0 +1,12 @@
+{
+  "actor": {
+    "email": "a@x.org",
+    "kind": "user",
+    "name": "A",
+    "sub": "s-a"
+  },
+  "decision": "approve",
+  "note": "Looks right",
+  "permits_version": 0,
+  "subject_sha256": "abc"
+}

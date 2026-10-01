@@ -2,11 +2,13 @@
 // organisation, refreshed only when a version says it is stale
 // (admin/docs/workflow-engine-plan.md §10.3).
 //
-// READ-ONLY UNTIL PHASE 3. Accounts does not yet publish a permits version or
-// GET /api/orgs/{slug}/permits; until it does, nothing fills this cache. What
-// ships here is the shape apps and core will share: the table, the snapshot,
-// the four refresh triggers as pure functions, and Decide over the policy
-// evaluator, so the rule is one implementation before the data exists.
+// Accounts publishes it (2026-10-01): orgs.permits_version, the `pv` claim
+// on every token, and GET /api/orgs/{slug}/permits?app=<app> answering
+// {org, app, version, members:[{sub, email, name, staff, roles, statements}]}
+// with ETag "<version>" and 304 on If-None-Match. HTTPRefresher reads it,
+// as the app's own core property token carrying workflows:permits (the
+// property must be on Accounts' permitReaders), or as a manager's token.
+// contract/permits/snapshot.json is the answer, as core reads it too.
 //
 // The four times an app refreshes, and the only four:
 //  1. a request's token carries a permits version NEWER than the cache;
@@ -41,9 +43,12 @@ const DDL = `CREATE TABLE IF NOT EXISTS permits_cache (
 
 // Member is one person's permits in one app of one organisation.
 type Member struct {
-	Sub        string             `json:"sub"`
-	Email      string             `json:"email"`
-	Name       string             `json:"name,omitempty"`
+	Sub   string `json:"sub"`
+	Email string `json:"email"`
+	Name  string `json:"name,omitempty"`
+	// Staff carry `*` on `*` in every organisation, the statement their
+	// token carries too.
+	Staff      bool               `json:"staff,omitempty"`
 	Roles      []string           `json:"roles,omitempty"`
 	Statements []policy.Statement `json:"statements"`
 }
@@ -228,8 +233,8 @@ func (c Cache) Touch(ctx context.Context, org, app string) error {
 var ErrNotModified = errors.New("permits: not modified")
 
 // Refresher fetches a snapshot from Accounts: GET /api/orgs/{slug}/permits
-// ?app= with If-None-Match: "<version>". ErrNotModified for a 304. Phase 3
-// ships the implementation beside the endpoint; kit holds the seam.
+// ?app= with If-None-Match: "<version>". ErrNotModified for a 304.
+// HTTPRefresher (http.go) is the implementation over the real endpoint.
 type Refresher interface {
 	Fetch(ctx context.Context, org, app string, ifNoneMatch int64) (Snapshot, error)
 }

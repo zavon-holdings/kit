@@ -1,0 +1,37 @@
+[
+  {
+    "body": {
+      "code": "not_an_assignee",
+      "error": "You are not one of the people this is waiting for."
+    },
+    "status": 403
+  },
+  {
+    "body": {
+      "code": "self_approval",
+      "error": "You submitted this, so somebody else must approve it."
+    },
+    "status": 403
+  },
+  {
+    "body": {
+      "code": "subject_changed",
+      "error": "What is being decided has changed since it was shown. Reload it."
+    },
+    "status": 409
+  },
+  {
+    "body": {
+      "code": "already_decided",
+      "error": "You have already decided this."
+    },
+    "status": 409
+  },
+  {
+    "body": {
+      "code": "task_closed",
+      "error": "This has already been decided."
+    },
+    "status": 409
+  }
+]

@@ -1,0 +1,47 @@
+{
+  "app": "pages",
+  "members": [
+    {
+      "email": "thandi@shofar.org",
+      "name": "Thandi",
+      "roles": [
+        "ministry_leader"
+      ],
+      "staff": false,
+      "statements": [
+        {
+          "actions": [
+            "pages:page:publish"
+          ],
+          "effect": "Allow",
+          "resources": [
+            "org/shofar/pages/ministry/youth"
+          ],
+          "sid": "lead-this-ministry"
+        }
+      ],
+      "sub": "0b9c…"
+    },
+    {
+      "email": "ops@zavon.test",
+      "name": "Ops",
+      "roles": [],
+      "staff": true,
+      "statements": [
+        {
+          "actions": [
+            "*"
+          ],
+          "effect": "Allow",
+          "resources": [
+            "*"
+          ],
+          "sid": "staff"
+        }
+      ],
+      "sub": "4f1a…"
+    }
+  ],
+  "org": "shofar",
+  "version": 12
+}
