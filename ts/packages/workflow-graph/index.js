@@ -61,7 +61,10 @@ export const PROBLEMS = Object.freeze({
 const P = PROBLEMS;
 
 const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook"]);
-const isTask = (t) => t === "review" || t === "form" || t === "approval";
+// A task finishes with an outcome its edges may route on; a sub-workflow
+// finishes with its child run's.
+const isTask = (t) => t === "review" || t === "form" || t === "approval" || t === "sub_workflow";
+const subWaits = (cfg) => typeof cfg.wait !== "boolean" || cfg.wait;
 /** The only outcomes a node type can finish with, when the type decides them. */
 const FIXED_OUTCOMES = Object.freeze({
   approval: ["approved", "rejected"],
@@ -194,7 +197,6 @@ function moneyConfig(x, ps, n, cfg) {
 }
 
 export const NOT_YET = Object.freeze({
-  sub_workflow: "sub-workflow nodes are not supported by this compiler version",
   task: "a task node is a review or a form",
   branch: "draw a branch as a decision or a condition",
   parallel: "draw a parallel block as a fork and a join",
@@ -481,6 +483,8 @@ function validateShape(x, conditions) {
     } else if (isComposite(n.type)) {
       moneyConfig(x, ps, n, cfg);
       choiceEdges(x, ps, n, cfg, conditions);
+    } else if (n.type === "sub_workflow" && !subWaits(cfg) && x.routes(n)) {
+      ps.push({ code: P.EDGE_SHAPE, node: n.id, message: `${name} does not wait for the workflow it starts, so there is no outcome to route on: one way on` });
     } else if (n.type === "decision" || x.routes(n)) {
       choiceEdges(x, ps, n, cfg, conditions);
     } else if (n.type === "wait_event") {
@@ -490,6 +494,8 @@ function validateShape(x, conditions) {
     } else {
       oneWayOut(x, ps, n);
     }
+    if (n.type === "sub_workflow" && !(typeof cfg.definition === "string" && cfg.definition.trim()))
+      ps.push({ code: P.NODE_CONFIG, node: n.id, message: `${name}: name the workflow it runs, definition` });
   }
   const reached = reach(x);
   for (const n of x.g.nodes) {

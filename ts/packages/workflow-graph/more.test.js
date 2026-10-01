@@ -101,3 +101,31 @@ test("an edge may read a money node's own steps", () => {
   };
   assert.equal(compile(g, { conditions }).problems, undefined);
 });
+
+test("a sub-workflow is one step of its own kind, and routes on its child's outcome when it waits", () => {
+  const g = {
+    format: FORMAT,
+    nodes: [
+      { id: "start", type: "start" },
+      { id: "child", type: "sub_workflow", name: "Onboard", config: { definition: "onboard", subject: "same", vars: { source: "parent" } } },
+      { id: "ok", type: "end" },
+      { id: "no", type: "end" },
+    ],
+    edges: [{ from: "start", to: "child" }, { from: "child", to: "ok", label: "completed" }, { from: "child", to: "no", label: "otherwise", default: true }],
+  };
+  const { steps } = compile(g, { conditions });
+  assert.equal(steps.length, 4);
+  assert.equal(steps[0].kind, "sub_workflow");
+  assert.equal(steps[1].code, "child--route");
+  assert.equal(steps[1].config.cases[0].when.field, "steps.child.output.outcome");
+  assert.ok(sameSteps(compile(decompile(steps), { conditions }).steps, steps)[0]);
+  const seq = compile(
+    {
+      format: FORMAT,
+      nodes: [{ id: "start", type: "start" }, { id: "child", type: "sub_workflow", config: { definition: "onboard", wait: false } }, { id: "done", type: "end" }],
+      edges: [{ from: "start", to: "child" }, { from: "child", to: "done" }],
+    },
+    { conditions },
+  );
+  assert.equal(seq.steps.length, 2);
+});

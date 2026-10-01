@@ -1,5 +1,5 @@
 {
-  "name": "refused-a-sub-workflow-node",
+  "name": "refused-a-sub-workflow-that-does-not-wait-but-routes",
   "direction": "compile",
   "graph": {
     "edges": [
@@ -9,7 +9,14 @@
       },
       {
         "from": "child",
-        "to": "done"
+        "label": "approved",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "child",
+        "label": "rejected",
+        "to": "b"
       }
     ],
     "format": "workflow.graph/1",
@@ -20,20 +27,25 @@
       },
       {
         "config": {
-          "definition": "other"
+          "definition": "onboard",
+          "wait": false
         },
         "id": "child",
         "type": "sub_workflow"
       },
       {
-        "id": "done",
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
         "type": "end"
       }
     ]
   },
   "problems": [
     {
-      "code": "not_yet",
+      "code": "edge_shape",
       "node": "child"
     }
   ]

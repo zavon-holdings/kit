@@ -1,0 +1,40 @@
+{
+  "name": "refused-a-node-type-not-drawn-yet",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "todo"
+      },
+      {
+        "from": "todo",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "title": "Phone them"
+        },
+        "id": "todo",
+        "type": "task"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "not_yet",
+      "node": "todo"
+    }
+  ]
+}

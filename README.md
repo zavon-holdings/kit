@@ -28,7 +28,7 @@ are passed as strings.
 |--------------------------|------------|
 | `@zavon/webhooksig`      | The signature, for Node and the browser. Twin of `go/webhooksig`. |
 | `@zavon/conditions`      | The workflow condition language: parse, evaluate, describe, fields. |
-| `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. |
+| `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. Draws decisions, forks, loops, approvals, sub-workflows, payment requests and invoices (each one node, compiled to a sequence), and carries canvas notes that never compile. |
 | `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
 
 ### `@zavon/workflow-ui`

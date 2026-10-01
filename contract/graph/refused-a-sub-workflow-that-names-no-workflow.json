@@ -1,0 +1,40 @@
+{
+  "name": "refused-a-sub-workflow-that-names-no-workflow",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "child"
+      },
+      {
+        "from": "child",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "definition": " "
+        },
+        "id": "child",
+        "type": "sub_workflow"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "node_config",
+      "node": "child"
+    }
+  ]
+}
