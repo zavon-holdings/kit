@@ -1,0 +1,32 @@
+{
+  "name": "trigger-legacy-is-on-missing-field",
+  "mode": "trigger",
+  "condition": {
+    "all": [
+      {
+        "field": "region",
+        "op": "is",
+        "value": "north"
+      }
+    ]
+  },
+  "scope": {
+    "subject": {
+      "pid": "f1",
+      "property": "pages-by-zavon",
+      "type": "form_submission"
+    },
+    "event": {
+      "ref": "f1",
+      "type": "pages.form.submitted",
+      "vars": {
+        "age": 17,
+        "campus": "Stellenbosch",
+        "form": "youth-camp",
+        "kind": "member"
+      }
+    }
+  },
+  "now": "2026-10-01T10:00:00Z",
+  "expect": false
+}

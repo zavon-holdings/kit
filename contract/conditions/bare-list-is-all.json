@@ -1,0 +1,80 @@
+{
+  "name": "bare-list-is-all",
+  "mode": "branch",
+  "condition": [
+    {
+      "field": "vars.scope.type",
+      "op": "is",
+      "value": "location"
+    },
+    {
+      "field": "vars.count",
+      "op": "gte",
+      "value": 3
+    }
+  ],
+  "scope": {
+    "vars": {
+      "count": 3,
+      "flag": true,
+      "invoice": {
+        "due_at": "2026-10-05T09:00:00Z",
+        "issued_on": "2026-09-20"
+      },
+      "items": [
+        {
+          "sku": "A"
+        }
+      ],
+      "note": "Paid by EFT on Monday",
+      "nothing": null,
+      "price": "1250",
+      "ratio": 0.5,
+      "ref": "PAY-2026-000123",
+      "scope": {
+        "type": "location",
+        "uid": "l1"
+      },
+      "submitter": {
+        "email": "Thandi@Example.test"
+      },
+      "tags": [
+        "youth",
+        "camp"
+      ]
+    },
+    "subject": {
+      "label": "Easter",
+      "pid": "p1",
+      "property": "pages-by-zavon",
+      "type": "page",
+      "vars": {
+        "location": "stellenbosch"
+      }
+    },
+    "steps": {
+      "finance": {
+        "output": {
+          "amount": 125000,
+          "approved": true
+        },
+        "status": "completed"
+      },
+      "wait": {
+        "output": {},
+        "status": "in_progress"
+      }
+    },
+    "event": {
+      "occurred_at": "2026-10-01T09:59:00Z",
+      "ref": "payment:PAY-1:paid",
+      "type": "pages.payment.paid",
+      "vars": {
+        "campus": "Stellenbosch",
+        "status": "paid"
+      }
+    }
+  },
+  "now": "2026-10-01T10:00:00Z",
+  "expect": true
+}

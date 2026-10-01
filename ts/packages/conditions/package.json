@@ -1,0 +1,13 @@
+{
+  "name": "@zavon/conditions",
+  "version": "1.2.0",
+  "description": "The workflow engine's condition language, evaluated in the browser. Twin of core's app/workflow/cond; held together by kit/contract/conditions.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  }
+}
