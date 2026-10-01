@@ -1,0 +1,102 @@
+{
+  "name": "refused-a-payment-in-an-arm",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "both"
+      },
+      {
+        "from": "both",
+        "to": "pay"
+      },
+      {
+        "from": "both",
+        "to": "tell"
+      },
+      {
+        "default": true,
+        "from": "pay",
+        "label": "expired",
+        "to": "meet"
+      },
+      {
+        "from": "tell",
+        "to": "meet"
+      },
+      {
+        "from": "meet",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "both",
+        "type": "fork"
+      },
+      {
+        "config": {
+          "action": "billing.payment.request",
+          "amount": 125000,
+          "currency": "EUR",
+          "description": "Membership fee",
+          "events": {
+            "expired": "billing.payment.expired",
+            "failed": "billing.payment.failed",
+            "paid": "billing.payment.paid"
+          },
+          "expires": {
+            "unit": "days",
+            "value": 3
+          },
+          "notify": {
+            "body_text": "Your payment link is ready.",
+            "channel": "email",
+            "subject": "Please pay",
+            "to": [
+              {
+                "subject": true
+              }
+            ]
+          }
+        },
+        "id": "pay",
+        "type": "payment_request"
+      },
+      {
+        "config": {
+          "template_code": "x"
+        },
+        "id": "tell",
+        "type": "email"
+      },
+      {
+        "config": {
+          "join": "all"
+        },
+        "id": "meet",
+        "type": "join"
+      },
+      {
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "arm_not_plain",
+      "node": "pay"
+    },
+    {
+      "code": "choice_edges",
+      "node": "pay"
+    }
+  ]
+}

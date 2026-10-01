@@ -1,0 +1,53 @@
+{
+  "name": "refused-a-payment-with-no-expiry",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "pay"
+      },
+      {
+        "from": "pay",
+        "label": "paid",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "pay",
+        "label": "expired",
+        "to": "b"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "action": "billing.payment.request",
+          "amount": 100,
+          "currency": "EUR"
+        },
+        "id": "pay",
+        "type": "payment_request"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "node_config",
+      "node": "pay"
+    }
+  ]
+}

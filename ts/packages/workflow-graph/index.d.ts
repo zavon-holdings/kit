@@ -6,6 +6,17 @@ export declare const TIMEOUT_LABEL: "timeout";
 /** A loop's two ways out: to the first step of its body, and to what follows. */
 export declare const BODY_LABEL: "body";
 export declare const NEXT_LABEL: "next";
+/** The codes a payment_request or invoice node's steps carry after its id. */
+export declare const MONEY_SUFFIXES: Readonly<{
+  VARS: "--vars";
+  REQUEST: "--request";
+  ISSUE: "--issue";
+  NOTIFY: "--notify";
+  WAIT: "--wait";
+  OUTCOME: "--outcome";
+  TIMEOUT: "--timeout";
+  TIMEOUT_GOTO: "--timeout-goto";
+}>;
 export declare const PROBLEMS: Readonly<Record<string, string>>;
 export declare const NOT_YET: Readonly<Record<string, string>>;
 

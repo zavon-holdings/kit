@@ -1,0 +1,270 @@
+{
+  "name": "a-failed-payment-goes-back-to-ask-again",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "pay"
+      },
+      {
+        "from": "pay",
+        "label": "paid",
+        "to": "done"
+      },
+      {
+        "from": "pay",
+        "label": "failed",
+        "to": "again"
+      },
+      {
+        "default": true,
+        "from": "pay",
+        "label": "expired",
+        "to": "lost"
+      },
+      {
+        "from": "again",
+        "label": "retry",
+        "to": "pay"
+      },
+      {
+        "default": true,
+        "from": "again",
+        "label": "give-up",
+        "to": "lost"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "action": "billing.payment.request",
+          "amount": 125000,
+          "currency": "EUR",
+          "description": "Membership fee",
+          "events": {
+            "expired": "billing.payment.expired",
+            "failed": "billing.payment.failed",
+            "paid": "billing.payment.paid"
+          },
+          "expires": {
+            "unit": "days",
+            "value": 3
+          },
+          "notify": {
+            "body_text": "Your payment link is ready.",
+            "channel": "email",
+            "subject": "Please pay",
+            "to": [
+              {
+                "subject": true
+              }
+            ]
+          }
+        },
+        "id": "pay",
+        "max_passes": 3,
+        "type": "payment_request"
+      },
+      {
+        "config": {
+          "outcome": "paid"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcomes": [
+            {
+              "name": "retry"
+            },
+            {
+              "name": "give-up"
+            }
+          ]
+        },
+        "id": "again",
+        "type": "review"
+      },
+      {
+        "config": {
+          "outcome": "unpaid"
+        },
+        "id": "lost",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "pay--vars",
+      "name": "pay",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "payment.pay.amount": 125000,
+          "payment.pay.currency": "EUR"
+        }
+      }
+    },
+    {
+      "code": "pay--request",
+      "name": "pay: ask",
+      "kind": "call",
+      "config": {
+        "action": "billing.payment.request",
+        "capture": {
+          "payment.pay.expires_at": "output.expires_at",
+          "payment.pay.pay_url": "output.pay_url",
+          "payment.pay.reference": "output.reference"
+        },
+        "input": {
+          "amount": 125000,
+          "currency": "EUR",
+          "description": "Membership fee",
+          "expires": {
+            "unit": "days",
+            "value": 3
+          }
+        }
+      }
+    },
+    {
+      "code": "pay--notify",
+      "name": "pay: tell",
+      "kind": "notification",
+      "config": {
+        "body_text": "Your payment link is ready.",
+        "channel": "email",
+        "subject": "Please pay",
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      }
+    },
+    {
+      "code": "pay--wait",
+      "name": "pay: wait",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "billing.payment.paid",
+          "billing.payment.failed",
+          "billing.payment.expired"
+        ],
+        "match": {
+          "event_field": "reference",
+          "var": "payment.pay.reference"
+        },
+        "on_timeout": "branch:pay--timeout",
+        "timeout": {
+          "unit": "days",
+          "value": 4
+        }
+      }
+    },
+    {
+      "code": "pay--outcome",
+      "name": "pay: outcome",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "done",
+            "when": {
+              "field": "steps.pay--wait.output.event",
+              "op": "is",
+              "value": "billing.payment.paid"
+            }
+          },
+          {
+            "goto": "again",
+            "when": {
+              "field": "steps.pay--wait.output.event",
+              "op": "is",
+              "value": "billing.payment.failed"
+            }
+          }
+        ],
+        "default": "lost"
+      }
+    },
+    {
+      "code": "pay--timeout",
+      "name": "pay: no answer",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "payment.pay.state": "unanswered"
+        }
+      }
+    },
+    {
+      "code": "pay--timeout-goto",
+      "name": "pay: no answer, go on",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "lost"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "paid"
+      }
+    },
+    {
+      "code": "again",
+      "name": "again",
+      "kind": "review",
+      "config": {
+        "outcomes": [
+          {
+            "name": "retry"
+          },
+          {
+            "name": "give-up"
+          }
+        ]
+      }
+    },
+    {
+      "code": "again--route",
+      "name": "After again",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "pay--vars",
+            "when": {
+              "field": "steps.again.output.outcome",
+              "op": "is",
+              "value": "retry"
+            }
+          }
+        ],
+        "default": "lost",
+        "max_passes": 3
+      }
+    },
+    {
+      "code": "lost",
+      "name": "lost",
+      "kind": "end",
+      "config": {
+        "outcome": "unpaid"
+      }
+    }
+  ]
+}

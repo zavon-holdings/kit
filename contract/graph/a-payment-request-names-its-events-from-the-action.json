@@ -1,0 +1,172 @@
+{
+  "name": "a-payment-request-names-its-events-from-the-action",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "fee-1"
+      },
+      {
+        "from": "fee-1",
+        "label": "paid",
+        "to": "done"
+      },
+      {
+        "default": true,
+        "from": "fee-1",
+        "label": "expired",
+        "to": "lost"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "action": "billing.payment.request",
+          "amount": {
+            "var": "vars.fee"
+          },
+          "currency": "EUR",
+          "expires": {
+            "unit": "hours",
+            "value": 12
+          }
+        },
+        "id": "fee-1",
+        "name": "Fee",
+        "type": "payment_request"
+      },
+      {
+        "config": {
+          "outcome": "paid"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "unpaid"
+        },
+        "id": "lost",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "fee-1--vars",
+      "name": "Fee",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "payment.fee_1.amount": {
+            "var": "vars.fee"
+          },
+          "payment.fee_1.currency": "EUR"
+        }
+      }
+    },
+    {
+      "code": "fee-1--request",
+      "name": "Fee: ask",
+      "kind": "call",
+      "config": {
+        "action": "billing.payment.request",
+        "capture": {
+          "payment.fee_1.expires_at": "output.expires_at",
+          "payment.fee_1.pay_url": "output.pay_url",
+          "payment.fee_1.reference": "output.reference"
+        },
+        "input": {
+          "amount": {
+            "var": "vars.fee"
+          },
+          "currency": "EUR",
+          "expires": {
+            "unit": "hours",
+            "value": 12
+          }
+        }
+      }
+    },
+    {
+      "code": "fee-1--wait",
+      "name": "Fee: wait",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "billing.payment.paid",
+          "billing.payment.failed",
+          "billing.payment.expired"
+        ],
+        "match": {
+          "event_field": "reference",
+          "var": "payment.fee_1.reference"
+        },
+        "on_timeout": "branch:fee-1--timeout",
+        "timeout": {
+          "unit": "hours",
+          "value": 36
+        }
+      }
+    },
+    {
+      "code": "fee-1--outcome",
+      "name": "Fee: outcome",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "done",
+            "when": {
+              "field": "steps.fee-1--wait.output.event",
+              "op": "is",
+              "value": "billing.payment.paid"
+            }
+          }
+        ],
+        "default": "lost"
+      }
+    },
+    {
+      "code": "fee-1--timeout",
+      "name": "Fee: no answer",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "payment.fee_1.state": "unanswered"
+        }
+      }
+    },
+    {
+      "code": "fee-1--timeout-goto",
+      "name": "Fee: no answer, go on",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "lost"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "paid"
+      }
+    },
+    {
+      "code": "lost",
+      "name": "lost",
+      "kind": "end",
+      "config": {
+        "outcome": "unpaid"
+      }
+    }
+  ]
+}

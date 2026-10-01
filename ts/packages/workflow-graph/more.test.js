@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as conditions from "../conditions/index.js";
-import { canonical, compile, decompile, equal, FORMAT, NotDrawableError } from "./index.js";
+import { canon, canonical, compile, decompile, equal, FORMAT, NotDrawableError, sameSteps } from "./index.js";
 
 const base = () => ({
   format: FORMAT,
@@ -58,4 +58,46 @@ test("a stored approval is drawn without the store's task_type or the compiler's
     { code: "ok", name: "ok", kind: "end", config: {} },
   ]);
   assert.equal(plain.nodes.find((n) => n.id === "sign").config.on_reject, "continue");
+});
+
+test("an invoice reminds through notification children of its wait, and folds back into one node", () => {
+  const send = { channel: "email", to: [{ subject: true }], subject: "Invoice", body_text: "Attached." };
+  const nudge = { channel: "email", to: [{ subject: true }], subject: "A reminder", body_text: "Still due." };
+  const inv = {
+    action: "billing.invoice.issue", amount: 100, currency: "EUR", due: { value: 10, unit: "days" }, notify: send,
+    events: { paid: "billing.invoice.paid", voided: "billing.invoice.voided" },
+    reminders: [{ after: { value: 3, unit: "business_days" }, notify: nudge }, { after: { value: 7, unit: "business_days" } }],
+  };
+  const g = {
+    format: FORMAT,
+    nodes: [{ id: "start", type: "start" }, { id: "inv", type: "invoice", config: inv }, { id: "done", type: "end" }, { id: "late", type: "end" }],
+    edges: [{ from: "start", to: "inv" }, { from: "inv", to: "done", label: "paid" }, { from: "inv", to: "late", label: "overdue", default: true }],
+  };
+  const { steps, problems } = compile(g, { conditions });
+  assert.equal(problems, undefined);
+  const wait = steps.find((s) => s.code === "inv--wait");
+  const kids = steps.filter((s) => s.parent === "inv--wait");
+  assert.equal(wait.config.reminders.length, 2);
+  assert.deepEqual(kids.map((k) => [k.code, k.branch]), [["inv--remind-1", "reminders"], ["inv--remind-2", "reminders"]]);
+  assert.deepEqual(kids[0].config, canon(nudge));
+  assert.deepEqual(kids[1].config, canon(send));
+  assert.equal(wait.config.event.length, 2);
+  const back = decompile(steps);
+  assert.equal(back.nodes.find((n) => n.id === "inv").type, "invoice");
+  const again = compile(back, { conditions });
+  assert.ok(sameSteps(again.steps, steps)[0]);
+});
+
+test("an edge may read a money node's own steps", () => {
+  const pay = { action: "billing.payment.request", amount: 1, currency: "EUR", expires: { value: 1, unit: "days" } };
+  const g = {
+    format: FORMAT,
+    nodes: [{ id: "start", type: "start" }, { id: "pay", type: "payment_request", config: pay }, { id: "a", type: "end" }, { id: "b", type: "end" }],
+    edges: [
+      { from: "start", to: "pay" },
+      { from: "pay", to: "a", label: "big", when: { field: "steps.pay--wait.output.vars.paid_cents", op: "gt", value: 100 } },
+      { from: "pay", to: "b", label: "expired", default: true },
+    ],
+  };
+  assert.equal(compile(g, { conditions }).problems, undefined);
 });

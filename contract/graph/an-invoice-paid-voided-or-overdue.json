@@ -1,0 +1,228 @@
+{
+  "name": "an-invoice-paid-voided-or-overdue",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "inv"
+      },
+      {
+        "from": "inv",
+        "label": "paid",
+        "to": "done"
+      },
+      {
+        "from": "inv",
+        "label": "voided",
+        "to": "void"
+      },
+      {
+        "default": true,
+        "from": "inv",
+        "label": "overdue",
+        "to": "late"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "action": "billing.invoice.issue",
+          "amount": 50000,
+          "currency": "EUR",
+          "description": "Hall hire",
+          "due": {
+            "unit": "weeks",
+            "value": 2
+          },
+          "events": {
+            "overdue": "billing.invoice.overdue",
+            "paid": "billing.invoice.paid",
+            "voided": "billing.invoice.voided"
+          },
+          "notify": {
+            "body_text": "Your invoice is attached.",
+            "channel": "email",
+            "subject": "Your invoice",
+            "to": [
+              {
+                "subject": true
+              }
+            ]
+          }
+        },
+        "id": "inv",
+        "type": "invoice"
+      },
+      {
+        "config": {
+          "outcome": "paid"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "voided"
+        },
+        "id": "void",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "overdue"
+        },
+        "id": "late",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "inv--vars",
+      "name": "inv",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "invoice.inv.amount": 50000,
+          "invoice.inv.currency": "EUR"
+        }
+      }
+    },
+    {
+      "code": "inv--issue",
+      "name": "inv: ask",
+      "kind": "call",
+      "config": {
+        "action": "billing.invoice.issue",
+        "capture": {
+          "invoice.inv.document_url": "output.document_url",
+          "invoice.inv.due_at": "output.due_at",
+          "invoice.inv.number": "output.number",
+          "invoice.inv.pay_url": "output.pay_url",
+          "invoice.inv.reference": "output.reference"
+        },
+        "input": {
+          "amount": 50000,
+          "currency": "EUR",
+          "description": "Hall hire",
+          "due": {
+            "unit": "weeks",
+            "value": 2
+          }
+        }
+      }
+    },
+    {
+      "code": "inv--notify",
+      "name": "inv: tell",
+      "kind": "notification",
+      "config": {
+        "body_text": "Your invoice is attached.",
+        "channel": "email",
+        "subject": "Your invoice",
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      }
+    },
+    {
+      "code": "inv--wait",
+      "name": "inv: wait",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "billing.invoice.paid",
+          "billing.invoice.voided",
+          "billing.invoice.overdue"
+        ],
+        "match": {
+          "event_field": "reference",
+          "var": "invoice.inv.reference"
+        },
+        "on_timeout": "branch:inv--timeout",
+        "timeout": {
+          "unit": "days",
+          "value": 15
+        }
+      }
+    },
+    {
+      "code": "inv--outcome",
+      "name": "inv: outcome",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "done",
+            "when": {
+              "field": "steps.inv--wait.output.event",
+              "op": "is",
+              "value": "billing.invoice.paid"
+            }
+          },
+          {
+            "goto": "void",
+            "when": {
+              "field": "steps.inv--wait.output.event",
+              "op": "is",
+              "value": "billing.invoice.voided"
+            }
+          }
+        ],
+        "default": "late"
+      }
+    },
+    {
+      "code": "inv--timeout",
+      "name": "inv: no answer",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "invoice.inv.state": "overdue"
+        }
+      }
+    },
+    {
+      "code": "inv--timeout-goto",
+      "name": "inv: no answer, go on",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "late"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "paid"
+      }
+    },
+    {
+      "code": "void",
+      "name": "void",
+      "kind": "end",
+      "config": {
+        "outcome": "voided"
+      }
+    },
+    {
+      "code": "late",
+      "name": "late",
+      "kind": "end",
+      "config": {
+        "outcome": "overdue"
+      }
+    }
+  ],
+  "normal": true
+}

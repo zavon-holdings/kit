@@ -63,17 +63,138 @@ const P = PROBLEMS;
 const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook"]);
 const isTask = (t) => t === "review" || t === "form" || t === "approval";
 /** The only outcomes a node type can finish with, when the type decides them. */
-const FIXED_OUTCOMES = Object.freeze({ approval: ["approved", "rejected"] });
+const FIXED_OUTCOMES = Object.freeze({
+  approval: ["approved", "rejected"],
+  payment_request: ["paid", "failed", "expired"],
+  invoice: ["paid", "voided", "overdue"],
+});
 /** A routing approval completes on a rejection, and the route decides. */
 const REJECT_CONTINUE = "continue";
 const isStepType = (t) => PLAIN.has(t) || isTask(t) || t === "wait_event";
 const STRUCTURAL = new Set(["start", "end", "fork", "join", "condition", "decision", "loop"]);
-const knownType = (t) => STRUCTURAL.has(t) || isStepType(t);
+const knownType = (t) => STRUCTURAL.has(t) || isStepType(t) || isComposite(t);
+
+/* ── the money nodes: one node, a sequence of steps ── */
+
+export const MONEY_SUFFIXES = Object.freeze({
+  VARS: "--vars",
+  REQUEST: "--request",
+  ISSUE: "--issue",
+  NOTIFY: "--notify",
+  WAIT: "--wait",
+  OUTCOME: "--outcome",
+  TIMEOUT: "--timeout",
+  TIMEOUT_GOTO: "--timeout-goto",
+});
+const MS = MONEY_SUFFIXES;
+const SUFFIX_REMIND = "--remind-";
+const REMINDERS_ARM = "reminders";
+
+const MONEY = Object.freeze({
+  payment_request: {
+    ns: "payment", call: MS.REQUEST, outcomes: ["paid", "failed", "expired"], fallback: "expired",
+    state: "unanswered", window: "expires", verb: "payment",
+    input: ["amount", "currency", "description", "payer", "expires"],
+  },
+  invoice: {
+    ns: "invoice", call: MS.ISSUE, outcomes: ["paid", "voided", "overdue"], fallback: "overdue",
+    state: "overdue", window: "due", verb: "invoice",
+    input: ["amount", "currency", "description", "payer", "due", "po_number", "notes"],
+  },
+});
+const isComposite = (t) => Object.hasOwn(MONEY, t);
+
+/** A node id as one segment of a var path. */
+function varSegment(id) {
+  let s = id.replaceAll("-", "_");
+  if (/^[0-9]/.test(s)) s = `_${s}`;
+  return s;
+}
+
+function moneyEvents(k, cfg) {
+  const given = isObject(cfg.events) ? cfg.events : null;
+  const action = typeof cfg.action === "string" ? cfg.action : "";
+  const i = action.indexOf(".");
+  const ns = i > 0 ? action.slice(0, i) : action;
+  const out = [];
+  for (const o of k.outcomes) {
+    if (given) {
+      const e = typeof given[o] === "string" ? given[o].trim() : "";
+      if (e) out.push(e);
+      continue;
+    }
+    out.push(`${ns}.${k.verb}.${o}`);
+  }
+  return out;
+}
+
+const FIXED_SPANS = new Set(["minutes", "hours", "days", "weeks"]);
+
+/** A {value, unit} span plus one day, in a fixed unit; null when it is not one. */
+function spanAfter(span) {
+  if (!isObject(span)) return null;
+  const v = span.value;
+  const unit = span.unit;
+  if (!Number.isInteger(v) || v < 1 || !FIXED_SPANS.has(unit)) return null;
+  if (unit === "minutes") return { value: v + 1440, unit: "minutes" };
+  if (unit === "hours") return { value: v + 24, unit: "hours" };
+  if (unit === "weeks") return { value: v * 7 + 1, unit: "days" };
+  return { value: v + 1, unit: "days" };
+}
+
+const actionLike = (s) => {
+  const t = typeof s === "string" ? s.trim() : "";
+  const i = t.indexOf(".");
+  return i > 0 && i < t.length - 1 && !t.includes(" ");
+};
+
+function moneyConfig(x, ps, n, cfg) {
+  const k = MONEY[n.type];
+  const add = (message) => ps.push({ code: P.NODE_CONFIG, node: n.id, message: `${displayName(n)}: ${message}` });
+  const events = moneyEvents(k, cfg);
+  for (const i of x.outs(n.id)) {
+    const e = x.edge(i);
+    if (e.default || hasWhen(e)) continue;
+    k.outcomes.forEach((name, o) => {
+      if (name.toLowerCase() === (e.label ?? "").toLowerCase() && o >= events.length)
+        ps.push({ code: P.NODE_CONFIG, node: n.id, edge: ref(e), message: `${displayName(n)}: the branch "${e.label}" needs its event, events.${name}` });
+    });
+  }
+  if (!actionLike(cfg.action)) add("name the app's action that asks for the money, as namespace.action");
+  if (!spanAfter(cfg[k.window])) add(`${k.window} is a whole number of minutes, hours, days or weeks`);
+  if (typeof cfg.currency !== "string" || !cfg.currency.trim()) add("say the currency");
+  if (!("amount" in cfg)) add("say the amount");
+  if ("events" in cfg) {
+    if (!isObject(cfg.events)) add("events names the event for each outcome");
+    else {
+      for (const [key, v] of Object.entries(cfg.events)) {
+        if (!k.outcomes.includes(key) || !actionLike(v)) {
+          add(`events: "${key}" is not one of ${k.outcomes.join(", ")} naming an event`);
+          break;
+        }
+      }
+      for (const o of k.outcomes.slice(0, 2)) if (!(o in cfg.events)) add(`events names the ${o} event`);
+    }
+  }
+  if ("notify" in cfg && !isObject(cfg.notify)) add("notify is a notification's settings");
+  if ("reminders" in cfg) {
+    if (n.type !== "invoice" || !Array.isArray(cfg.reminders)) {
+      add("reminders are a list, on an invoice");
+      return;
+    }
+    const hasNotify = isObject(cfg.notify);
+    cfg.reminders.forEach((r, i) => {
+      if (!isObject(r) || !isObject(r.after)) {
+        add(`reminder ${i + 1} says when, after`);
+        return;
+      }
+      if (!isObject(r.notify) && !hasNotify) add(`reminder ${i + 1} says what to send, notify, or the invoice does`);
+    });
+  }
+}
 
 export const NOT_YET = Object.freeze({
   sub_workflow: "sub-workflow nodes are not supported by this compiler version",
-  payment_request: "payment request nodes are not supported by this compiler version",
-  invoice: "invoice nodes are not supported by this compiler version",
   task: "a task node is a review or a form",
   branch: "draw a branch as a decision or a condition",
   parallel: "draw a parallel block as a fork and a join",
@@ -231,6 +352,7 @@ class Index {
     return n ? displayName(n) : id;
   }
   routes(n) {
+    if (isComposite(n.type)) return true;
     if (!isTask(n.type)) return false;
     const es = this.outs(n.id);
     if (es.length > 1) return true;
@@ -356,6 +478,9 @@ function validateShape(x, conditions) {
       if (why) ps.push({ code: P.JOIN, node: n.id, message: `${name}: ${why}` });
     } else if (n.type === "condition") {
       conditionNode(x, ps, n, cfg, conditions);
+    } else if (isComposite(n.type)) {
+      moneyConfig(x, ps, n, cfg);
+      choiceEdges(x, ps, n, cfg, conditions);
     } else if (n.type === "decision" || x.routes(n)) {
       choiceEdges(x, ps, n, cfg, conditions);
     } else if (n.type === "wait_event") {
@@ -857,11 +982,16 @@ function validateScope(x, options, conditions) {
       let p = null;
       if (parts[0] === "steps") {
         if (parts.length < 2) continue;
-        const target = x.byID.get(parts[1]);
+        let target = x.byID.get(parts[1]);
+        if (!target && parts[1].includes("--")) {
+          // A money node's own steps are read through the node.
+          const c = x.byID.get(nodeOf(parts[1]));
+          if (c && isComposite(c.type)) target = c;
+        }
         if (!target || target.type === "start" || target.type === "join") {
           p = { code: P.UNKNOWN_STEP, node: n.id, message: `${displayName(n)} reads ${f}, which is not a step of this workflow` };
         } else {
-          const happened = (target.id !== n.id && d.has(target.id)) || (target.id === n.id && isTask(n.type)) || done.has(target.id);
+          const happened = (target.id !== n.id && d.has(target.id)) || (target.id === n.id && (isTask(n.type) || isComposite(n.type))) || done.has(target.id);
           if (!happened) p = { code: P.SCOPE, node: n.id, message: `${displayName(n)} reads ${f} before ${displayName(target)} has happened` };
         }
       } else if (parts[0] === "event") {
@@ -985,6 +1115,10 @@ class Compiler {
     }
     this.silent = last;
   }
+  first(id) {
+    const n = this.x.byID.get(id);
+    return n && isComposite(n.type) ? id + MS.VARS : id;
+  }
   stepName(id) {
     const n = this.x.byID.get(id);
     const s = typeof n.name === "string" ? n.name.trim() : "";
@@ -1011,13 +1145,17 @@ class Compiler {
         if (e.default) no = e.to;
         else yes = e.to;
       }
-      const branch = { cases: [{ when: cfg.when ?? null, goto: yes }], default: no };
+      const branch = { cases: [{ when: cfg.when ?? null, goto: this.first(yes) }], default: this.first(no) };
       this.passes(branch, id, [yes, no]);
       this.add({ code: id, name: this.stepName(id), kind: "branch", config: canon(branch) });
       return;
     }
     if (n.type === "decision") {
       this.add({ code: id, name: this.stepName(id), kind: "branch", config: this.choice(id, "") });
+      return;
+    }
+    if (isComposite(n.type)) {
+      this.composite(id);
       return;
     }
     if (n.type === "fork") {
@@ -1033,7 +1171,7 @@ class Compiler {
       if (n.type === "approval" && x.routes(n)) cfg.on_reject = REJECT_CONTINUE;
       if (n.type === "wait_event") {
         const [, timeout] = x.waitEdges(id);
-        if (timeout.length) cfg.on_timeout = `branch:${x.edge(timeout[0]).to}`;
+        if (timeout.length) cfg.on_timeout = `branch:${this.first(x.edge(timeout[0]).to)}`;
       }
       this.add({ code: id, name: this.stepName(id), kind: n.type, config: canon(cfg) });
       if (x.routes(n)) {
@@ -1043,7 +1181,7 @@ class Compiler {
     }
     const to = this.next(id);
     if (!to || to === following) return;
-    const jump = { cases: [], default: to };
+    const jump = { cases: [], default: this.first(to) };
     this.passes(jump, id, [to]);
     this.add({ code: id + SUFFIX_GOTO, name: `Go to ${this.stepName(to)}`, kind: "branch", config: canon(jump) });
   }
@@ -1060,11 +1198,80 @@ class Compiler {
         continue;
       }
       const when = hasWhen(e) ? e.when : { field: `steps.${outcomeOf}.output.outcome`, op: "is", value: e.label };
-      cases.push({ when, goto: e.to });
+      cases.push({ when, goto: this.first(e.to) });
     }
-    const branch = { cases, default: def };
+    const branch = { cases, default: this.first(def) };
     this.passes(branch, id, targets);
     return canon(branch);
+  }
+  composite(id) {
+    const n = this.x.byID.get(id);
+    const k = MONEY[n.type];
+    const cfg = object(n.config) ?? {};
+    const name = this.stepName(id);
+    const seg = `${k.ns}.${varSegment(id)}`;
+    const events = moneyEvents(k, cfg);
+    const set = { [`${seg}.currency`]: cfg.currency ?? null };
+    if ("amount" in cfg) set[`${seg}.amount`] = cfg.amount;
+    this.add({ code: id + MS.VARS, name, kind: "set_var", config: canon({ set }) });
+    const input = {};
+    for (const f of k.input) if (f in cfg) input[f] = cfg[f];
+    const capture = { [`${seg}.reference`]: "output.reference", [`${seg}.pay_url`]: "output.pay_url" };
+    if (n.type === "payment_request") capture[`${seg}.expires_at`] = "output.expires_at";
+    else {
+      capture[`${seg}.number`] = "output.number";
+      capture[`${seg}.document_url`] = "output.document_url";
+      capture[`${seg}.due_at`] = "output.due_at";
+    }
+    this.add({ code: id + k.call, name: `${name}: ask`, kind: "call", config: canon({ action: cfg.action ?? null, input, capture }) });
+    const notify = isObject(cfg.notify) ? cfg.notify : null;
+    if (notify) this.add({ code: id + MS.NOTIFY, name: `${name}: tell`, kind: "notification", config: canon(notify) });
+    const wait = {
+      event: events,
+      match: { var: `${seg}.reference`, event_field: "reference" },
+      timeout: spanAfter(cfg[k.window]),
+      on_timeout: `branch:${id}${MS.TIMEOUT}`,
+    };
+    const reminders = Array.isArray(cfg.reminders) ? cfg.reminders : [];
+    const children = [];
+    if (reminders.length) {
+      wait.reminders = reminders.map((r, i) => {
+        const code = `${id}${SUFFIX_REMIND}${i + 1}`;
+        const content = isObject(r?.notify) ? r.notify : notify;
+        children.push({ code, name: `${name}: reminder ${i + 1}`, kind: "notification", config: canon(content ?? {}), parent: id + MS.WAIT, branch: REMINDERS_ARM });
+        return { after: r?.after ?? null, notify: code };
+      });
+    }
+    this.add({ code: id + MS.WAIT, name: `${name}: wait`, kind: "wait_event", config: canon(wait) });
+    for (const ch of children) this.add(ch);
+    const cases = [];
+    let def = "";
+    const targets = [];
+    for (const ei of this.x.outs(id)) {
+      const e = this.x.edge(ei);
+      targets.push(e.to);
+      if (e.default) {
+        def = e.to;
+        continue;
+      }
+      let when;
+      if (hasWhen(e)) when = e.when;
+      else {
+        let ev = "";
+        k.outcomes.forEach((o, i) => {
+          if (o.toLowerCase() === (e.label ?? "").toLowerCase() && i < events.length) ev = events[i];
+        });
+        when = { field: `steps.${id}${MS.WAIT}.output.event`, op: "is", value: ev };
+      }
+      cases.push({ when, goto: this.first(e.to) });
+    }
+    const branch = { cases, default: this.first(def) };
+    this.passes(branch, id, targets);
+    this.add({ code: id + MS.OUTCOME, name: `${name}: outcome`, kind: "branch", config: canon(branch) });
+    this.add({ code: id + MS.TIMEOUT, name: `${name}: no answer`, kind: "set_var", config: canon({ set: { [`${seg}.state`]: k.state } }) });
+    const jump = { cases: [], default: this.first(def) };
+    this.passes(jump, id, [def]);
+    this.add({ code: id + MS.TIMEOUT_GOTO, name: `${name}: no answer, go on`, kind: "branch", config: canon(jump) });
   }
   passes(branch, from, targets) {
     const at = this.pos.get(from);
@@ -1167,8 +1374,20 @@ export function decompile(steps) {
   };
   if (top.length === 0) edge({ from: start, to: end() });
   else edge({ from: start, to: top[0].code });
+  const alias = new Map();
   top.forEach((s, i) => {
     if (consumed.has(i)) return;
+    const money = foldMoney(top, i, children);
+    if (money) {
+      for (let k = 1; k < money.used; k++) consumed.add(i + k);
+      alias.set(s.code, money.node.id);
+      g.nodes.push(money.node);
+      for (const e of money.edges) {
+        goesBack(i, e.to, money.maxPasses);
+        edge(e);
+      }
+      return;
+    }
     if (s.code.includes("--")) throw new NotDrawableError(`${s.code} was made by the compiler, and nothing before it explains it`);
     const cfg = object(s.config);
     if (cfg === null) throw new NotDrawableError(`${s.code}'s settings are not an object`);
@@ -1230,8 +1449,88 @@ export function decompile(steps) {
     edge({ from: s.code, to: onward(i) });
     if (timeoutTo) edge({ from: s.code, to: timeoutTo, label: TIMEOUT_LABEL });
   });
+  // A jump to a money node lands on its first step; the edge goes to the node.
+  for (const e of g.edges) if (alias.has(e.to)) e.to = alias.get(e.to);
+  for (const [code, id] of alias) {
+    if (maxPasses.has(code) && (!maxPasses.has(id) || maxPasses.get(code) < maxPasses.get(id))) maxPasses.set(id, maxPasses.get(code));
+  }
   for (const n of g.nodes) if (maxPasses.has(n.id)) n.max_passes = maxPasses.get(n.id);
   return g;
+}
+
+/** A money node's steps folded back into the node, from row i; null when they are not one's. */
+function foldMoney(top, i, children) {
+  const s = top[i];
+  if (!s.code.endsWith(MS.VARS) || s.kind !== "set_var" || i + 1 >= top.length) return null;
+  const id = s.code.slice(0, -MS.VARS.length);
+  if (!id || id.includes("--")) return null;
+  let type = "";
+  let k = null;
+  for (const [t, mk] of Object.entries(MONEY)) {
+    if (top[i + 1].code === id + mk.call && top[i + 1].kind === "call") {
+      type = t;
+      k = mk;
+    }
+  }
+  if (!type) return null;
+  let j = i + 2;
+  const cfg = {};
+  const call = object(top[i + 1].config) ?? {};
+  cfg.action = call.action;
+  if (isObject(call.input)) Object.assign(cfg, call.input);
+  if (j < top.length && top[j].code === id + MS.NOTIFY && top[j].kind === "notification") {
+    cfg.notify = object(top[j].config) ?? {};
+    j++;
+  }
+  const want = [[MS.WAIT, "wait_event"], [MS.OUTCOME, "branch"], [MS.TIMEOUT, "set_var"], [MS.TIMEOUT_GOTO, "branch"]];
+  if (j + want.length > top.length) throw new NotDrawableError(`${id} stops before its steps end`);
+  want.forEach(([suffix, kind], n) => {
+    if (top[j + n].code !== id + suffix || top[j + n].kind !== kind) throw new NotDrawableError(`${id} is not followed by ${id}${suffix}`);
+  });
+  const wait = object(top[j].config) ?? {};
+  const evs = Array.isArray(wait.event) ? wait.event : [];
+  const events = {};
+  const label = new Map();
+  evs.forEach((e, n) => {
+    if (n < k.outcomes.length) {
+      events[k.outcomes[n]] = e;
+      label.set(e, k.outcomes[n]);
+    }
+  });
+  cfg.events = events;
+  if (Array.isArray(wait.reminders) && wait.reminders.length > 0) {
+    const kids = children.get(id + MS.WAIT)?.get(REMINDERS_ARM) ?? [];
+    const byCode = new Map(kids.map((c) => [c.code, c]));
+    cfg.reminders = wait.reminders.map((r) => {
+      const ch = byCode.get(r?.notify);
+      if (!ch) throw new NotDrawableError(`${id} reminds with "${r?.notify}", which is not one of its steps`);
+      return { after: r.after, notify: object(ch.config) ?? {} };
+    });
+  }
+  let [cases, def, m] = readBranch(object(top[j + 1].config) ?? {});
+  const edges = [];
+  const used = new Set();
+  cases.forEach((cs, n) => {
+    const l = moneyCase(cs.when, id + MS.WAIT, label);
+    if (l && !used.has(l)) {
+      used.add(l);
+      edges.push({ from: id, to: cs.to, label: l });
+      return;
+    }
+    edges.push({ from: id, to: cs.to, label: `case-${n + 1}`, when: cs.when });
+  });
+  edges.push({ from: id, to: def, label: used.has(k.fallback) ? "otherwise" : k.fallback, default: true });
+  const tm = readBranch(object(top[j + 3].config) ?? {})[2];
+  if (tm > 0 && (m === 0 || tm < m)) m = tm;
+  const node = { id, type, config: cfg };
+  if (s.name !== id) node.name = s.name;
+  return { node, edges, used: j + 4 - i, maxPasses: m };
+}
+
+function moneyCase(when, wait, label) {
+  if (!isObject(when) || Object.keys(when).length !== 3) return "";
+  if (when.field !== `steps.${wait}.output.event` || when.op !== "is" || typeof when.value !== "string") return "";
+  return label.get(when.value) ?? "";
 }
 
 function readBranch(cfg) {

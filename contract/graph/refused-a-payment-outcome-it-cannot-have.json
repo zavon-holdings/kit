@@ -1,0 +1,78 @@
+{
+  "name": "refused-a-payment-outcome-it-cannot-have",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "pay"
+      },
+      {
+        "from": "pay",
+        "label": "refunded",
+        "to": "a"
+      },
+      {
+        "default": true,
+        "from": "pay",
+        "label": "expired",
+        "to": "b"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "action": "billing.payment.request",
+          "amount": 125000,
+          "currency": "EUR",
+          "description": "Membership fee",
+          "events": {
+            "expired": "billing.payment.expired",
+            "failed": "billing.payment.failed",
+            "paid": "billing.payment.paid"
+          },
+          "expires": {
+            "unit": "days",
+            "value": 3
+          },
+          "notify": {
+            "body_text": "Your payment link is ready.",
+            "channel": "email",
+            "subject": "Please pay",
+            "to": [
+              {
+                "subject": true
+              }
+            ]
+          }
+        },
+        "id": "pay",
+        "type": "payment_request"
+      },
+      {
+        "id": "a",
+        "type": "end"
+      },
+      {
+        "id": "b",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "outcome_unknown",
+      "node": "pay",
+      "edge": {
+        "from": "pay",
+        "to": "a",
+        "label": "refunded"
+      }
+    }
+  ]
+}
