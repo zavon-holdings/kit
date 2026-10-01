@@ -9,9 +9,9 @@ import (
 	"time"
 )
 
-// The public-wire vectors: the bodies an app sends and the answers core
-// gives, as this client marshals and reads them. Core's CI replays them
-// against its handlers (a guard in admin/backend/app/api); a consumer's CI
+// The public-wire vectors: the bodies an app sends and the answers the workflow service
+// gives, as this client marshals and reads them. The workflow service's CI replays them
+// against its handlers; a consumer's CI
 // against its vendored kit. A vector changing is a wire change.
 //
 // KIT_WRITE_VECTORS=1 go test ./wfclient -run TestContractVectors rewrites
@@ -47,7 +47,7 @@ func vectors() []vector {
 			Code   string          `json:"code"`
 			Detail json.RawMessage `json:"detail,omitempty"`
 		}{"That page already has a live review.", "run_already_live", json.RawMessage(`{"run_uid":"r_7"}`)}},
-		// The two 503s (§7.5): off for want of configuration, and a store that
+		// The two 503s: off for want of configuration, and a store that
 		// did not answer. Both carry detail.reason; the code tells them apart.
 		{filepath.Join("errors", "unconfigured.json"), struct {
 			Error  string          `json:"error"`

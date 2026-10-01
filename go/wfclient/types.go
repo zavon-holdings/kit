@@ -1,15 +1,15 @@
-// Package wfclient is the Go client for core's workflow API,
-// /api/workflows/* (admin/docs/workflow-engine-plan.md §7).
+// Package wfclient is the Go client for the workflow service's API,
+// /api/workflows/*.
 //
 // It speaks wire version 1 (Zavon-Workflow-Version: 1) and mirrors the types
-// core's handlers read and write. Nothing here decides anything: a client
+// the workflow service's handlers read and write. Nothing here decides anything: a client
 // sends what it is given and reports what came back, in the shapes below.
 //
 // Every write that creates or decides something carries an Idempotency-Key.
-// The same key with the same body is replayed by core and reported here as
+// The same key with the same body is replayed by the workflow service and reported here as
 // Replayed; the same key with another body is refused (422
-// idempotency_key_reused). Errors carry core's code so a caller can act on
-// it, and IsUnavailable tells "core did not decide" (retry) from "core said
+// idempotency_key_reused). Errors carry the workflow service's code so a caller can act on
+// it, and IsUnavailable tells "the workflow service did not decide" (retry) from "the workflow service said
 // no" (do not).
 package wfclient
 
@@ -21,7 +21,7 @@ import (
 // WireVersion is the workflow wire this client speaks.
 const WireVersion = "1"
 
-// SubjectRef is what a run is about, as its owner names it (§5).
+// SubjectRef is what a run is about, as its owner names it.
 type SubjectRef struct {
 	Property string            `json:"property"`
 	Type     string            `json:"type"`
@@ -32,7 +32,7 @@ type SubjectRef struct {
 }
 
 // Actor is who did something: a person the app authenticated, the app, or
-// core itself (§5).
+// the workflow service itself.
 type Actor struct {
 	Kind     string  `json:"kind,omitempty"` // user | app | system
 	Sub      string  `json:"sub,omitempty"`
@@ -67,7 +67,7 @@ type TriggerInput struct {
 	DateOffsetDays int         `json:"date_offset_days,omitempty"`
 	DateRecurs     bool        `json:"date_recurs,omitempty"`
 	OncePerSubject bool        `json:"once_per_subject,omitempty"`
-	// Reads is the trigger in words, answered by core. Read-only.
+	// Reads is the trigger in words, answered by the workflow service. Read-only.
 	Reads string `json:"reads,omitempty"`
 }
 
@@ -115,7 +115,7 @@ type VersionView struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// Definition is a definition as core answers it. ETag is what a save sends
+// Definition is a definition as the workflow service answers it. ETag is what a save sends
 // back as If-Match.
 type Definition struct {
 	UID               string         `json:"uid"`
@@ -147,7 +147,7 @@ type Saved struct {
 	LiveOnPrevious map[string]int `json:"live_on_previous"`
 }
 
-// Problem is one thing wrong with a definition (§8.6).
+// Problem is one thing wrong with a definition.
 type Problem struct {
 	Step    string `json:"step,omitempty"`
 	Field   string `json:"field,omitempty"`
@@ -172,7 +172,7 @@ type Page struct {
 
 // StartRun is the body of POST /runs. Exactly one of Definition (a uid or a
 // code in the tenant) and Select ("auto": the most specific approval flow
-// that applies, by binding — core v3 of the plan) is given.
+// that applies, by binding) is given.
 type StartRun struct {
 	Tenant     string         `json:"tenant"`
 	Definition string         `json:"definition,omitempty"`
@@ -257,7 +257,7 @@ type Entry struct {
 	CreatedAt time.Time       `json:"created_at"`
 }
 
-// Delivery is one call core made to an app.
+// Delivery is one call the workflow service made to an app.
 type Delivery struct {
 	UID            string          `json:"uid"`
 	Property       string          `json:"property"`
@@ -348,7 +348,7 @@ type Board struct {
 	Finished int           `json:"finished"`
 }
 
-// Manifest is what an app registers (§8.4).
+// Manifest is what an app registers.
 type Manifest struct {
 	Namespace    string            `json:"namespace"`
 	Version      string            `json:"version"`
@@ -404,7 +404,7 @@ type CatalogueEntry struct {
 	Shareable bool     `json:"shareable"`
 }
 
-// Event is one occurrence a producer posts (§7.3).
+// Event is one occurrence a producer posts.
 type Event struct {
 	Type       string         `json:"type"`
 	Ref        string         `json:"ref"`
@@ -414,7 +414,7 @@ type Event struct {
 	Vars       map[string]any `json:"vars,omitempty"`
 }
 
-// EventResult is what core did with one event.
+// EventResult is what the workflow service did with one event.
 type EventResult struct {
 	EventUID  string `json:"event_uid,omitempty"`
 	Matched   int    `json:"matched"`

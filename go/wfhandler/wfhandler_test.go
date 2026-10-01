@@ -78,7 +78,7 @@ func newRig(t *testing.T, h Handlers, secs []string) *rig {
 	return r
 }
 
-// post sends a signed call the way core does.
+// post sends a signed call the way the workflow service does.
 func (r *rig) post(path, body, key string, sign []string) (int, map[string]any) {
 	r.t.Helper()
 	req, _ := http.NewRequest("POST", r.srv.URL+path, strings.NewReader(body))
@@ -219,7 +219,7 @@ func TestEachAnswerHasItsShape(t *testing.T) {
 	if status != 410 || body["refusal"] != "The page was deleted." {
 		t.Fatalf("refused with a chosen status: %d %v", status, body)
 	}
-	// A refusal with a status core would retry is corrected to 422.
+	// A refusal with a status the workflow service would retry is corrected to 422.
 	r3 := newRig(t, Handlers{"pages.publish": func(context.Context, Call) (Answer, error) {
 		return Answer{Refusal: "no", Status: 500}, nil
 	}}, secrets)
@@ -324,7 +324,7 @@ func TestTheSQLStoreKeepsDecisionsNotFaults(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got, _ := s.Get(ctx, "fault"); got != nil {
-		t.Fatal("a 5xx was remembered; core's retry must run the handler again")
+		t.Fatal("a 5xx was remembered; the workflow service's retry must run the handler again")
 	}
 	if !strings.Contains(DDL, "workflow_actions") || !strings.Contains(DDL, "idempotency_key TEXT PRIMARY KEY") {
 		t.Fatalf("DDL %s", DDL)
@@ -333,7 +333,7 @@ func TestTheSQLStoreKeepsDecisionsNotFaults(t *testing.T) {
 
 /* ── contract vectors ── */
 
-// Vector is one case in contract/callback/*.json: the request core sends and
+// Vector is one case in contract/callback/*.json: the request the workflow service sends and
 // the answer the app's door gives when its handler decides as `decision`
 // says. Consumers replay these against their own doors.
 type Vector struct {
@@ -679,7 +679,7 @@ func TestAFaultRollsTheEffectBackAndRemembersNothing(t *testing.T) {
 	}})
 	status, _ := r.post(t, publishCall, "k")
 	if status != 500 {
-		t.Fatalf("a fault -> %d, want 500 so core retries", status)
+		t.Fatalf("a fault -> %d, want 500 so the workflow service retries", status)
 	}
 	if len(r.db.effects) != 0 || len(r.db.answers) != 0 || r.db.commits != 0 {
 		t.Fatalf("after a fault: effects %v answers %v commits %d — nothing may land", r.db.effects, r.db.answers, r.db.commits)
@@ -707,7 +707,7 @@ func TestACommitThatFailsIsAFaultNotADecision(t *testing.T) {
 // post-hoc Put (ON CONFLICT DO NOTHING) would let both effects commit and
 // silently drop the second record. The transactional door inserts plainly,
 // so exactly one effect lands, exactly one answer is remembered, and the
-// loser answers 5xx for core to retry into a replay of the winner.
+// loser answers 5xx for the workflow service to retry into a replay of the winner.
 func TestTwoDeliveriesOfOneKeyProduceOneEffect(t *testing.T) {
 	gate := make(chan struct{})
 	r := newTxRig(t, TxHandlers{"pages.publish": func(_ context.Context, tx Tx, c Call) (Answer, error) {

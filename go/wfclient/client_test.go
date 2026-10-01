@@ -13,9 +13,8 @@ import (
 )
 
 // Every method's path, verb, headers and body shape, pinned against a fake
-// core that records the request and answers what the test says. The real
-// core's handlers are pinned in admin/backend/app/api; a mismatch between
-// the two is a wire change and a kit major.
+// workflow service that records the request and answers what the test says.
+// A mismatch with the real service is a wire change and a kit major.
 
 type seen struct {
 	method, path, query, body string
@@ -42,7 +41,7 @@ func newFakeCore(t *testing.T) (*fakeCore, *Client) {
 		_, _ = w.Write([]byte(f.answer))
 	}))
 	t.Cleanup(srv.Close)
-	return f, New(srv.URL+"/", "zvn_k.s")
+	return f, New(srv.URL+"/", "tok_k.s")
 }
 
 func (f *fakeCore) expect(method, path string) {
@@ -50,7 +49,7 @@ func (f *fakeCore) expect(method, path string) {
 	if f.last.method != method || f.last.path != path {
 		f.t.Fatalf("called %s %s, want %s %s", f.last.method, f.last.path, method, path)
 	}
-	if f.last.headers.Get("Authorization") != "Bearer zvn_k.s" {
+	if f.last.headers.Get("Authorization") != "Bearer tok_k.s" {
 		f.t.Errorf("Authorization = %q", f.last.headers.Get("Authorization"))
 	}
 	if f.last.headers.Get("Zavon-Workflow-Version") != "1" {
@@ -67,7 +66,7 @@ func (f *fakeCore) bodyField(key string) any {
 func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 	ctx := context.Background()
 	f, c := newFakeCore(t)
-	actor := &Actor{Email: "nomsa@example.test"}
+	actor := &Actor{Email: "cara@example.test"}
 
 	f.answer = `{"changed":true}`
 	if ch, err := c.PutManifest(ctx, Manifest{Namespace: "acme", Version: "1", BaseURL: "https://acme.test/api/workflow"}); err != nil || !ch {
@@ -90,22 +89,22 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 	}
 	f.expect("POST", "/api/workflows/callback-secret/rotate")
 
-	f.answer = `{"events":[{"type":"shop.order.paid","producer":"shop","shareable":true}]}`
-	if ev, err := c.Catalogue(ctx, "shofar"); err != nil || len(ev) != 1 || ev[0].Type != "shop.order.paid" {
+	f.answer = `{"events":[{"type":"orders.order.paid","producer":"shop","shareable":true}]}`
+	if ev, err := c.Catalogue(ctx, "org-a"); err != nil || len(ev) != 1 || ev[0].Type != "orders.order.paid" {
 		t.Fatal(ev, err)
 	}
 	f.expect("GET", "/api/workflows/catalogue")
-	if !strings.Contains(f.last.query, "tenant=shofar") {
+	if !strings.Contains(f.last.query, "tenant=org-a") {
 		t.Errorf("query %q", f.last.query)
 	}
 
 	f.answer = `{"definitions":[{"uid":"d1","code":"c","etag":"\"v1-abc\""}],"next_cursor":"MTA"}`
-	defs, page, err := c.ListDefinitions(ctx, DefinitionFilter{Tenant: "shofar", Kind: "approval", IncludeTemplates: true, Cursor: "MQ", Limit: 10})
+	defs, page, err := c.ListDefinitions(ctx, DefinitionFilter{Tenant: "org-a", Kind: "approval", IncludeTemplates: true, Cursor: "MQ", Limit: 10})
 	if err != nil || len(defs) != 1 || page.NextCursor != "MTA" {
 		t.Fatal(defs, page, err)
 	}
 	f.expect("GET", "/api/workflows/definitions")
-	for _, want := range []string{"tenant=shofar", "kind=approval", "include_templates=true", "cursor=MQ", "limit=10"} {
+	for _, want := range []string{"tenant=org-a", "kind=approval", "include_templates=true", "cursor=MQ", "limit=10"} {
 		if !strings.Contains(f.last.query, want) {
 			t.Errorf("query %q lacks %s", f.last.query, want)
 		}
@@ -113,12 +112,12 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 
 	f.status, f.answer = 201, `{"uid":"d1","etag":"\"v1-abc\""}`
 	f.header.Set("ETag", `"v1-abc"`)
-	def, res, err := c.CreateDefinition(ctx, DefinitionInput{Tenant: "shofar", Code: "c", Name: "C", Actor: actor}, "create-c")
+	def, res, err := c.CreateDefinition(ctx, DefinitionInput{Tenant: "org-a", Code: "c", Name: "C", Actor: actor}, "create-c")
 	if err != nil || def.UID != "d1" || res.Status != 201 || res.Replayed || res.ETag != `"v1-abc"` {
 		t.Fatal(def, res, err)
 	}
 	f.expect("POST", "/api/workflows/definitions")
-	if f.last.headers.Get("Idempotency-Key") != "create-c" || f.bodyField("tenant") != "shofar" {
+	if f.last.headers.Get("Idempotency-Key") != "create-c" || f.bodyField("tenant") != "org-a" {
 		t.Errorf("headers %v body %s", f.last.headers, f.last.body)
 	}
 	f.status = 200
@@ -139,7 +138,7 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 	f.expect("GET", "/api/workflows/definitions/d1/versions/1")
 
 	f.answer = `{"definition":{"uid":"d1"},"version":2,"versioned":true,"live_on_previous":{"v1":3}}`
-	saved, err := c.SaveDefinition(ctx, "d1", DefinitionInput{Tenant: "shofar", Code: "c", Name: "C"}, `"v1-abc"`)
+	saved, err := c.SaveDefinition(ctx, "d1", DefinitionInput{Tenant: "org-a", Code: "c", Name: "C"}, `"v1-abc"`)
 	if err != nil || !saved.Versioned || saved.LiveOnPrevious["v1"] != 3 {
 		t.Fatal(saved, err)
 	}
@@ -171,16 +170,16 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 	f.expect("POST", "/api/workflows/definitions/d1/restore")
 
 	f.answer = `{"columns":[{"code":"a","name":"A","sends":false}],"cards":[],"finished":2}`
-	if b, err := c.Board(ctx, "d1", "a", "", "easter"); err != nil || b.Finished != 2 || len(b.Columns) != 1 {
+	if b, err := c.Board(ctx, "d1", "a", "", "launch"); err != nil || b.Finished != 2 || len(b.Columns) != 1 {
 		t.Fatal(b, err)
 	}
 	f.expect("GET", "/api/workflows/definitions/d1/board")
-	if !strings.Contains(f.last.query, "stage=a") || !strings.Contains(f.last.query, "q=easter") {
+	if !strings.Contains(f.last.query, "stage=a") || !strings.Contains(f.last.query, "q=launch") {
 		t.Errorf("query %q", f.last.query)
 	}
 
 	f.status, f.answer = 201, `{"uid":"r1","state":"open","steps":[],"pending_jobs":[],"tasks":[],"vars":{}}`
-	run, res, err := c.StartRun(ctx, StartRun{Tenant: "shofar", Definition: "c", Subject: SubjectRef{Property: "acme", Type: "page", PID: "p1"}}, "review:1")
+	run, res, err := c.StartRun(ctx, StartRun{Tenant: "org-a", Definition: "c", Subject: SubjectRef{Property: "acme", Type: "page", PID: "p1"}}, "review:1")
 	if err != nil || run.UID != "r1" || res.Replayed {
 		t.Fatal(run, res, err)
 	}
@@ -194,12 +193,12 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 	f.status = 200
 
 	f.answer = `{"runs":[{"uid":"r1"}],"next_cursor":""}`
-	runs, page, err := c.ListRuns(ctx, RunFilter{Tenant: "shofar", State: "open", SubjectType: "page", SubjectPID: "p1"})
+	runs, page, err := c.ListRuns(ctx, RunFilter{Tenant: "org-a", State: "open", SubjectType: "page", SubjectPID: "p1"})
 	if err != nil || len(runs) != 1 || page.NextCursor != "" {
 		t.Fatal(runs, page, err)
 	}
 	f.expect("GET", "/api/workflows/runs")
-	for _, want := range []string{"tenant=shofar", "state=open", "subject_type=page", "subject_pid=p1"} {
+	for _, want := range []string{"tenant=org-a", "state=open", "subject_type=page", "subject_pid=p1"} {
 		if !strings.Contains(f.last.query, want) {
 			t.Errorf("query %q lacks %s", f.last.query, want)
 		}
@@ -282,11 +281,11 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 	f.status = 200
 
 	f.answer = runOut
-	if _, err := c.PatchRun(ctx, "r1", "Easter", "https://acme.test/p", map[string]any{"scope": "site"}, actor); err != nil {
+	if _, err := c.PatchRun(ctx, "r1", "Launch", "https://acme.test/p", map[string]any{"scope": "site"}, actor); err != nil {
 		t.Fatal(err)
 	}
 	f.expect("PATCH", "/api/workflows/runs/r1")
-	if sub, _ := f.bodyField("subject").(map[string]any); sub["label"] != "Easter" || sub["url"] != "https://acme.test/p" {
+	if sub, _ := f.bodyField("subject").(map[string]any); sub["label"] != "Launch" || sub["url"] != "https://acme.test/p" {
 		t.Errorf("body %s", f.last.body)
 	}
 	if vars, _ := f.bodyField("vars").(map[string]any); vars["scope"] != "site" {
@@ -305,12 +304,12 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 		t.Fatal(err)
 	}
 	if f.last.headers.Get("Idempotency-Key") != "" {
-		t.Error("a dry run carried an Idempotency-Key; core does not want one")
+		t.Error("a dry run carried an Idempotency-Key; the workflow service does not want one")
 	}
 
 	f.status, f.answer = 202, `{"event_uid":"ev1","matched":1,"advanced":false,"duplicate":false}`
 	occurred := time.Date(2026, 9, 30, 10, 0, 0, 0, time.UTC)
-	ev, err := c.PostEvent(ctx, Event{Type: "acme.thing.done", Ref: "t1", Tenant: "shofar", OccurredAt: &occurred,
+	ev, err := c.PostEvent(ctx, Event{Type: "acme.thing.done", Ref: "t1", Tenant: "org-a", OccurredAt: &occurred,
 		Subject: &SubjectRef{Property: "acme", Type: "thing", PID: "t1"}, Vars: map[string]any{"n": 1}})
 	if err != nil || ev.Matched != 1 || ev.EventUID != "ev1" {
 		t.Fatal(ev, err)
@@ -322,7 +321,7 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 	f.status = 200
 
 	f.answer = `{"results":[{"index":0,"status":202,"event_uid":"a"},{"index":1,"status":403,"error":"no","code":"namespace"}]}`
-	results, err := c.PostEvents(ctx, []Event{{Type: "acme.a", Ref: "1", Tenant: "shofar"}, {Type: "shop.b", Ref: "2", Tenant: "shofar"}})
+	results, err := c.PostEvents(ctx, []Event{{Type: "acme.a", Ref: "1", Tenant: "org-a"}, {Type: "orders.b", Ref: "2", Tenant: "org-a"}})
 	if err != nil || len(results) != 2 || results[1].Status != 403 || results[1].Code != "namespace" {
 		t.Fatal(results, err)
 	}
@@ -343,8 +342,8 @@ func TestEveryCallHasItsPathVerbAndBody(t *testing.T) {
 		t.Errorf("body %s", f.last.body)
 	}
 
-	f.answer = `{"tenant":"shofar"}`
-	if err := c.PutSettings(ctx, Settings{Tenant: "shofar", Timezone: "Africa/Johannesburg", Workweek: []int{1, 2, 3, 4, 5}}); err != nil {
+	f.answer = `{"tenant":"org-a"}`
+	if err := c.PutSettings(ctx, Settings{Tenant: "org-a", Timezone: "Africa/Johannesburg", Workweek: []int{1, 2, 3, 4, 5}}); err != nil {
 		t.Fatal(err)
 	}
 	f.expect("PUT", "/api/workflows/settings")
@@ -357,7 +356,7 @@ func TestAReplayIsReportedNotHidden(t *testing.T) {
 	f, c := newFakeCore(t)
 	f.header.Set("Idempotent-Replay", "true")
 	f.answer = `{"uid":"r1","steps":[],"pending_jobs":[],"tasks":[],"vars":{}}`
-	run, res, err := c.StartRun(context.Background(), StartRun{Tenant: "shofar", Definition: "c", Subject: SubjectRef{Property: "a", Type: "t", PID: "p"}}, "k")
+	run, res, err := c.StartRun(context.Background(), StartRun{Tenant: "org-a", Definition: "c", Subject: SubjectRef{Property: "a", Type: "t", PID: "p"}}, "k")
 	if err != nil || run.UID != "r1" || !res.Replayed || res.Status != 200 {
 		t.Fatalf("run %v res %+v err %v", run, res, err)
 	}
@@ -395,7 +394,7 @@ func TestErrorsCarryCoresCodeAndTellUnavailableFromRefused(t *testing.T) {
 	if _, err := c.GetRun(ctx, "r1"); !IsUnavailable(err) || Code(err) != "unavailable" || IsUnconfigured(err) {
 		t.Fatalf("a 503 = %v", err)
 	}
-	// Off for want of configuration is its own code (§7.5): still unavailable
+	// Off for want of configuration is its own code: still unavailable
 	// (nobody should retry into it), and unconfigured, which a screen renders
 	// as a state. A reason rides on BOTH 503s, so the code is what tells.
 	f.status, f.answer = 503, `{"error":"workflows unconfigured","code":"unconfigured","detail":{"reason":"the wf_* tables are not applied yet (run sync-secrets with redeploy=true)"}}`
@@ -410,8 +409,8 @@ func TestErrorsCarryCoresCodeAndTellUnavailableFromRefused(t *testing.T) {
 		t.Fatalf("a 502 with no JSON = %v", err)
 	}
 
-	// Core not answering at all is unavailable too, and distinct from a code.
-	down := New("http://127.0.0.1:1", "zvn_k.s", WithHTTPClient(&http.Client{Timeout: time.Second}))
+	// The workflow service not answering at all is unavailable too, and distinct from a code.
+	down := New("http://127.0.0.1:1", "tok_k.s", WithHTTPClient(&http.Client{Timeout: time.Second}))
 	if _, err := down.GetRun(ctx, "r1"); !IsUnavailable(err) || !errors.Is(err, ErrUnreachable) {
 		t.Fatalf("unreachable = %v", err)
 	}
@@ -421,17 +420,17 @@ func TestErrorsCarryCoresCodeAndTellUnavailableFromRefused(t *testing.T) {
 	}
 }
 
-func TestAnAdminCredentialNamesItsProperty(t *testing.T) {
+func TestAnOperatorCredentialNamesItsProperty(t *testing.T) {
 	f, base := newFakeCore(t)
-	c := New(base.base, "admin", WithProperty("pages-by-zavon"))
+	c := New(base.base, "operator-token", WithProperty("site-a"))
 	f.answer = `{"manifest":null,"callback_secret_set":false}`
 	if _, err := c.GetManifest(context.Background()); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(f.last.query, "property=pages-by-zavon") {
+	if !strings.Contains(f.last.query, "property=site-a") {
 		t.Fatalf("query %q", f.last.query)
 	}
-	// A property token names nothing: core reads the property off the token.
+	// A property token names nothing: the workflow service reads the property off the token.
 	f.last = seen{}
 	if _, err := base.GetManifest(context.Background()); err != nil {
 		t.Fatal(err)

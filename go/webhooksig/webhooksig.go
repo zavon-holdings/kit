@@ -1,17 +1,13 @@
-// Package webhooksig signs and verifies the estate's X-Zavon-* request
-// signature.
+// Package webhooksig signs and verifies the X-Zavon-* request signature.
 //
-// Original: admin/backend/app/auth (Sign, and the signed half of
-// Authenticate) and the portal's frontend/src/lib/auth/service.ts. The bytes
-// are identical: the signature is the hex HMAC-SHA256 of "<unix seconds>.<raw
-// body>" under a shared secret, sent as X-Zavon-Signature beside
+// The signature is the hex HMAC-SHA256 of "<unix seconds>.<raw body>" under a
+// shared secret, sent as X-Zavon-Signature beside
 // X-Zavon-Timestamp, and a request more than five minutes either side of now
 // is refused.
 //
-// One addition, for core calling an app back (workflow-engine-plan §7.4): the
-// header may carry `v1=<hex>`, and during a secret rotation a comma-separated
-// list (`v1=<new>, v1=<old>`). Verify accepts any listed value made with any
-// of the secrets it holds, and still accepts the bare hex core sends today.
+// The header may also carry `v1=<hex>`, and during a secret rotation a
+// comma-separated list (`v1=<new>, v1=<old>`). Verify accepts any listed value
+// made with any of the secrets it holds, and still accepts the bare hex.
 //
 // Fails closed: no secret means every request is refused, never "allow".
 package webhooksig
@@ -54,7 +50,7 @@ var (
 	ErrTooLarge     = errors.New("webhooksig: body is too large")
 )
 
-// Sign is the bare hex signature — byte-identical to core's auth.Sign.
+// Sign is the bare hex signature — byte-identical to the workflow service's auth.Sign.
 func Sign(secret string, timestamp int64, body []byte) string {
 	mac := hmac.New(sha256.New, []byte(secret))
 	fmt.Fprintf(mac, "%d.", timestamp)
@@ -128,7 +124,7 @@ func candidates(header string) []string {
 			}
 			continue
 		}
-		out = append(out, part) // bare hex: core's own Sign
+		out = append(out, part) // bare hex: the workflow service's own Sign
 	}
 	return out
 }

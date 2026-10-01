@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// Error is an answer core gave that was not a success: the §7.5 shape.
+// Error is an answer the workflow service gave that was not a success: {error, code, detail}.
 type Error struct {
 	Status  int             `json:"-"`
 	Code    string          `json:"code"`
@@ -24,15 +24,15 @@ type Error struct {
 
 func (e *Error) Error() string {
 	if e.Code != "" {
-		return fmt.Sprintf("core answered %d %s: %s", e.Status, e.Code, e.Message)
+		return fmt.Sprintf("the workflow service answered %d %s: %s", e.Status, e.Code, e.Message)
 	}
-	return fmt.Sprintf("core answered %d: %s", e.Status, e.Message)
+	return fmt.Sprintf("the workflow service answered %d: %s", e.Status, e.Message)
 }
 
-// ErrUnreachable wraps a transport failure: core did not answer at all.
-var ErrUnreachable = errors.New("wfclient: core did not answer")
+// ErrUnreachable wraps a transport failure: the workflow service did not answer at all.
+var ErrUnreachable = errors.New("wfclient: the workflow service did not answer")
 
-// IsUnavailable says whether an error means core DID NOT DECIDE — it was
+// IsUnavailable says whether an error means the workflow service DID NOT DECIDE — it was
 // unreachable, or it answered 5xx (503 unavailable included) — so the caller
 // should try again later. A decided no (4xx) is not.
 func IsUnavailable(err error) bool {
@@ -43,9 +43,9 @@ func IsUnavailable(err error) bool {
 	return errors.As(err, &e) && e.Status >= 500
 }
 
-// IsUnconfigured says whether core answered that its workflow engine is not
-// set up — no database, or the wf_* tables not applied yet (§7.5
-// `unconfigured`). It is a state for a screen to render, not a fault to
+// IsUnconfigured says whether the workflow service answered that its workflow engine is not
+// set up — no database, or the wf_* tables not applied yet
+// (`unconfigured`). It is a state for a screen to render, not a fault to
 // retry: nothing will change until somebody finishes the deployment. It is
 // ALSO unavailable (a 503), so a caller that only wants "try later" need not
 // tell them apart; one that wants to say WHY reads this first. The code is
@@ -55,7 +55,7 @@ func IsUnconfigured(err error) bool {
 	return Code(err) == "unconfigured"
 }
 
-// Code is the §7.5 code of an error, or "".
+// Code is the code of an error, or "".
 func Code(err error) string {
 	var e *Error
 	if errors.As(err, &e) {
@@ -64,12 +64,12 @@ func Code(err error) string {
 	return ""
 }
 
-// Client speaks to one core with one property credential.
+// Client speaks to one workflow service with one property credential.
 type Client struct {
 	base  string
 	token string
 	http  *http.Client
-	// Property, when set, rides as ?property= — for the admin credential,
+	// Property, when set, rides as ?property= — for an operator credential,
 	// which acts for a named property. A property token needs none.
 	property string
 }
@@ -82,11 +82,11 @@ type Option func(*Client)
 // back as an error to retry, one the platform enforces kills the invocation.
 func WithHTTPClient(h *http.Client) Option { return func(c *Client) { c.http = h } }
 
-// WithProperty names the property an admin credential acts for.
+// WithProperty names the property an operator credential acts for.
 func WithProperty(property string) Option { return func(c *Client) { c.property = property } }
 
-// New builds a client. token is the property's zvn_ token (or the Vercel
-// OIDC token, when the deployment is bound to the property).
+// New builds a client. token is the bearer credential the workflow service
+// issued to the property.
 func New(baseURL, token string, opts ...Option) *Client {
 	c := &Client{base: strings.TrimRight(baseURL, "/"), token: token, http: &http.Client{Timeout: 20 * time.Second}}
 	for _, o := range opts {
@@ -104,7 +104,7 @@ var ErrNotConfigured = errors.New("wfclient: no ZAVON_CORE_URL or credential is 
 // Result carries what every call answers beside its body.
 type Result struct {
 	Status int
-	// Replayed is Idempotent-Replay: core answered a stored response to a key
+	// Replayed is Idempotent-Replay: the workflow service answered a stored response to a key
 	// it had seen, and did nothing new.
 	Replayed bool
 	ETag     string
@@ -177,7 +177,7 @@ func (c *Client) call(ctx context.Context, method, path string, query url.Values
 	}
 	if into != nil && len(raw) > 0 {
 		if err := json.Unmarshal(raw, into); err != nil {
-			return res, fmt.Errorf("wfclient: core's answer could not be read: %w", err)
+			return res, fmt.Errorf("wfclient: the workflow service's answer could not be read: %w", err)
 		}
 	}
 	return res, nil
@@ -187,7 +187,7 @@ func idem(key string) map[string]string { return map[string]string{"Idempotency-
 
 /* ── manifest ── */
 
-// PutManifest replaces the property's manifest. Idempotent by content; core
+// PutManifest replaces the property's manifest. Idempotent by content; the workflow service
 // answers changed:false for the same one again.
 func (c *Client) PutManifest(ctx context.Context, m Manifest) (changed bool, err error) {
 	var out struct {
@@ -204,7 +204,7 @@ func (c *Client) GetManifest(ctx context.Context) (ManifestStatus, error) {
 	return out, err
 }
 
-// RotateCallbackSecret mints the secret core signs its calls with. The value
+// RotateCallbackSecret mints the secret the workflow service signs its calls with. The value
 // is shown once: store it as ZAVON_WORKFLOW_SECRET.
 func (c *Client) RotateCallbackSecret(ctx context.Context) (RotatedSecret, error) {
 	var out RotatedSecret
@@ -249,7 +249,7 @@ func (c *Client) ListDefinitions(ctx context.Context, f DefinitionFilter) ([]Def
 	return out.Definitions, out.Page, err
 }
 
-// CreateDefinition creates one. Replayed says core answered the earlier
+// CreateDefinition creates one. Replayed says the workflow service answered the earlier
 // creation for this key rather than making another.
 func (c *Client) CreateDefinition(ctx context.Context, in DefinitionInput, idempotencyKey string) (Definition, Result, error) {
 	var out Definition

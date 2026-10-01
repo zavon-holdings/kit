@@ -7,9 +7,9 @@ import (
 	"strconv"
 )
 
-// Tasks: the approval inbox and the hands on a task (admin plan §7.3
-// "Tasks", §9.4), under the workflows:tasks scope. The app is the door: it
-// verified the person's Accounts token and names them as the actor; core is
+// Tasks: the approval inbox and the hands on a task, under the
+// workflows:tasks scope. The app is the door: it verified the person's
+// identity and names them as the actor; the workflow service is
 // the second lock and refuses anybody who is not a current assignee. Every
 // acting call therefore names a person, never the app.
 //
@@ -59,7 +59,7 @@ type TaskStep struct {
 	Name string `json:"name"`
 }
 
-// Task is one task as core answers it (contract/tasks/task.json).
+// Task is one task as the workflow service answers it (contract/tasks/task.json).
 type Task struct {
 	UID             string         `json:"uid"`
 	RunUID          string         `json:"run_uid"`

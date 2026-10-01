@@ -9,7 +9,7 @@ export const HEADER_SIGNATURE = "X-Zavon-Signature";
 export const HEADER_TIMESTAMP = "X-Zavon-Timestamp";
 export const MAX_SKEW_SECONDS = 300;
 
-/** Bare hex signature, identical to core's auth.Sign. */
+/** Bare hex signature, identical to the workflow service's auth.Sign. */
 export function sign(secret, timestamp, body) {
   const mac = createHmac("sha256", secret);
   mac.update(`${timestamp}.`);

@@ -11,17 +11,17 @@ func TestMatch(t *testing.T) {
 		want   bool
 	}{
 		{"*", "anything:at:all", true},
-		{"reach:publication:send", "reach:publication:send", true},
-		{"reach:publication:*", "reach:publication:send", true},
-		{"reach:*:read", "reach:audience:read", true},
-		{"reach:*:read", "reach:audience:send", false},
-		{"pages:page:*", "reach:page:read", false},
-		{"org/shofar/reach/publication/*", "org/shofar/reach/publication/Q3ZkY5o2", true},
-		{"org/shofar/reach/*", "org/shofar/reach/publication/Q3ZkY5o2", true},          // trailing * swallows
-		{"org/shofar/pages/page/news-*", "org/shofar/pages/page/news-2026-09", true},   // glob in a segment
-		{"org/shofar/pages/page/news-*", "org/shofar/pages/page/events-news-1", false}, // anchored
-		{"org/shofar/reach/publication/*", "org/doxadeo/reach/publication/Q3ZkY5o2", false},
-		{"org/shofar/reach/publication/A", "org/shofar/reach/publication/AB", false},
+		{"mail:publication:send", "mail:publication:send", true},
+		{"mail:publication:*", "mail:publication:send", true},
+		{"mail:*:read", "mail:audience:read", true},
+		{"mail:*:read", "mail:audience:send", false},
+		{"cms:page:*", "mail:page:read", false},
+		{"org/org-a/mail/publication/*", "org/org-a/mail/publication/Q3ZkY5o2", true},
+		{"org/org-a/mail/*", "org/org-a/mail/publication/Q3ZkY5o2", true},        // trailing * swallows
+		{"org/org-a/cms/page/news-*", "org/org-a/cms/page/news-2026-09", true},   // glob in a segment
+		{"org/org-a/cms/page/news-*", "org/org-a/cms/page/events-news-1", false}, // anchored
+		{"org/org-a/mail/publication/*", "org/org-b/mail/publication/Q3ZkY5o2", false},
+		{"org/org-a/mail/publication/A", "org/org-a/mail/publication/AB", false},
 	} {
 		if got := Match(tc.pat, tc.s); got != tc.want {
 			t.Errorf("Match(%q, %q) = %v, want %v", tc.pat, tc.s, got, tc.want)
@@ -32,26 +32,26 @@ func TestMatch(t *testing.T) {
 // Deny beats Allow; nothing matching is Deny. The audit gets the deciding sid.
 func TestDecide(t *testing.T) {
 	stmts := []Statement{
-		{Sid: "editor", Effect: Allow, Actions: []string{"reach:publication:*"}, Resources: []string{"org/shofar/reach/publication/*"}},
-		{Sid: "no-send", Effect: Deny, Actions: []string{"reach:publication:send"}, Resources: []string{"org/shofar/reach/publication/locked"}},
+		{Sid: "editor", Effect: Allow, Actions: []string{"mail:publication:*"}, Resources: []string{"org/org-a/mail/publication/*"}},
+		{Sid: "no-send", Effect: Deny, Actions: []string{"mail:publication:send"}, Resources: []string{"org/org-a/mail/publication/locked"}},
 	}
 	for _, tc := range []struct {
 		action, resource string
 		want             bool
 		by               string
 	}{
-		{"reach:publication:edit", "org/shofar/reach/publication/a", true, "editor"},
-		{"reach:publication:send", "org/shofar/reach/publication/a", true, "editor"},
-		{"reach:publication:send", "org/shofar/reach/publication/locked", false, "no-send"},
-		{"reach:publication:edit", "org/doxadeo/reach/publication/a", false, ""},
-		{"reach:audience:read", "org/shofar/reach/audience/students", false, ""},
+		{"mail:publication:edit", "org/org-a/mail/publication/a", true, "editor"},
+		{"mail:publication:send", "org/org-a/mail/publication/a", true, "editor"},
+		{"mail:publication:send", "org/org-a/mail/publication/locked", false, "no-send"},
+		{"mail:publication:edit", "org/org-b/mail/publication/a", false, ""},
+		{"mail:audience:read", "org/org-a/mail/audience/students", false, ""},
 	} {
 		d := Decide(stmts, tc.action, tc.resource)
 		if d.Allowed != tc.want || d.By != tc.by {
 			t.Errorf("Decide(%s, %s) = %+v, want allowed=%v by=%q", tc.action, tc.resource, d, tc.want, tc.by)
 		}
 	}
-	if Decide(nil, "reach:publication:edit", "org/shofar/reach/publication/a").Allowed {
+	if Decide(nil, "mail:publication:edit", "org/org-a/mail/publication/a").Allowed {
 		t.Error("no statements must be Deny")
 	}
 }
@@ -61,7 +61,7 @@ func TestParseRefusesWhatCannotMatch(t *testing.T) {
 		`{}`, `{"statements":[]}`,
 		`{"statements":[{"effect":"Maybe","actions":["a:b:c"],"resources":["*"]}]}`,
 		`{"statements":[{"effect":"Allow","actions":[],"resources":["*"]}]}`,
-		`{"statements":[{"effect":"Allow","actions":["reach:send"],"resources":["*"]}]}`,
+		`{"statements":[{"effect":"Allow","actions":["mail:send"],"resources":["*"]}]}`,
 	} {
 		if _, err := Parse(json.RawMessage(raw)); err == nil {
 			t.Errorf("Parse(%s) = nil error", raw)

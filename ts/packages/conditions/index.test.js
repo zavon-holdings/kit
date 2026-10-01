@@ -11,7 +11,7 @@ const vectors = readdirSync(dir)
   .sort()
   .map((f) => JSON.parse(readFileSync(join(dir, f), "utf8")));
 
-// The permits fixture, read the same way core's test reads it: an allow line
+// The permits fixture, read the same way the workflow service's test reads it: an allow line
 // matching subject, app, action and resource (exact, or a `*` prefix) holds
 // unless a deny line matches too. Deny beats allow.
 function fixture(lines) {
@@ -71,13 +71,13 @@ for (const v of vectors) {
   });
 }
 
-test("describe says what core says", () => {
+test("describe says what the workflow service says", () => {
   const n = parse(
     {
       all: [
-        { field: "campus", op: "is", value: "stellenbosch" },
+        { field: "region", op: "is", value: "north" },
         { field: "kind", op: "is_not", value: "staff" },
-        { any: [{ field: "age", op: "lt", value: 18 }, { field: "tags", op: "contains", value: "youth" }] },
+        { any: [{ field: "age", op: "lt", value: 18 }, { field: "tags", op: "contains", value: "vip" }] },
         { not: { field: "left", op: "exists" } },
         { field: "due", op: "before", value: { now: true, offset: { value: -7, unit: "days" } } },
         { field: "x", op: "in", value: ["a", ""] },
@@ -87,14 +87,14 @@ test("describe says what core says", () => {
   );
   assert.equal(
     describe(n),
-    'campus is stellenbosch and kind is not staff and (age is less than 18 or tags contains youth) and not (left exists) and due is before now - 7 days and x is one of a, ""',
+    'region is north and kind is not staff and (age is less than 18 or tags contains vip) and not (left exists) and due is before now - 7 days and x is one of a, ""',
   );
-  assert.deepEqual(fields(n), ["age", "campus", "due", "kind", "left", "tags", "x"]);
+  assert.deepEqual(fields(n), ["age", "due", "kind", "left", "region", "tags", "x"]);
 });
 
-test("holds is refused at save until phase three, and now is frozen", () => {
-  const holds = { field: "vars.who", op: "holds", value: { app: "pages", action: "a", resource: "r" } };
-  assert.throws(() => parse(holds), /phase 3/);
+test("holds is refused at save unless allowed, and now is frozen", () => {
+  const holds = { field: "vars.who", op: "holds", value: { app: "cms", action: "a", resource: "r" } };
+  assert.throws(() => parse(holds), /not enabled/);
   parse(holds, { allowHolds: true });
   const n = parse({ field: "vars.at", op: "before", value: { now: true } });
   assert.equal(evaluate(n, { vars: { at: "2000-01-01" }, now: "1999-01-01T00:00:00Z" }), false);

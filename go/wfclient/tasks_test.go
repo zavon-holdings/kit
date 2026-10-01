@@ -13,10 +13,10 @@ import (
 	"testing"
 )
 
-// The task vectors (contract/tasks) are generated from core's live answers
-// (admin/backend/app/api, TestTaskVectors). Here they are decoded STRICTLY
-// into this client's types: a field core answers that the client does not
-// know, or one the client expects that core no longer sends, fails here.
+// The task vectors (contract/tasks) are generated from the workflow
+// service's live answers. Here they are decoded STRICTLY
+// into this client's types: a field the workflow service answers that the client does not
+// know, or one the client expects that the workflow service no longer sends, fails here.
 
 func strict(t *testing.T, rel string, into any) []byte {
 	t.Helper()

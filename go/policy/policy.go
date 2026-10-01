@@ -1,12 +1,10 @@
 // Package policy decides "may this person do this to that?".
 //
-// Original: accounts/backend/app/policy (itself a port of the HR product's
-// iam evaluator). Moved into kit so Accounts, core and every app decide with
-// identical bytes. The document shape and algorithm are unchanged; one
-// evaluator and one vocabulary:
+// One evaluator and one vocabulary, so every service that decides does so
+// with identical bytes:
 //
-//	action     <app>:<type>:<verb>          reach:publication:send
-//	resource   org/<slug>/<app>/<type>/<id> org/shofar/reach/publication/Q3ZkY5o2QI2f1o8rP9sJ6w
+//	action     <app>:<type>:<verb>          mail:message:send
+//	resource   org/<slug>/<app>/<type>/<id> org/org-a/mail/message/Q3ZkY5o2QI2f1o8rP9sJ6w
 //
 // Deny beats Allow; nothing matching is Deny. Ids in resources are PUBLIC ids.
 package policy

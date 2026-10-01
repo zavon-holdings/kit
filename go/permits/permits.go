@@ -1,14 +1,13 @@
 // Package permits is an app's cached copy of who holds what in an
-// organisation, refreshed only when a version says it is stale
-// (admin/docs/workflow-engine-plan.md §10.3).
+// organisation, refreshed only when a version says it is stale.
 //
-// Accounts publishes it (2026-10-01): orgs.permits_version, the `pv` claim
-// on every token, and GET /api/orgs/{slug}/permits?app=<app> answering
+// The identity service publishes a permits version per organisation (also
+// carried as the `pv` claim on its tokens) and GET
+// /api/orgs/{slug}/permits?app=<app> answering
 // {org, app, version, members:[{sub, email, name, staff, roles, statements}]}
-// with ETag "<version>" and 304 on If-None-Match. HTTPRefresher reads it,
-// as the app's own core property token carrying workflows:permits (the
-// property must be on Accounts' permitReaders), or as a manager's token.
-// contract/permits/snapshot.json is the answer, as core reads it too.
+// with ETag "<version>" and 304 on If-None-Match. HTTPRefresher reads it
+// with a bearer token the identity service accepts for that endpoint.
+// contract/permits/snapshot.json is an example answer.
 //
 // The four times an app refreshes, and the only four:
 //  1. a request's token carries a permits version NEWER than the cache;
@@ -30,7 +29,7 @@ import (
 	"github.com/zavon-holdings/kit/go/policy"
 )
 
-// DDL is the cache table (§10.3).
+// DDL is the cache table.
 const DDL = `CREATE TABLE IF NOT EXISTS permits_cache (
   org_slug       TEXT NOT NULL,
   app            TEXT NOT NULL,
@@ -68,7 +67,7 @@ type Snapshot struct {
 // Stale says a push has announced a version this copy has not reached.
 func (s Snapshot) Stale() bool { return s.Wanted > s.Version }
 
-// Find is one member by Accounts subject, or by lower-cased address.
+// Find is one member by identity subject, or by lower-cased address.
 func (s Snapshot) Find(subOrEmail string) (Member, bool) {
 	want := strings.ToLower(strings.TrimSpace(subOrEmail))
 	for _, m := range s.Members {
@@ -94,7 +93,7 @@ func (s Snapshot) Holders(role string) []Member {
 }
 
 // Decide answers whether one member may do action on resource, with the same
-// evaluator every app and Accounts use: deny beats allow, default deny. An
+// evaluator everything else uses: deny beats allow, default deny. An
 // unknown member is denied.
 func Decide(s Snapshot, subOrEmail, action, resource string) policy.Decision {
 	m, ok := s.Find(subOrEmail)
@@ -232,7 +231,7 @@ func (c Cache) Touch(ctx context.Context, org, app string) error {
 // ErrNotModified is a conditional fetch answered 304.
 var ErrNotModified = errors.New("permits: not modified")
 
-// Refresher fetches a snapshot from Accounts: GET /api/orgs/{slug}/permits
+// Refresher fetches a snapshot from the identity service: GET /api/orgs/{slug}/permits
 // ?app= with If-None-Match: "<version>". ErrNotModified for a 304.
 // HTTPRefresher (http.go) is the implementation over the real endpoint.
 type Refresher interface {

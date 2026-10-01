@@ -1,34 +1,31 @@
-// Package wfhandler is an app's door for core's workflow callbacks
-// (admin/docs/workflow-engine-plan.md §7.4, §8.5).
+// Package wfhandler is an app's door for the workflow service's callbacks.
 //
-// Core calls POST {base_url}{action.path} with the body below, signed with
+// The workflow service calls POST {base_url}{action.path} with the body below, signed with
 // the app's callback secret (X-Zavon-Timestamp, X-Zavon-Signature) and an
 // Idempotency-Key that is stable across retries. Mount enforces the app's
 // four obligations so each app does not re-learn them:
 //
 //  1. verify the signature before reading the body as JSON;
 //  2. dedupe on Idempotency-Key — the stored answer is replayed;
-//  3. answer in the §7.4 shapes;
-//  4. never call back into core synchronously inside the handler's
+//  3. answer in the shapes below;
+//  4. never call back into the workflow service synchronously inside the handler's
 //     transaction (that one is the handler's to keep).
 //
 // Two doors. Door runs a Handler and then remembers its answer: the effect
-// and the replay record are two writes, and a crash between them lets core's
+// and the replay record are two writes, and a crash between them lets the workflow service's
 // retry run the effect again (the log says so). DoorTx (v1.1.0) opens ONE
 // transaction, hands it to the TxHandler, and writes the replay record inside
 // it before committing — the effect and its record land together or not at
-// all, which is the obligation Shop's workflow_actions was built to meet
-// (admin/docs/workflow-engine-plan.md §7.4). New apps use DoorTx; Door stays
+// all. New apps use DoorTx; Door stays
 // for an app whose effect is not a database write.
 //
-// The shapes, as core reads them (admin app/workflow/call.go
-// ClassifyAnswer):
+// The shapes, as the workflow service reads them:
 //
 //	200 {"status":"done","output":{…}}      the step completes
 //	202 {"status":"accepted"}               async: finish later with wfclient.CompleteDelivery
 //	4xx {"refusal":"sentence"}              a DECIDED no: the run pauses with the sentence
 //	                                        (400/404/409/410/413/422 are the decided ones)
-//	401/403                                 configuration (the secret); core retries then alerts
+//	401/403                                 configuration (the secret); the workflow service retries then alerts
 //	5xx                                     retried with the same key
 package wfhandler
 
@@ -44,7 +41,7 @@ import (
 	"github.com/zavon-holdings/kit/go/webhooksig"
 )
 
-// Call is what core sends.
+// Call is what the workflow service sends.
 type Call struct {
 	Action   string         `json:"action"`
 	Delivery string         `json:"delivery,omitempty"`
@@ -94,7 +91,7 @@ type Answer struct {
 	// mode: async.
 	Accepted bool
 	// Refusal is a decided no, in a sentence the run's screen shows verbatim.
-	// Status picks the 4xx (default 422); it must be one core reads as a
+	// Status picks the 4xx (default 422); it must be one the workflow service reads as a
 	// decision, or it will be retried.
 	Refusal string
 	Status  int
@@ -117,7 +114,7 @@ func Refuse(sentence string) Answer {
 //	<ns>.render_email        {"subject","html","text"}
 //	hook actions             any Done; the input carries {"event","state","outcome","pause_reason"}
 
-// Handler answers one action. An error is a fault (500): core retries with
+// Handler answers one action. An error is a fault (500): the workflow service retries with
 // the same key. A decision, including no, is an Answer.
 type Handler func(ctx context.Context, call Call) (Answer, error)
 
@@ -132,14 +129,13 @@ type Stored struct {
 }
 
 // ReplayStore keeps decided answers by key, in the SAME transaction as the
-// effect when the app can (Shop's workflow_actions is the model). Get answers
-// (nil, nil) for a key never seen.
+// effect when the app can. Get answers (nil, nil) for a key never seen.
 type ReplayStore interface {
 	Get(ctx context.Context, key string) (*Stored, error)
 	Put(ctx context.Context, key string, s Stored) error
 }
 
-// decidedStatuses are the 4xx core reads as a decided no (call.go decidedNo).
+// decidedStatuses are the 4xx the workflow service reads as a decided no (call.go decidedNo).
 var decidedStatuses = map[int]bool{400: true, 404: true, 409: true, 410: true, 413: true, 422: true}
 
 // Options adjust Mount.
@@ -194,7 +190,7 @@ func Door(secrets []string, h Handlers, store ReplayStore, opts ...Options) http
 		}
 		answer, err := handler(ctx, call)
 		if err != nil {
-			// A fault, not a decision: not stored, so core's retry runs the
+			// A fault, not a decision: not stored, so the workflow service's retry runs the
 			// handler again.
 			o.Log("wfhandler: "+call.Action, err)
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -204,7 +200,7 @@ func Door(secrets []string, h Handlers, store ReplayStore, opts ...Options) http
 		raw, _ := json.Marshal(out)
 		if store != nil {
 			if err := store.Put(ctx, call.IdempotencyKey, Stored{Action: call.Action, Status: status, Response: raw}); err != nil {
-				// The work happened. Not remembering it means core's retry
+				// The work happened. Not remembering it means the workflow service's retry
 				// runs it again — said in the log rather than swallowed.
 				o.Log("wfhandler: remembering the answer for "+call.IdempotencyKey, err)
 			}
@@ -236,13 +232,13 @@ type TxStore interface {
 
 // TxHandler answers one action INSIDE tx. Its effect goes through tx; the
 // door writes the replay record through the same tx and commits. An error is
-// a fault: the transaction is rolled back, nothing is remembered, and core
+// a fault: the transaction is rolled back, nothing is remembered, and the workflow service
 // retries with the same key. A decision, including no, is an Answer — and
 // a refusal's effect (if the handler made one) commits with it, which is the
 // handler's choice: a refusal that leaves a row saying why is a refusal
 // somebody can read.
 //
-// The handler must not call core inside tx (obligation 4): on a one-connection
+// The handler must not call the workflow service inside tx (obligation 4): on a one-connection
 // pool that is a deadlock, and on any pool it is a round trip holding a lock.
 type TxHandler func(ctx context.Context, tx Tx, call Call) (Answer, error)
 
@@ -262,7 +258,7 @@ func MountTx(mux *http.ServeMux, prefix string, secrets []string, h TxHandlers, 
 // up through tx (a replay answers from the record and rolls back); run the
 // handler; INSERT the record — a plain insert, so two deliveries of one key
 // racing through two transactions end with the loser's insert refused at
-// the unique key, its effect rolled back, and a 5xx that core retries into
+// the unique key, its effect rolled back, and a 5xx that the workflow service retries into
 // a replay of the winner's answer; Commit. A commit that fails is a fault:
 // the effect did not happen, so nothing is remembered.
 func DoorTx(secrets []string, h TxHandlers, store TxStore, opts ...Options) http.Handler {
@@ -317,7 +313,7 @@ func DoorTx(secrets []string, h TxHandlers, store TxStore, opts ...Options) http
 		if err := rs.insert(ctx, call.IdempotencyKey, Stored{Action: call.Action, Status: status, Response: raw}); err != nil {
 			// The key is taken (another delivery of the same call got there
 			// first) or the write failed. Either way this effect must not
-			// land: rolled back, and core's retry replays the winner.
+			// land: rolled back, and the workflow service's retry replays the winner.
 			o.Log("wfhandler: remembering the answer for "+call.IdempotencyKey, err)
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not record this answer; the effect was rolled back"})
 			return
@@ -364,7 +360,7 @@ func admitter(secrets []string, o Options) func(w http.ResponseWriter, r *http.R
 	return func(w http.ResponseWriter, r *http.Request) (Call, bool) {
 		if live == 0 {
 			// Fail closed: without a secret nothing can be verified, and
-			// answering 503 tells core to retry once it is installed.
+			// answering 503 tells the workflow service to retry once it is installed.
 			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "ZAVON_WORKFLOW_SECRET is not set, so this door is closed"})
 			return Call{}, false
 		}
@@ -404,7 +400,7 @@ func unknown(w http.ResponseWriter, call Call) {
 	writeJSON(w, http.StatusNotFound, map[string]string{"refusal": fmt.Sprintf("this app does not answer %s", call.Action)})
 }
 
-// shape turns an Answer into the §7.4 status and body.
+// shape turns an Answer into its status and body.
 func shape(a Answer) (int, any) {
 	switch {
 	case a.Refusal != "":
@@ -431,8 +427,7 @@ func writeJSON(w http.ResponseWriter, status int, body any) {
 
 /* ── a SQL replay store ── */
 
-// DDL is the replay table an app keeps, modelled on Shop's workflow_actions
-// (shop migration 0009): one row per Idempotency-Key, written in the same
+// DDL is the replay table an app keeps: one row per Idempotency-Key, written in the same
 // transaction as the effect where the app can.
 const DDL = `CREATE TABLE IF NOT EXISTS workflow_actions (
   idempotency_key TEXT PRIMARY KEY,

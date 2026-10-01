@@ -20,7 +20,7 @@ for (const v of vectors) {
   });
 }
 
-test("core's bare hex verifies", () => {
+test("the workflow service's bare hex verifies", () => {
   const v = vectors.find((x) => x.name === "bare");
   verify(["s3cret"], v.sign, String(v.timestamp), v.body, v.timestamp);
 });

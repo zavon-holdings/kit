@@ -18,13 +18,13 @@ var (
 )
 
 // Computed independently (python3 hmac/hashlib), so a change to the preimage
-// on this side cannot pass by agreeing with itself. It is also what core's
+// on this side cannot pass by agreeing with itself. It is also what the workflow service's
 // auth.Sign returns for the same input.
 const coreSig = "2404dff02b09fa87975a446c6672be2be1e54cd8ccbb504d053f0ec429731fe0"
 
 func TestSignIsCoresBareHex(t *testing.T) {
 	if got := Sign("s3cret", 1790000000, body); got != coreSig {
-		t.Fatalf("Sign = %s, want core's %s", got, coreSig)
+		t.Fatalf("Sign = %s, want the workflow service's %s", got, coreSig)
 	}
 }
 
@@ -59,7 +59,7 @@ func TestSkewIsRefusedBothWays(t *testing.T) {
 }
 
 func TestRotationAcceptsThePreviousSecret(t *testing.T) {
-	// Core signed with both; the app has only updated to the new one — or has
+	// The workflow service signed with both; the app has only updated to the new one — or has
 	// not updated yet. Either side of the overlap must verify.
 	h := Header([]string{"new", "old"}, now.Unix(), body)
 	if !strings.Contains(h, ", v1=") {
@@ -70,7 +70,7 @@ func TestRotationAcceptsThePreviousSecret(t *testing.T) {
 			t.Errorf("app holding %v refused: %v", holds, err)
 		}
 	}
-	// And an app holding both accepts core signing with only the old one.
+	// And an app holding both accepts the workflow service signing with only the old one.
 	if err := Verify([]string{"new", "old"}, Header([]string{"old"}, now.Unix(), body), "1790000000", body, now); err != nil {
 		t.Errorf("previous secret refused: %v", err)
 	}

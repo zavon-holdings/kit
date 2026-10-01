@@ -1,15 +1,14 @@
 // Package outbox is an app's at-least-once outbox: rows written in the same
 // transaction as the domain change they announce, drained later by the app's
-// cron (admin/docs/workflow-engine-plan.md §4.5, §9.2).
+// cron.
 //
-// A small port of reach/backend/app/jobs/queue.go's semantics, without a
-// database driver: every write goes through a Querier the app supplies (a pgx
+// It has no database driver: every write goes through a Querier the app supplies (a pgx
 // pool or transaction satisfies it). The safety lives in Postgres — a partial
 // unique index on dedupe_key, FOR UPDATE SKIP LOCKED in the claim — so a fake
 // Querier in a test proves only the state machine, which is what the tests
 // here do.
 //
-// Rules carried over from Reach:
+// Rules:
 //   - AddTx is ON CONFLICT DO NOTHING on the live dedupe key: identical work
 //     already booked is not booked twice, and is not an error.
 //   - a handler must be safe to run twice; the queue is at-least-once.

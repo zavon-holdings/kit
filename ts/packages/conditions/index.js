@@ -1,5 +1,4 @@
-// Twin of core's app/workflow/cond: the workflow engine's one condition
-// language (admin/docs/workflow-expansion-plan.md §3.4), evaluated in the
+// The workflow engine's condition language, evaluated in the
 // browser for the builder's simulate and "would this match?" helper. The
 // contract vectors in kit/contract/conditions hold the two languages
 // together; a divergence fails both.
@@ -120,7 +119,7 @@ function parseNode(v, o, depth, at) {
       leaf.when = parseWhen(leaf.value, at, op);
       break;
     case "holds":
-      if (!o.allowHolds) throw new ParseError(where(at, "`holds` arrives with phase 3 of the workflow plan (the permits directory)"));
+      if (!o.allowHolds) throw new ParseError(where(at, "`holds` is not enabled here (it needs a permits directory)"));
       leaf.grant = parseGrant(leaf.value, at);
       break;
     default:
@@ -382,7 +381,7 @@ const WORDS = {
   ends_with: "ends with", matches: "matches", before: "is before", after: "is after", holds: "holds",
 };
 
-/** The condition in words, as core's Describe says it. */
+/** The condition in words, as the workflow service's Describe says it. */
 export function describe(n) {
   if (!n || n.empty) return "";
   if (n.not) return `not (${describe(n.not)})`;
