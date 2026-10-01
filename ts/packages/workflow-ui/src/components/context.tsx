@@ -2,17 +2,31 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import type { Analysis } from "../analysis.js";
-import type { Graph, Inspectors, Sample, Selection } from "../types.js";
+import type { Graph, Inspectors, Sample, Selection, WorkflowApi } from "../types.js";
+import type { CatalogueEvent, Interrupt, Trigger } from "../trigger.js";
 
 /** What every part of the editor shares. One graph, one analysis, one selection. */
 export type Editor = {
   graph: Graph;
   analysis: Analysis;
   readOnly: boolean;
-  /** Applies an edit. A read-only editor ignores it. */
-  update: (edit: (g: Graph) => Graph) => void;
+  /**
+   * Applies an edit. A read-only editor ignores it. Edits sharing a
+   * `coalesce` key in quick succession are one step of undo (typing).
+   */
+  update: (edit: (g: Graph) => Graph, options?: { coalesce?: string }) => void;
   selection: Selection;
   select: (s: Selection) => void;
+  /** The node ids selected: one, several, or none. */
+  selectedIds: string[];
+  /** Selects a node, moves keyboard focus to it and brings it into view. */
+  reveal: (id: string) => void;
+  /** Copies nodes (the selection when none are named) to the editor's clipboard. */
+  copy: (ids?: string[]) => void;
+  /** Pastes what was copied, beside where it came from. */
+  paste: () => void;
+  /** Whether something has been copied. */
+  canPaste: boolean;
   /** The node that holds the tab stop in the canvas and the list (roving tabindex). */
   focusId: string | null;
   /** Moves the tab stop, and with `move` moves keyboard focus there too. */
@@ -28,6 +42,27 @@ export type Editor = {
   reducedMotion: boolean;
   /** Read-only words about the definition's trigger, for the start node. */
   triggerSummary?: string;
+  /** The host's api, for panels that ask the server (assignee preview). */
+  api?: WorkflowApi;
+  /** Words to show on nodes (a version comparison's "added"). */
+  marks?: Record<string, string>;
+  /** Bumped when a scenario is saved, so the Scenarios panel reloads. */
+  scenariosTick: number;
+  bumpScenarios: () => void;
+  /** Canvas preferences. */
+  snapToGrid: boolean;
+  minimap: boolean;
+  /** The definition's trigger, when the host lets the editor change it. */
+  triggerEditor?: TriggerEditor;
+};
+
+/** What the start node's inspector edits when the host hands the trigger in. */
+export type TriggerEditor = {
+  value: Trigger;
+  onChange?: (t: Trigger) => void;
+  events?: CatalogueEvent[];
+  interrupts?: Interrupt[];
+  onInterruptsChange?: (list: Interrupt[]) => void;
 };
 
 export const EditorContext = createContext<Editor | null>(null);

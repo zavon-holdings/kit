@@ -16,6 +16,8 @@ export type ConditionBuilderProps = {
   fields?: string[];
   /** When given, the builder says whether the sample would match. */
   sample?: Sample;
+  /** "trigger" reads a bare name as one of the event's values; "branch" (the default) as a run var. */
+  mode?: "branch" | "trigger";
 };
 
 const WORDS: Record<string, string> = {
@@ -39,9 +41,9 @@ const WORDS: Record<string, string> = {
 };
 
 /** What the condition says, or why it cannot be read. */
-export function readCondition(value: unknown): { text: string; error?: string } {
+export function readCondition(value: unknown, mode: "branch" | "trigger" = "branch"): { text: string; error?: string } {
   try {
-    const node = parse(value ?? {}, { mode: "branch", allowHolds: true });
+    const node = parse(value ?? {}, { mode, allowHolds: mode === "branch" });
     return { text: describe(node) || "nothing yet: it would always hold" };
   } catch (e) {
     return { text: "", error: e instanceof Error ? e.message : String(e) };
@@ -53,12 +55,12 @@ export function readCondition(value: unknown): { text: string; error?: string } 
  * value, matched all or any. A condition that needs more (not, nesting) is
  * edited as JSON, so opening it never rewrites it.
  */
-export function ConditionBuilder({ value, onChange, legend, readOnly = false, fields = [], sample }: ConditionBuilderProps) {
+export function ConditionBuilder({ value, onChange, legend, readOnly = false, fields = [], sample, mode = "branch" }: ConditionBuilderProps) {
   const id = useId();
   const rows = useMemo(() => toRows(value), [value]);
   const [json, setJson] = useState(() => JSON.stringify(value ?? {}, null, 2));
   const [jsonError, setJsonError] = useState("");
-  const read = readCondition(value);
+  const read = readCondition(value, mode);
 
   const verdict = useMemo(() => {
     if (!sample || read.error) return null;
@@ -98,7 +100,7 @@ export function ConditionBuilder({ value, onChange, legend, readOnly = false, fi
               <li key={i} className="zwf-rule">
                 <label className="zwf-field">
                   <span>Field</span>
-                  <input list={`${id}-fields`} value={row.field} placeholder="vars.amount" onChange={(e) => setRow(i, { field: e.target.value })} />
+                  <input list={`${id}-fields`} value={row.field} placeholder={mode === "trigger" ? "total_cents" : "vars.amount"} onChange={(e) => setRow(i, { field: e.target.value })} />
                 </label>
                 <label className="zwf-field">
                   <span>Test</span>

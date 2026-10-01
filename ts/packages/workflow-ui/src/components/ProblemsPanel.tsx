@@ -2,7 +2,7 @@
 
 import { nameOf, useEditor } from "./context.js";
 
-/** Every problem, each with a way to the node or edge it is about. */
+/** Every problem, each with a way to go to the node or edge it is about. */
 export function ProblemsPanel() {
   const ed = useEditor();
   const ps = ed.analysis.problems;
@@ -28,7 +28,13 @@ export function ProblemsPanel() {
                 <button
                   type="button"
                   className="zwf-link"
-                  onClick={() => (edgeIndex >= 0 ? ed.select({ kind: "edge", index: edgeIndex }) : ed.select({ kind: "node", id: p.node! }))}
+                  onClick={() => {
+                    // Go there: select it, bring it into view and move focus to it.
+                    if (edgeIndex >= 0) {
+                      ed.setFocus(p.edge!.from, true);
+                      ed.select({ kind: "edge", index: edgeIndex });
+                    } else ed.reveal(p.node!);
+                  }}
                 >
                   Show {where}
                 </button>

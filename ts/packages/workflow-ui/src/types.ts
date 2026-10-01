@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { Graph, GraphEdge, GraphNode, Problem, Step } from "@zavon/workflow-graph";
+import type { Scenario, ScenarioResult } from "./scenarios.js";
 
 export type { Graph, GraphEdge, GraphNode, Problem, Step };
 
@@ -7,7 +8,7 @@ export type { Graph, GraphEdge, GraphNode, Problem, Step };
 export type Point = { x: number; y: number };
 
 /** What is selected: a node, or one edge by its index in graph.edges. */
-export type Selection = { kind: "node"; id: string } | { kind: "edge"; index: number } | null;
+export type Selection = { kind: "node"; id: string } | { kind: "nodes"; ids: string[] } | { kind: "edge"; index: number } | null;
 
 /** What a host's inspector for one node type is given. */
 export type InspectorProps = {
@@ -74,6 +75,25 @@ export type WorkflowApi = {
   validate?: (graph: Graph) => Promise<Problem[]>;
   /** A dry walk of the graph with a sample. Writes nothing. */
   simulate?: (request: SimulateRequest) => Promise<SimulateResult>;
+  /** Who a review, approval or form node would go to for the sample. Writes nothing. */
+  previewAssignees?: (request: { node: GraphNode; sample: Sample }) => Promise<AssigneePreview>;
+  /** The definition's saved test scenarios. */
+  listScenarios?: () => Promise<Scenario[]>;
+  saveScenario?: (scenario: Scenario) => Promise<void>;
+  deleteScenario?: (name: string) => Promise<void>;
+  /** Runs every saved scenario against a graph; without it the editor runs them through simulate. */
+  runScenarios?: (graph: Graph) => Promise<ScenarioResult[]>;
+};
+
+/** Who a task would be given to, as the server resolves it for a sample. */
+export type AssigneePreview = {
+  assignees: { email: string; name?: string; source?: string }[];
+  /** Nobody could be found: a task here would be unassignable. */
+  unassignable: boolean;
+  /** The resolution in words. */
+  says: string;
+  /** The directory it was read from is out of date. */
+  stale?: boolean;
 };
 
 /** A thrown error a host api may raise with the server's problems attached. */

@@ -620,3 +620,231 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ── v1.6: menus, find, the shortcuts sheet, several samples, versions ── */
+
+.zwf-menu {
+  position: relative;
+}
+
+.zwf-menu > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.zwf-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.zwf-menu-body {
+  position: absolute;
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 4px;
+  min-width: 240px;
+  margin-top: 4px;
+  padding: 8px;
+  background: var(--zwf-surface);
+  border: 1px solid var(--zwf-line);
+  border-radius: var(--zwf-radius);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.12);
+}
+
+.zwf-menu-body .zwf-button {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.zwf-find {
+  position: relative;
+  flex: 1 1 200px;
+  max-width: 320px;
+}
+
+.zwf-find input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--zwf-line);
+  border-radius: var(--zwf-radius);
+  background: var(--zwf-surface);
+  color: inherit;
+  font: inherit;
+}
+
+.zwf-find-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin-top: 4px;
+  padding: 8px 10px;
+  background: var(--zwf-surface);
+  border: 1px solid var(--zwf-line);
+  border-radius: var(--zwf-radius);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.12);
+}
+
+.zwf-find-results li + li {
+  margin-top: 4px;
+}
+
+.zwf-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 0.35);
+}
+
+.zwf-modal {
+  max-width: 640px;
+  width: 100%;
+  max-height: 85vh;
+  overflow: auto;
+  padding: 20px;
+  background: var(--zwf-surface);
+  color: var(--zwf-ink);
+  border-radius: var(--zwf-radius);
+  box-shadow: 0 12px 48px rgb(0 0 0 / 0.25);
+}
+
+.zwf-modal-head {
+  justify-content: space-between;
+}
+
+.zwf-keys th {
+  text-align: left;
+  white-space: nowrap;
+  font-weight: normal;
+  width: 40%;
+}
+
+.zwf-keys kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 1px 6px;
+  border: 1px solid var(--zwf-line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--zwf-sunken);
+  font: inherit;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+.zwf-sim-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.zwf-sim-column {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.zwf-sim-columns .zwf-sim-column {
+  padding: 10px;
+  border: 1px solid var(--zwf-line);
+  border-radius: var(--zwf-radius);
+}
+
+.zwf-sim-column[data-shown="true"] {
+  border-color: var(--zwf-path);
+  box-shadow: inset 3px 0 0 var(--zwf-path);
+}
+
+.zwf-save-scenario {
+  align-items: end;
+}
+
+.zwf-scenarios tr[data-pass="false"] th {
+  box-shadow: inset 3px 0 0 var(--zwf-danger);
+}
+
+.zwf-wrap {
+  flex-wrap: wrap;
+}
+
+.zwf-choices-col {
+  display: grid;
+  gap: 6px;
+}
+
+.zwf-trigger,
+.zwf-interrupts {
+  display: grid;
+  gap: 8px;
+}
+
+.zwf-interrupt {
+  display: grid;
+  gap: 6px;
+  padding: 8px 0;
+  border-top: 1px solid var(--zwf-line);
+}
+
+.zwf-node[data-mark="added"] {
+  border-color: var(--zwf-ok);
+  box-shadow: inset 0 3px 0 var(--zwf-ok);
+}
+
+.zwf-node[data-mark="removed"] {
+  border-color: var(--zwf-danger);
+  border-style: dashed;
+}
+
+.zwf-node[data-mark="changed"] {
+  border-color: var(--zwf-warn);
+  box-shadow: inset 0 3px 0 var(--zwf-warn);
+}
+
+.zwf-diff {
+  display: grid;
+  gap: 12px;
+}
+
+.zwf-diff-sides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 12px;
+}
+
+.zwf-diff-side {
+  min-width: 0;
+}
+
+.zwf-graph-view {
+  --zwf-canvas-height: 480px;
+}
+
+.zwf-diff tr[data-change="added"] th {
+  box-shadow: inset 3px 0 0 var(--zwf-ok);
+}
+
+.zwf-diff tr[data-change="removed"] th {
+  box-shadow: inset 3px 0 0 var(--zwf-danger);
+}
+
+.zwf-diff tr[data-change="changed"] th,
+.zwf-diff tr[data-change="moved"] th {
+  box-shadow: inset 3px 0 0 var(--zwf-warn);
+}
+
+.zwf-selected-list {
+  max-height: 160px;
+  overflow: auto;
+}
+
+@media print {
+  .zwf-palette,
+  .zwf-inspector,
+  .zwf-panels,
+  .zwf-bar {
+    display: none;
+  }
+}

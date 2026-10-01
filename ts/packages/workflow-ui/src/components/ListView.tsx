@@ -47,7 +47,7 @@ export function ListView() {
         if (!n) return null;
         const arm = analysis.arms.get(id);
         const problems = analysis.byNode.get(id)?.length ?? 0;
-        const selected = ed.selection?.kind === "node" && ed.selection.id === id;
+        const selected = ed.selectedIds.includes(id);
         const outs = outEdges(graph, id);
         return (
           <li
@@ -63,8 +63,14 @@ export function ListView() {
             tabIndex={id === tabStop ? 0 : -1}
             aria-current={selected ? "true" : undefined}
             onFocus={() => ed.focusId !== id && ed.setFocus(id)}
-            onClick={() => {
-              ed.select({ kind: "node", id });
+            onClick={(e) => {
+              if (e.shiftKey || e.metaKey || e.ctrlKey) {
+                const now = new Set(ed.selectedIds);
+                if (now.has(id)) now.delete(id);
+                else now.add(id);
+                const ids = analysis.order.filter((x) => now.has(x));
+                ed.select(ids.length === 0 ? null : ids.length === 1 ? { kind: "node", id: ids[0] } : { kind: "nodes", ids });
+              } else ed.select({ kind: "node", id });
               ed.setFocus(id);
             }}
             onKeyDown={(e) => {

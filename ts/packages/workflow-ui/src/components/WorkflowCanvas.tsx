@@ -26,6 +26,7 @@ import {
 import { typeLabel } from "../catalogue.js";
 import { autoLayout, positions } from "../layout.js";
 import { connect, nodeById, setLayout, setPosition } from "../model.js";
+import { GRID } from "../arrange.js";
 import { lanePath, routeEdges, type Box } from "../routing.js";
 import { nextFocus } from "../nav.js";
 import { edgeKey, pathNodes, problemCount } from "../analysis.js";
@@ -38,6 +39,8 @@ type NodeData = {
   problems: number;
   onPath: boolean;
   step: number | null;
+  /** A word from the host: "added", "removed", "changed". */
+  mark?: string;
 };
 
 type EdgeData = {
@@ -62,8 +65,8 @@ function NodeCardImpl({ id, data, selected }: NodeProps<Node<NodeData>>) {
   useEffect(() => {
     if (ed.focusId === id && ed.focusTick > 0 && ref.current && document.activeElement !== ref.current) ref.current.focus({ preventScroll: true });
   }, [ed.focusId, ed.focusTick, id]);
-  const { node, name, problems, onPath } = data;
-  const label = `${typeLabel(node.type)}: ${name}${problems ? `, ${problemCount(problems)}` : ""}${onPath ? ", on the simulated path" : ""}`;
+  const { node, name, problems, onPath, mark } = data;
+  const label = `${typeLabel(node.type)}: ${name}${problems ? `, ${problemCount(problems)}` : ""}${onPath ? ", on the simulated path" : ""}${mark ? `, ${mark}` : ""}`;
   return (
     <div
       ref={ref}
@@ -72,6 +75,7 @@ function NodeCardImpl({ id, data, selected }: NodeProps<Node<NodeData>>) {
       data-on-path={onPath ? "true" : undefined}
       data-problems={problems || undefined}
       data-selected={selected ? "true" : undefined}
+      data-mark={mark || undefined}
       role="button"
       tabIndex={tabStop ? 0 : -1}
       aria-label={label}
@@ -95,8 +99,14 @@ function NodeCardImpl({ id, data, selected }: NodeProps<Node<NodeData>>) {
       {typeLabel(node.type) !== name && <span className="zwf-node-type">{typeLabel(node.type)}</span>}
       <span className="zwf-node-name">{name}</span>
       {name !== node.id && node.type !== "start" && <code className="zwf-node-id">{node.id}</code>}
-      {(problems > 0 || onPath) && (
+      {(problems > 0 || onPath || mark) && (
         <span className="zwf-node-marks">
+          {mark && (
+            <span className={`zwf-status zwf-status-${mark === "removed" ? "danger" : mark === "added" ? "ok" : "warn"}`}>
+              <span className="zwf-dot" aria-hidden="true" />
+              {mark}
+            </span>
+          )}
           {problems > 0 && (
             <span className="zwf-status zwf-status-danger">
               <span className="zwf-dot" aria-hidden="true" />
@@ -156,6 +166,7 @@ function Zoom() {
   const ed = useEditor();
   const rf = useReactFlow();
   const duration = ed.reducedMotion ? 0 : 180;
+
   return (
     <Panel position="top-right" className="zwf-zoom">
       <button type="button" className="zwf-button" onClick={() => rf.zoomIn({ duration })}>
@@ -223,6 +234,7 @@ function Canvas() {
   const pathSet = useMemo(() => pathNodes(graph, ed.path), [graph, ed.path]);
   const stepNumber = useMemo(() => new Map(analysis.order.map((id, i) => [id, i])), [analysis.order]);
 
+  const chosen = useMemo(() => new Set(ed.selectedIds), [ed.selectedIds]);
   const derived: Node<NodeData>[] = useMemo(
     () =>
       graph.nodes.map((n) => ({
@@ -235,12 +247,13 @@ function Canvas() {
           problems: analysis.byNode.get(n.id)?.length ?? 0,
           onPath: pathSet.has(n.id),
           step: stepNumber.get(n.id) ?? null,
+          mark: ed.marks?.[n.id],
         },
-        selected: ed.selection?.kind === "node" && ed.selection.id === n.id,
+        selected: chosen.has(n.id),
         draggable: !readOnly,
         connectable: !readOnly,
       })),
-    [graph, at, analysis, pathSet, stepNumber, ed.selection, readOnly],
+    [graph, at, analysis, pathSet, stepNumber, chosen, readOnly, ed.marks],
   );
 
   const [rfNodes, setRfNodes] = useState<Node<NodeData>[]>(derived);
@@ -313,9 +326,25 @@ function Canvas() {
           const b = nodeById(graph, c.target);
           return !!a && !!b && a.type !== "end" && b.type !== "start" && c.source !== c.target;
         }}
-        onNodeClick={(_, n) => {
-          ed.select({ kind: "node", id: n.id });
+        onNodeClick={(e, n) => {
+          if (e.shiftKey || e.metaKey || e.ctrlKey) {
+            // Add to (or take out of) the selection.
+            const now = new Set(ed.selectedIds);
+            if (now.has(n.id)) now.delete(n.id);
+            else now.add(n.id);
+            const ids = graph.nodes.map((x) => x.id).filter((id) => now.has(id));
+            ed.select(ids.length === 0 ? null : ids.length === 1 ? { kind: "node", id: ids[0] } : { kind: "nodes", ids });
+          } else {
+            ed.select({ kind: "node", id: n.id });
+          }
           ed.setFocus(n.id);
+        }}
+        onSelectionChange={({ nodes }) => {
+          // A box drawn with Shift held: the nodes inside it become the selection.
+          if (nodes.length < 2) return;
+          const ids = graph.nodes.map((x) => x.id).filter((id) => nodes.some((n) => n.id === id));
+          const same = ids.length === ed.selectedIds.length && ids.every((id, i) => ed.selectedIds[i] === id);
+          if (!same) ed.select({ kind: "nodes", ids });
         }}
         onEdgeClick={(_, e) => ed.select({ kind: "edge", index: Number(e.id.slice(1)) })}
         onPaneClick={() => ed.select(null)}
@@ -325,8 +354,10 @@ function Canvas() {
         edgesFocusable={false}
         disableKeyboardA11y
         deleteKeyCode={null}
-        selectionKeyCode={null}
+        selectionKeyCode="Shift"
         multiSelectionKeyCode={null}
+        snapToGrid={ed.snapToGrid}
+        snapGrid={[GRID, GRID]}
         minZoom={0.2}
         maxZoom={1.75}
         defaultEdgeOptions={{ type: "zwf" }}
@@ -335,7 +366,7 @@ function Canvas() {
         <Zoom />
         <FirstView />
         <FollowFocus at={at} />
-        {graph.nodes.length >= 30 && <MiniMap pannable zoomable ariaLabel="Overview of the whole workflow" />}
+        {ed.minimap && <MiniMap pannable zoomable ariaLabel="Overview of the whole workflow" />}
       </ReactFlow>
     </div>
   );

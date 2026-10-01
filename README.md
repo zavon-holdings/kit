@@ -46,6 +46,38 @@ import { WorkflowBuilder } from "@zavon/workflow-ui";
 <WorkflowBuilder graph={graph} onChange={setGraph} trigger="event" api={api} inspectors={inspectors} />
 ```
 
+Beyond drawing, the editor carries what a person needs to build a tree with
+confidence, each piece also exported on its own:
+
+- **Undo and redo** (`history`): whole graphs, typing coalesced into one step.
+- **Copy and paste** of nodes and whole sub-trees (`clipboard`), through the
+  system clipboard as a `workflow.fragment/1` document: fresh ids, the
+  fragment's own `steps.<id>` references followed.
+- **Several nodes at once** (Shift-click, Shift-drag a box, Mod+A): move,
+  align, space evenly, copy, remove (`arrange`); snap to a grid.
+- **Find** a node by name, id, type or settings (`search`); an overview map;
+  a **keyboard shortcuts** sheet read from the same table as the key handler
+  (`shortcuts`); every problem links to its node.
+- **Export and import**: the graph as JSON, a picture as SVG or PNG drawn
+  from the canvas's own positions and lanes, and a printed page (`exporting`).
+- **The trigger** on the start node (`TriggerPanel`: by hand, an event with a
+  filter in the condition language, a schedule, a date, an app) and
+  definition-level **interrupts** (`InterruptsPanel`), when the host hands
+  them in; the definition, not the graph, holds both.
+- **Simulate** several samples side by side; keep a walk as a named
+  **scenario** and run them all as a regression check (`ScenariosPanel`,
+  `checkScenario`).
+- **Who a task goes to** for the sample, asked of the host
+  (`api.previewAssignees`).
+- **Versions compared** (`VersionDiff`, `diffGraphs`, `diffSteps`): two
+  drawings side by side with what changed marked, and the steps aligned by
+  code. `GraphView` draws any graph read only.
+- **Starters** (`STARTERS`): small trees that compile as they stand.
+
+The `api` is optional member by member (`validate`, `simulate`,
+`previewAssignees`, `listScenarios`, `saveScenario`, `deleteScenario`,
+`runScenarios`); a panel whose call is missing says so.
+
 - Peers: `react`, `react-dom`, `@zavon/workflow-graph`, `@zavon/conditions`
   (install all three kit packs). Depends on `@xyflow/react` (MIT), which
   brings `@xyflow/system`, `zustand`, `classcat` (MIT) and the `d3-*` modules
@@ -55,6 +87,7 @@ import { WorkflowBuilder } from "@zavon/workflow-ui";
 - Every canvas edit is possible in the List tab with ordinary controls;
   nodes are one tab stop (arrows move along edges), edges connect by menu,
   zoom has buttons, and `prefers-reduced-motion` turns off animated pans.
+  Axe runs over every editor state in the package's tests.
 - Built with `tsc` into `dist/` when packed; `npm test` typechecks and runs
   vitest with testing-library.
 

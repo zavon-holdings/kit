@@ -26,6 +26,10 @@ import { edgeKey, problemCount } from "../analysis.js";
 import { ConditionBuilder } from "./ConditionBuilder.js";
 import { nameOf, useEditor } from "./context.js";
 import { BUILT_IN_INSPECTORS, JsonInspector } from "./inspectors.js";
+import { AssigneePreview } from "./AssigneePreview.js";
+import { InterruptsPanel, TriggerPanel } from "./TriggerPanel.js";
+import { alignNodes, distributeNodes, removeNodes, type Alignment } from "../arrange.js";
+import { subtree } from "../clipboard.js";
 
 /**
  * The selected node's settings and its ways out. Everything the canvas can
@@ -39,6 +43,13 @@ export function Inspector() {
   const node = nodeId ? nodeById(ed.graph, nodeId) : undefined;
   const headingRef = useRef<HTMLHeadingElement>(null);
 
+  if (sel?.kind === "nodes") {
+    return (
+      <aside className="zwf-inspector" aria-label="Inspector">
+        <SeveralNodes ids={sel.ids} />
+      </aside>
+    );
+  }
   if (!node) {
     return (
       <aside className="zwf-inspector" aria-label="Inspector">
@@ -96,12 +107,28 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
       )}
 
       {node.type === "start" ? (
-        <p className="zwf-muted">{ed.triggerSummary || "Every run begins here. What starts a run is the definition's trigger, not a setting of this node."}</p>
+        ed.triggerEditor ? (
+          <>
+            <TriggerPanel value={ed.triggerEditor.value} onChange={ed.triggerEditor.onChange} events={ed.triggerEditor.events} />
+            {ed.triggerEditor.interrupts && (
+              <InterruptsPanel
+                value={ed.triggerEditor.interrupts}
+                onChange={ed.triggerEditor.onInterruptsChange}
+                events={ed.triggerEditor.events}
+                targets={(ed.analysis.steps ?? [])
+                  .filter((st) => !st.parent && !st.code.includes("--"))
+                  .map((st) => ({ code: st.code, name: nameOf(ed.graph, st.code) }))}
+              />
+            )}
+          </>
+        ) : (
+          <p className="zwf-muted">{ed.triggerSummary || "Every run begins here. What starts a run is the definition's trigger, not a setting of this node."}</p>
+        )
       ) : (
         <>
           <label className="zwf-field">
             <span>Name</span>
-            <input value={node.name ?? ""} placeholder={node.id} readOnly={ro} onChange={(e) => ed.update((g) => setNodeName(g, node.id, e.target.value))} />
+            <input value={node.name ?? ""} placeholder={node.id} readOnly={ro} onChange={(e) => ed.update((g) => setNodeName(g, node.id, e.target.value), { coalesce: `name:${node.id}` })} />
           </label>
           <label className="zwf-field">
             <span>Id (the step's code)</span>
@@ -122,16 +149,17 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
       {!structural && (
         <section className="zwf-section" aria-label="Settings">
           {HostInspector ? (
-            <HostInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config))} />
+            <HostInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
           ) : (
-            <JsonInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config))} />
+            <JsonInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
           )}
           {HostInspector && (
             <details className="zwf-advanced">
               <summary>Advanced: the settings as JSON</summary>
-              <JsonInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config))} />
+              <JsonInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
             </details>
           )}
+          <AssigneePreview node={node} />
         </section>
       )}
 
@@ -146,9 +174,27 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
             max={100}
             readOnly={ro}
             value={node.max_passes ?? ""}
-            onChange={(e) => ed.update((g) => setMaxPasses(g, node.id, e.target.value ? Number(e.target.value) : undefined))}
+            onChange={(e) => ed.update((g) => setMaxPasses(g, node.id, e.target.value ? Number(e.target.value) : undefined), { coalesce: `passes:${node.id}` })}
           />
         </label>
+      )}
+
+      {node.type !== "start" && (
+        <div className="zwf-row">
+          <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.copy([node.id])}>
+            Copy
+          </button>
+          {node.type !== "end" && (
+            <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.copy(subtree(ed.graph, node.id))}>
+              Copy it and everything after it
+            </button>
+          )}
+          {!ro && ed.canPaste && (
+            <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.paste()}>
+              Paste
+            </button>
+          )}
+        </div>
       )}
 
       {!ro && node.type !== "start" && (
@@ -279,7 +325,7 @@ function WayOut({
             <input
               value={edge.label ?? ""}
               list={outcomeNames.length ? `${id}-outcomes` : undefined}
-              onChange={(e) => ed.update((g) => setEdge(g, index, { label: e.target.value }))}
+              onChange={(e) => ed.update((g) => setEdge(g, index, { label: e.target.value }), { coalesce: `edge:${index}` })}
             />
             {outcomeNames.length > 0 && (
               <datalist id={`${id}-outcomes`}>
@@ -357,3 +403,75 @@ function WayOut({
   );
 }
 
+
+const ALIGNMENTS: { how: Alignment; label: string }[] = [
+  { how: "left", label: "Align left" },
+  { how: "center", label: "Align centres" },
+  { how: "right", label: "Align right" },
+  { how: "top", label: "Align tops" },
+  { how: "middle", label: "Align middles" },
+  { how: "bottom", label: "Align bottoms" },
+];
+
+/** Several nodes selected: arrange them, copy them, or remove them together. */
+function SeveralNodes({ ids }: { ids: string[] }) {
+  const ed = useEditor();
+  const ro = ed.readOnly;
+  const removable = ids.filter((id) => nodeById(ed.graph, id)?.type !== "start");
+  return (
+    <div className="zwf-settings">
+      <p className="zwf-kicker">Selection</p>
+      <h3 className="zwf-heading">{ids.length} nodes</h3>
+      <ul className="zwf-plain zwf-selected-list">
+        {ids.map((id) => (
+          <li key={id}>
+            <button type="button" className="zwf-link" onClick={() => ed.reveal(id)}>
+              {nameOf(ed.graph, id)}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {!ro && (
+        <fieldset className="zwf-group">
+          <legend>Arrange</legend>
+          <div className="zwf-row zwf-wrap">
+            {ALIGNMENTS.map((a) => (
+              <button key={a.how} type="button" className="zwf-button zwf-quiet" onClick={() => ed.update((g) => alignNodes(g, ids, a.how))}>
+                {a.label}
+              </button>
+            ))}
+            <button type="button" className="zwf-button zwf-quiet" disabled={ids.length < 3} onClick={() => ed.update((g) => distributeNodes(g, ids, "horizontal"))}>
+              Space evenly across
+            </button>
+            <button type="button" className="zwf-button zwf-quiet" disabled={ids.length < 3} onClick={() => ed.update((g) => distributeNodes(g, ids, "vertical"))}>
+              Space evenly down
+            </button>
+          </div>
+        </fieldset>
+      )}
+      <div className="zwf-row">
+        <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.copy(ids)}>
+          Copy {ids.length} nodes
+        </button>
+        {!ro && ed.canPaste && (
+          <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.paste()}>
+            Paste
+          </button>
+        )}
+      </div>
+      {!ro && removable.length > 0 && (
+        <button
+          type="button"
+          className="zwf-button zwf-danger"
+          onClick={() => {
+            ed.update((g) => removeNodes(g, removable));
+            ed.select(null);
+          }}
+        >
+          Remove {removable.length} node{removable.length === 1 ? "" : "s"}
+        </button>
+      )}
+      {removable.length < ids.length && <p className="zwf-muted">The start stays: every workflow begins somewhere.</p>}
+    </div>
+  );
+}
