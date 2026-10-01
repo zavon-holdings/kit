@@ -92,6 +92,12 @@ export function ListView() {
               {nameOf(graph, id) !== id && <code className="zwf-node-id"> {id}</code>}
               {arm && <span className="zwf-muted"> · arm {arm.arm} of {nameOf(graph, arm.fork)}</span>}
             </span>
+            {ed.marks?.[id] && (
+              <span className={`zwf-status zwf-status-${ed.marks[id] === "removed" ? "danger" : ed.marks[id] === "added" ? "ok" : "warn"}`} data-mark={ed.marks[id]}>
+                <span className="zwf-dot" aria-hidden="true" />
+                {ed.marks[id]}
+              </span>
+            )}
             {problems > 0 && (
               <span className="zwf-status zwf-status-danger">
                 <span className="zwf-dot" aria-hidden="true" />

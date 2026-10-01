@@ -455,3 +455,18 @@ describe("the view menu", () => {
     act(() => editor());
   });
 });
+
+describe("comparing two versions, as lists", () => {
+  test("the List twin carries the same marks as the canvas", async () => {
+    const user = userEvent.setup();
+    const after = structuredClone(sampleTree());
+    after.nodes.find((n) => n.id === "confirm")!.config = { template_code: "other" };
+    render(<VersionDiff before={{ label: "Version 1", graph: sampleTree() }} after={{ label: "Version 2", graph: after }} />);
+    await user.click(screen.getByRole("checkbox", { name: "Show as lists" }));
+    const right = screen.getByRole("region", { name: "Version 2, drawn" });
+    const confirm = within(right)
+      .getAllByRole("listitem")
+      .find((li) => li.querySelector(".zwf-list-head strong")?.textContent === "Confirm")!;
+    expect(within(confirm).getByText("changed")).toBeInTheDocument();
+  });
+});
