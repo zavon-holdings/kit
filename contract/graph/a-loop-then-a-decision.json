@@ -1,0 +1,158 @@
+{
+  "name": "a-loop-then-a-decision",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "body",
+        "to": "ping"
+      },
+      {
+        "from": "ping",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "next",
+        "to": "enough"
+      },
+      {
+        "from": "enough",
+        "label": "yes",
+        "to": "yes"
+      },
+      {
+        "default": true,
+        "from": "enough",
+        "label": "no",
+        "to": "no"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "over": {
+            "count": 2
+          }
+        },
+        "id": "each",
+        "type": "loop"
+      },
+      {
+        "config": {
+          "channel": "in_app",
+          "in_app": {
+            "title": "Reminder {{vars.i}}"
+          },
+          "to": [
+            {
+              "subject": true
+            }
+          ]
+        },
+        "id": "ping",
+        "type": "notification"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.done",
+            "op": "is",
+            "value": true
+          }
+        },
+        "id": "enough",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "outcome": "done"
+        },
+        "id": "yes",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "short"
+        },
+        "id": "no",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "each",
+      "name": "each",
+      "kind": "loop",
+      "config": {
+        "over": {
+          "count": 2
+        }
+      }
+    },
+    {
+      "code": "ping",
+      "name": "ping",
+      "kind": "notification",
+      "config": {
+        "channel": "in_app",
+        "in_app": {
+          "title": "Reminder {{vars.i}}"
+        },
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      },
+      "parent": "each",
+      "branch": "body"
+    },
+    {
+      "code": "enough",
+      "name": "enough",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "yes",
+            "when": {
+              "field": "vars.done",
+              "op": "is",
+              "value": true
+            }
+          }
+        ],
+        "default": "no"
+      }
+    },
+    {
+      "code": "yes",
+      "name": "yes",
+      "kind": "end",
+      "config": {
+        "outcome": "done"
+      }
+    },
+    {
+      "code": "no",
+      "name": "no",
+      "kind": "end",
+      "config": {
+        "outcome": "short"
+      }
+    }
+  ],
+  "normal": true
+}

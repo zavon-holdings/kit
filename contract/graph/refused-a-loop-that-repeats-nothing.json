@@ -1,5 +1,5 @@
 {
-  "name": "refused-a-loop-node",
+  "name": "refused-a-loop-that-repeats-nothing",
   "direction": "compile",
   "graph": {
     "edges": [
@@ -9,6 +9,12 @@
       },
       {
         "from": "each",
+        "label": "body",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "next",
         "to": "done"
       }
     ],
@@ -19,10 +25,16 @@
         "type": "start"
       },
       {
+        "config": {
+          "over": {
+            "count": 2
+          }
+        },
         "id": "each",
         "type": "loop"
       },
       {
+        "config": {},
         "id": "done",
         "type": "end"
       }
@@ -30,7 +42,7 @@
   },
   "problems": [
     {
-      "code": "not_yet",
+      "code": "loop_body",
       "node": "each"
     }
   ]

@@ -1,0 +1,90 @@
+{
+  "name": "refused-a-decision-in-a-loop-body",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "body",
+        "to": "ok"
+      },
+      {
+        "from": "ok",
+        "label": "yes",
+        "to": "ping"
+      },
+      {
+        "default": true,
+        "from": "ok",
+        "label": "no",
+        "to": "each"
+      },
+      {
+        "from": "ping",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "next",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "over": {
+            "count": 2
+          }
+        },
+        "id": "each",
+        "type": "loop"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.ok",
+            "op": "is",
+            "value": true
+          }
+        },
+        "id": "ok",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "channel": "in_app",
+          "in_app": {
+            "title": "Reminder {{vars.i}}"
+          },
+          "to": [
+            {
+              "subject": true
+            }
+          ]
+        },
+        "id": "ping",
+        "type": "notification"
+      },
+      {
+        "config": {},
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "arm_not_plain",
+      "node": "ok"
+    }
+  ]
+}

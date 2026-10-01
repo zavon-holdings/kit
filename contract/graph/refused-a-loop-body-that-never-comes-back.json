@@ -1,0 +1,68 @@
+{
+  "name": "refused-a-loop-body-that-never-comes-back",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "body",
+        "to": "ping"
+      },
+      {
+        "from": "ping",
+        "to": "done"
+      },
+      {
+        "from": "each",
+        "label": "next",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "over": {
+            "count": 2
+          }
+        },
+        "id": "each",
+        "type": "loop"
+      },
+      {
+        "config": {
+          "channel": "in_app",
+          "in_app": {
+            "title": "Reminder {{vars.i}}"
+          },
+          "to": [
+            {
+              "subject": true
+            }
+          ]
+        },
+        "id": "ping",
+        "type": "notification"
+      },
+      {
+        "config": {},
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "loop_body",
+      "node": "done"
+    }
+  ]
+}

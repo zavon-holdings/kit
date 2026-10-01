@@ -1,0 +1,102 @@
+{
+  "name": "refused-an-edge-into-the-middle-of-a-body",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "big"
+      },
+      {
+        "from": "big",
+        "label": "yes",
+        "to": "each"
+      },
+      {
+        "default": true,
+        "from": "big",
+        "label": "no",
+        "to": "pause"
+      },
+      {
+        "from": "each",
+        "label": "body",
+        "to": "ping"
+      },
+      {
+        "from": "ping",
+        "to": "pause"
+      },
+      {
+        "from": "pause",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "next",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.big",
+            "op": "is",
+            "value": true
+          }
+        },
+        "id": "big",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "over": {
+            "count": 2
+          }
+        },
+        "id": "each",
+        "type": "loop"
+      },
+      {
+        "config": {
+          "channel": "in_app",
+          "in_app": {
+            "title": "Reminder {{vars.i}}"
+          },
+          "to": [
+            {
+              "subject": true
+            }
+          ]
+        },
+        "id": "ping",
+        "type": "notification"
+      },
+      {
+        "config": {
+          "unit": "hours",
+          "value": 1
+        },
+        "id": "pause",
+        "type": "delay"
+      },
+      {
+        "config": {},
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "loop_body",
+      "node": "pause"
+    }
+  ]
+}

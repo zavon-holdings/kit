@@ -14,6 +14,9 @@ export const SUFFIX_GOTO = "--goto";
 export const SUFFIX_ROUTE = "--route";
 export const SUFFIX_JOIN = "--join";
 export const TIMEOUT_LABEL = "timeout";
+export const BODY_LABEL = "body";
+export const NEXT_LABEL = "next";
+const LOOP_ARM = "body";
 
 export const PROBLEMS = Object.freeze({
   FORMAT: "graph_format",
@@ -52,17 +55,18 @@ export const PROBLEMS = Object.freeze({
   UNKNOWN_STEP: "unknown_step",
   SCOPE: "scope_unavailable",
   NOTE: "note",
+  LOOP_EDGES: "loop_edges",
+  LOOP_BODY: "loop_body",
 });
 const P = PROBLEMS;
 
 const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook"]);
 const isTask = (t) => t === "review" || t === "form";
 const isStepType = (t) => PLAIN.has(t) || isTask(t) || t === "wait_event";
-const STRUCTURAL = new Set(["start", "end", "fork", "join", "condition", "decision"]);
+const STRUCTURAL = new Set(["start", "end", "fork", "join", "condition", "decision", "loop"]);
 const knownType = (t) => STRUCTURAL.has(t) || isStepType(t);
 
 export const NOT_YET = Object.freeze({
-  loop: "loop nodes are not supported by this compiler version; save the loop as steps",
   sub_workflow: "sub-workflow nodes are not supported by this compiler version",
   payment_request: "payment request nodes are not supported by this compiler version",
   invoice: "invoice nodes are not supported by this compiler version",
@@ -353,6 +357,8 @@ function validateShape(x, conditions) {
       choiceEdges(x, ps, n, cfg, conditions);
     } else if (n.type === "wait_event") {
       waitNode(x, ps, n, cfg);
+    } else if (n.type === "loop") {
+      loopEdges(x, ps, n);
     } else {
       oneWayOut(x, ps, n);
     }
@@ -362,6 +368,7 @@ function validateShape(x, conditions) {
     if (n.type !== "start" && !reached.has(n.id)) ps.push({ code: P.UNREACHABLE, node: n.id, message: `${displayName(n)} can never be reached` });
   }
   ps.push(...regions(x)[1]);
+  ps.push(...loops(x)[1]);
   ps.push(...cycles(x, reached));
   if (ps.length === 0) {
     const ends = reachesEnd(x);
@@ -533,6 +540,80 @@ function waitNode(x, ps, n, cfg) {
     ps.push({ code: P.TIMEOUT_EDGE, node: n.id, message: `${displayName(n)} says what a timeout does twice: on_timeout "${on}" and an edge` });
   else if (timeout.length > 0 && (cfg.timeout === undefined || cfg.timeout === null))
     ps.push({ code: P.TIMEOUT_EDGE, node: n.id, message: `${displayName(n)} has a timeout edge but no timeout` });
+}
+
+function loopOuts(x, id) {
+  const body = [];
+  const next = [];
+  for (const i of x.outs(id)) {
+    const l = x.edge(i).label;
+    if (l === BODY_LABEL) body.push(i);
+    else if (l === NEXT_LABEL) next.push(i);
+  }
+  return [body, next];
+}
+
+function loopEdges(x, ps, n) {
+  const [body, next] = loopOuts(x, n.id);
+  if (x.outs(n.id).length !== 2 || body.length !== 1 || next.length !== 1)
+    ps.push({ code: P.LOOP_EDGES, node: n.id,
+      message: `${displayName(n)} has two ways out: "${BODY_LABEL}", to the first step it repeats, and "${NEXT_LABEL}", to what follows the loop` });
+  for (const i of x.outs(n.id)) {
+    const e = x.edge(i);
+    if (hasWhen(e) || e.default)
+      ps.push({ code: P.EDGE_SHAPE, node: n.id, edge: ref(e),
+        message: `the ways out of ${displayName(n)} carry a name, "${BODY_LABEL}" or "${NEXT_LABEL}", and no condition or default` });
+  }
+}
+
+/** Every loop's body (a chain back into the loop) and its next: [Map loop → {body, next}, problems]. */
+function loops(x) {
+  const ps = [];
+  const out = new Map();
+  const ids = x.g.nodes.filter((n) => n.type === "loop").map((n) => n.id).sort();
+  for (const l of ids) {
+    const loop = x.byID.get(l);
+    const [body, next] = loopOuts(x, l);
+    if (body.length !== 1 || next.length !== 1 || x.outs(l).length !== 2) continue;
+    const r = { body: [], next: x.edge(next[0]).to };
+    let cur = x.edge(body[0]).to;
+    const seen = new Set();
+    let ok = true;
+    while (cur !== l) {
+      const n = x.byID.get(cur);
+      if (!n) {
+        ok = false;
+        break;
+      }
+      if (x.ins(cur).length !== 1 || seen.has(cur)) {
+        ps.push({ code: P.LOOP_BODY, node: cur,
+          message: `${displayName(n)} is reached from outside the body of ${displayName(loop)}; a body is a chain of steps that comes back to its loop` });
+        ok = false;
+        break;
+      }
+      if (!armable(x, n)) {
+        ps.push({ code: P.ARM_NOT_PLAIN, node: cur,
+          message: `${displayName(n)} is in the body of ${displayName(loop)}, and a body holds plain steps; put the decision after the loop, or in a sub-workflow` });
+        ok = false;
+        break;
+      }
+      seen.add(cur);
+      r.body.push(cur);
+      if (x.outs(cur).length !== 1) {
+        ok = false;
+        break;
+      }
+      cur = x.edge(x.outs(cur)[0]).to;
+    }
+    if (!ok) continue;
+    if (r.body.length === 0) {
+      ps.push({ code: P.LOOP_BODY, node: l,
+        message: `${displayName(loop)} repeats nothing: its body edge comes straight back; a body holds at least one step` });
+      continue;
+    }
+    out.set(l, r);
+  }
+  return [out, ps];
 }
 
 function walk(starts, next) {
@@ -804,7 +885,8 @@ export function compile(g, options = {}) {
   if (problems.length) return { problems };
   const x = new Index(g);
   const [regs] = regions(x);
-  const c = new Compiler(x, regs);
+  const [lps] = loops(x);
+  const c = new Compiler(x, regs, lps);
   c.order();
   c.decideImplicitEnd();
   c.rows.forEach((id, i) => c.emit(i, id));
@@ -812,9 +894,10 @@ export function compile(g, options = {}) {
 }
 
 class Compiler {
-  constructor(x, regs) {
+  constructor(x, regs, lps) {
     this.x = x;
     this.regs = regs;
+    this.loops = lps;
     this.rows = [];
     this.pos = new Map();
     this.silent = "";
@@ -828,6 +911,8 @@ class Compiler {
       const r = this.regs.get(id);
       const es = x.outs(r.join);
       if (es.length === 1) out.push(x.edge(es[0]).to);
+    } else if (n.type === "loop") {
+      out.push(this.loops.get(id).next);
     } else if (x.chooses(n)) {
       let def = "";
       for (const i of x.outs(id)) {
@@ -864,7 +949,7 @@ class Compiler {
   next(id) {
     const x = this.x;
     const n = x.byID.get(id);
-    if (n.type === "fork") return this.succs(id)[0] ?? "";
+    if (n.type === "fork" || n.type === "loop") return this.succs(id)[0] ?? "";
     if (n.type === "wait_event") {
       const [normal] = x.waitEdges(id);
       return normal.length ? x.edge(normal[0]).to : "";
@@ -884,7 +969,8 @@ class Compiler {
       if (id === prev) continue;
       if (this.succs(id).includes(last)) return;
     }
-    if (this.x.byID.get(prev).type !== "fork") {
+    const pt = this.x.byID.get(prev).type;
+    if (pt !== "fork" && pt !== "loop") {
       for (const i of this.x.ins(last)) if (this.x.edge(i).from !== prev) return;
     }
     this.silent = last;
@@ -926,6 +1012,12 @@ class Compiler {
     }
     if (n.type === "fork") {
       this.fork(id);
+    } else if (n.type === "loop") {
+      this.add({ code: id, name: this.stepName(id), kind: "loop", config: canon(object(n.config) ?? {}) });
+      for (const nid of this.loops.get(id).body) {
+        const b = this.x.byID.get(nid);
+        this.add({ code: nid, name: this.stepName(nid), kind: b.type, config: canon(object(b.config) ?? {}), parent: id, branch: LOOP_ARM });
+      }
     } else {
       const cfg = object(n.config) ?? {};
       if (n.type === "wait_event") {
@@ -1095,6 +1187,11 @@ export function decompile(steps) {
       edge({ from: join, to: onward(i) });
       return;
     }
+    if (s.kind === "loop") {
+      decompileLoop(g, s, cfg, children.get(s.code) ?? new Map());
+      edge({ from: s.code, to: onward(i), label: NEXT_LABEL });
+      return;
+    }
     if (!isStepType(s.kind)) throw new NotDrawableError(`${s.code} is a ${s.kind} step, which the canvas does not draw yet`);
     if (isTask(s.kind)) delete cfg.task_type;
     let timeoutTo = "";
@@ -1165,4 +1262,29 @@ function decompileFork(g, s, cfg, arms, fresh) {
   if (join.join === "quorum" && Number.isInteger(cfg.quorum)) join.quorum = cfg.quorum;
   g.nodes.push({ id: joinID, type: "join", config: join });
   return joinID;
+}
+
+function decompileLoop(g, s, cfg, arms) {
+  const body = arms.get(LOOP_ARM) ?? [];
+  if (body.length === 0 || arms.size !== 1) throw new NotDrawableError(`the loop ${s.code} has no body to draw`);
+  const n = { id: s.code, type: "loop" };
+  if (s.name !== s.code) n.name = s.name;
+  if (Object.keys(cfg).length > 0) n.config = cfg;
+  g.nodes.push(n);
+  let prev = s.code;
+  let label = BODY_LABEL;
+  for (const child of body) {
+    if (!isStepType(child.kind)) throw new NotDrawableError(`${child.code} in the body of ${s.code} is a ${child.kind} step`);
+    const ccfg = object(child.config);
+    if (ccfg === null) throw new NotDrawableError(`${child.code}'s settings are not an object`);
+    if (isTask(child.kind)) delete ccfg.task_type;
+    const c = { id: child.code, type: child.kind };
+    if (child.name !== child.code) c.name = child.name;
+    if (Object.keys(ccfg).length > 0) c.config = ccfg;
+    g.nodes.push(c);
+    g.edges.push(label ? { from: prev, to: child.code, label } : { from: prev, to: child.code });
+    prev = child.code;
+    label = "";
+  }
+  g.edges.push({ from: prev, to: s.code });
 }

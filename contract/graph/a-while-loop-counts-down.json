@@ -1,0 +1,167 @@
+{
+  "name": "a-while-loop-counts-down",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "seed"
+      },
+      {
+        "from": "seed",
+        "to": "chase"
+      },
+      {
+        "from": "chase",
+        "label": "body",
+        "to": "ask"
+      },
+      {
+        "from": "ask",
+        "to": "less"
+      },
+      {
+        "from": "less",
+        "to": "chase"
+      },
+      {
+        "from": "chase",
+        "label": "next",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "set": {
+            "left": 3
+          }
+        },
+        "id": "seed",
+        "type": "set_var"
+      },
+      {
+        "config": {
+          "max_iterations": 10,
+          "on_limit": "continue",
+          "over": {
+            "while": {
+              "field": "vars.left",
+              "op": "gt",
+              "value": 0
+            }
+          }
+        },
+        "id": "chase",
+        "type": "loop"
+      },
+      {
+        "config": {
+          "channel": "in_app",
+          "in_app": {
+            "title": "Reminder {{vars.i}}"
+          },
+          "to": [
+            {
+              "subject": true
+            }
+          ]
+        },
+        "id": "ask",
+        "type": "notification"
+      },
+      {
+        "config": {
+          "set": {
+            "left": {
+              "add": -1
+            }
+          }
+        },
+        "id": "less",
+        "type": "set_var"
+      },
+      {
+        "config": {
+          "outcome": "chased"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "seed",
+      "name": "seed",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "left": 3
+        }
+      }
+    },
+    {
+      "code": "chase",
+      "name": "chase",
+      "kind": "loop",
+      "config": {
+        "max_iterations": 10,
+        "on_limit": "continue",
+        "over": {
+          "while": {
+            "field": "vars.left",
+            "op": "gt",
+            "value": 0
+          }
+        }
+      }
+    },
+    {
+      "code": "ask",
+      "name": "ask",
+      "kind": "notification",
+      "config": {
+        "channel": "in_app",
+        "in_app": {
+          "title": "Reminder {{vars.i}}"
+        },
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      },
+      "parent": "chase",
+      "branch": "body"
+    },
+    {
+      "code": "less",
+      "name": "less",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "left": {
+            "add": -1
+          }
+        }
+      },
+      "parent": "chase",
+      "branch": "body"
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "chased"
+      }
+    }
+  ],
+  "normal": true
+}

@@ -3,6 +3,9 @@ export declare const SUFFIX_GOTO: "--goto";
 export declare const SUFFIX_ROUTE: "--route";
 export declare const SUFFIX_JOIN: "--join";
 export declare const TIMEOUT_LABEL: "timeout";
+/** A loop's two ways out: to the first step of its body, and to what follows. */
+export declare const BODY_LABEL: "body";
+export declare const NEXT_LABEL: "next";
 export declare const PROBLEMS: Readonly<Record<string, string>>;
 export declare const NOT_YET: Readonly<Record<string, string>>;
 

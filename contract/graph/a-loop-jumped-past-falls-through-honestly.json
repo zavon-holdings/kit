@@ -1,0 +1,157 @@
+{
+  "name": "a-loop-jumped-past-falls-through-honestly",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "big"
+      },
+      {
+        "from": "big",
+        "label": "yes",
+        "to": "each"
+      },
+      {
+        "default": true,
+        "from": "big",
+        "label": "no",
+        "to": "skip"
+      },
+      {
+        "from": "each",
+        "label": "body",
+        "to": "ping"
+      },
+      {
+        "from": "ping",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "next",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "vars.big",
+            "op": "is",
+            "value": true
+          }
+        },
+        "id": "big",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "over": {
+            "count": 2
+          }
+        },
+        "id": "each",
+        "type": "loop"
+      },
+      {
+        "config": {
+          "channel": "in_app",
+          "in_app": {
+            "title": "Reminder {{vars.i}}"
+          },
+          "to": [
+            {
+              "subject": true
+            }
+          ]
+        },
+        "id": "ping",
+        "type": "notification"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "skipped"
+        },
+        "id": "skip",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "big",
+      "name": "big",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "each",
+            "when": {
+              "field": "vars.big",
+              "op": "is",
+              "value": true
+            }
+          }
+        ],
+        "default": "skip"
+      }
+    },
+    {
+      "code": "each",
+      "name": "each",
+      "kind": "loop",
+      "config": {
+        "over": {
+          "count": 2
+        }
+      }
+    },
+    {
+      "code": "ping",
+      "name": "ping",
+      "kind": "notification",
+      "config": {
+        "channel": "in_app",
+        "in_app": {
+          "title": "Reminder {{vars.i}}"
+        },
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      },
+      "parent": "each",
+      "branch": "body"
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    },
+    {
+      "code": "skip",
+      "name": "skip",
+      "kind": "end",
+      "config": {
+        "outcome": "skipped"
+      }
+    }
+  ]
+}

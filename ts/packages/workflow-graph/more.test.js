@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as conditions from "../conditions/index.js";
-import { canonical, compile, equal, FORMAT } from "./index.js";
+import { canonical, compile, decompile, equal, FORMAT, NotDrawableError } from "./index.js";
 
 const base = () => ({
   format: FORMAT,
@@ -29,4 +29,16 @@ test("a moved note is a change to the drawing, never to the steps", () => {
   const b = { ...base(), notes: [{ id: "a", text: "one", x: 50, y: 0 }] };
   assert.ok(!equal(a, b));
   assert.deepEqual(compile(a, { conditions }).steps, compile(b, { conditions }).steps);
+});
+
+test("a loop with no body, or a body on another arm, is not drawn rather than guessed", () => {
+  assert.throws(() => decompile([{ code: "each", name: "each", kind: "loop", config: { over: { count: 2 } } }]), NotDrawableError);
+  assert.throws(
+    () =>
+      decompile([
+        { code: "each", name: "each", kind: "loop", config: { over: { count: 2 } } },
+        { code: "ping", name: "ping", kind: "email", config: {}, parent: "each", branch: "left" },
+      ]),
+    NotDrawableError,
+  );
 });

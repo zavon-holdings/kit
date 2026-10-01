@@ -1,0 +1,133 @@
+{
+  "name": "a-loop-over-a-list-with-two-steps",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "body",
+        "to": "tell"
+      },
+      {
+        "from": "tell",
+        "to": "pause"
+      },
+      {
+        "from": "pause",
+        "to": "each"
+      },
+      {
+        "from": "each",
+        "label": "next",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "index_var": "n",
+          "item_var": "person",
+          "max_iterations": 50,
+          "on_limit": "pause",
+          "over": {
+            "var": "vars.people"
+          }
+        },
+        "id": "each",
+        "name": "Each person",
+        "type": "loop"
+      },
+      {
+        "config": {
+          "body_text": "Hello {{vars.person.name}}",
+          "channel": "email",
+          "subject": "Hello",
+          "to": [
+            {
+              "var": "vars.person.email"
+            }
+          ]
+        },
+        "id": "tell",
+        "type": "notification"
+      },
+      {
+        "config": {
+          "unit": "hours",
+          "value": 1
+        },
+        "id": "pause",
+        "type": "delay"
+      },
+      {
+        "config": {
+          "outcome": "told"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "each",
+      "name": "Each person",
+      "kind": "loop",
+      "config": {
+        "index_var": "n",
+        "item_var": "person",
+        "max_iterations": 50,
+        "on_limit": "pause",
+        "over": {
+          "var": "vars.people"
+        }
+      }
+    },
+    {
+      "code": "tell",
+      "name": "tell",
+      "kind": "notification",
+      "config": {
+        "body_text": "Hello {{vars.person.name}}",
+        "channel": "email",
+        "subject": "Hello",
+        "to": [
+          {
+            "var": "vars.person.email"
+          }
+        ]
+      },
+      "parent": "each",
+      "branch": "body"
+    },
+    {
+      "code": "pause",
+      "name": "pause",
+      "kind": "delay",
+      "config": {
+        "unit": "hours",
+        "value": 1
+      },
+      "parent": "each",
+      "branch": "body"
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "told"
+      }
+    }
+  ],
+  "normal": true
+}
