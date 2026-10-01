@@ -1,0 +1,269 @@
+{
+  "name": "an-invoice-with-reminders",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "bill"
+      },
+      {
+        "from": "bill",
+        "label": "paid",
+        "to": "done"
+      },
+      {
+        "default": true,
+        "from": "bill",
+        "label": "overdue",
+        "to": "late"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "action": "billing.invoice.issue",
+          "amount": 50000,
+          "currency": "EUR",
+          "due": {
+            "unit": "days",
+            "value": 10
+          },
+          "events": {
+            "paid": "billing.invoice.paid",
+            "voided": "billing.invoice.voided"
+          },
+          "notify": {
+            "body_text": "Your invoice is attached.",
+            "channel": "email",
+            "subject": "Your invoice",
+            "to": [
+              {
+                "subject": true
+              }
+            ]
+          },
+          "reminders": [
+            {
+              "after": {
+                "unit": "business_days",
+                "value": 3
+              },
+              "notify": {
+                "body_text": "Your invoice is still due.",
+                "channel": "email",
+                "subject": "A reminder",
+                "to": [
+                  {
+                    "subject": true
+                  }
+                ]
+              }
+            },
+            {
+              "after": {
+                "unit": "business_days",
+                "value": 7
+              }
+            }
+          ]
+        },
+        "id": "bill",
+        "type": "invoice"
+      },
+      {
+        "config": {
+          "outcome": "paid"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "overdue"
+        },
+        "id": "late",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "bill--vars",
+      "name": "bill",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "invoice.bill.amount": 50000,
+          "invoice.bill.currency": "EUR"
+        }
+      }
+    },
+    {
+      "code": "bill--issue",
+      "name": "bill: ask",
+      "kind": "call",
+      "config": {
+        "action": "billing.invoice.issue",
+        "capture": {
+          "invoice.bill.document_url": "output.document_url",
+          "invoice.bill.due_at": "output.due_at",
+          "invoice.bill.number": "output.number",
+          "invoice.bill.pay_url": "output.pay_url",
+          "invoice.bill.reference": "output.reference"
+        },
+        "input": {
+          "amount": 50000,
+          "currency": "EUR",
+          "due": {
+            "unit": "days",
+            "value": 10
+          }
+        }
+      }
+    },
+    {
+      "code": "bill--notify",
+      "name": "bill: tell",
+      "kind": "notification",
+      "config": {
+        "body_text": "Your invoice is attached.",
+        "channel": "email",
+        "subject": "Your invoice",
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      }
+    },
+    {
+      "code": "bill--wait",
+      "name": "bill: wait",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "billing.invoice.paid",
+          "billing.invoice.voided"
+        ],
+        "match": {
+          "event_field": "reference",
+          "var": "invoice.bill.reference"
+        },
+        "on_timeout": "branch:bill--timeout",
+        "reminders": [
+          {
+            "after": {
+              "unit": "business_days",
+              "value": 3
+            },
+            "notify": "bill--remind-1"
+          },
+          {
+            "after": {
+              "unit": "business_days",
+              "value": 7
+            },
+            "notify": "bill--remind-2"
+          }
+        ],
+        "timeout": {
+          "unit": "days",
+          "value": 11
+        }
+      }
+    },
+    {
+      "code": "bill--remind-1",
+      "name": "bill: reminder 1",
+      "kind": "notification",
+      "config": {
+        "body_text": "Your invoice is still due.",
+        "channel": "email",
+        "subject": "A reminder",
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      },
+      "parent": "bill--wait",
+      "branch": "reminders"
+    },
+    {
+      "code": "bill--remind-2",
+      "name": "bill: reminder 2",
+      "kind": "notification",
+      "config": {
+        "body_text": "Your invoice is attached.",
+        "channel": "email",
+        "subject": "Your invoice",
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      },
+      "parent": "bill--wait",
+      "branch": "reminders"
+    },
+    {
+      "code": "bill--outcome",
+      "name": "bill: outcome",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "done",
+            "when": {
+              "field": "steps.bill--wait.output.event",
+              "op": "is",
+              "value": "billing.invoice.paid"
+            }
+          }
+        ],
+        "default": "late"
+      }
+    },
+    {
+      "code": "bill--timeout",
+      "name": "bill: no answer",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "invoice.bill.state": "overdue"
+        }
+      }
+    },
+    {
+      "code": "bill--timeout-goto",
+      "name": "bill: no answer, go on",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "late"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "paid"
+      }
+    },
+    {
+      "code": "late",
+      "name": "late",
+      "kind": "end",
+      "config": {
+        "outcome": "overdue"
+      }
+    }
+  ]
+}
