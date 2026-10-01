@@ -4,6 +4,7 @@ import { useState } from "react";
 import { expectFrom, scenarioNameProblem } from "../scenarios.js";
 import type { ApiError, Problem, Sample, SimulateResult, WorkflowApi } from "../types.js";
 import { nameOf, useEditor } from "./context.js";
+import { Heading } from "./Heading.js";
 
 function parseObject(text: string): Record<string, unknown> {
   const t = text.trim();
@@ -193,7 +194,9 @@ function SampleColumn({
     <section className="zwf-sim-column" aria-label={many ? title : undefined} data-shown={many && shown ? "true" : undefined}>
       {many && (
         <div className="zwf-row">
-          <h4 className="zwf-subheading">{title}</h4>
+          <Heading level={ed.headingLevel + 1} className="zwf-subheading">
+            {title}
+          </Heading>
           {shown ? (
             <span className="zwf-status zwf-status-path">
               <span className="zwf-dot" aria-hidden="true" />

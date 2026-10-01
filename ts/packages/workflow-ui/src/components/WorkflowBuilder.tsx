@@ -62,6 +62,8 @@ export type WorkflowBuilderProps = {
   label?: string;
   /** The workflow's name, for exported files and the printed page. */
   title?: string;
+  /** The level the editor's headings start at, under the host's own (default 2). */
+  headingLevel?: number;
 };
 
 const DEFAULT_SAMPLE: Sample = { subject: { type: "person", pid: "sample-1" }, vars: {} };
@@ -262,6 +264,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
     reducedMotion,
     triggerSummary: props.triggerSummary,
     api,
+    headingLevel: props.headingLevel ?? 2,
     scenariosTick,
     bumpScenarios: () => setScenariosTick((t) => t + 1),
     snapToGrid,

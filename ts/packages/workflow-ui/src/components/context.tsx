@@ -49,6 +49,8 @@ export type Editor = {
   /** Bumped when a scenario is saved, so the Scenarios panel reloads. */
   scenariosTick: number;
   bumpScenarios: () => void;
+  /** The level of the editor's own headings (sub-headings are one deeper). */
+  headingLevel: number;
   /** Canvas preferences. */
   snapToGrid: boolean;
   minimap: boolean;

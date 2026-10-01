@@ -187,7 +187,15 @@ export function withKind(t: Trigger, kind: TriggerKind): Trigger {
     if (t.date_offset_days) keep.date_offset_days = t.date_offset_days;
     if (t.date_recurs) keep.date_recurs = true;
   }
-  if ((kind === "schedule" || kind === "manual") && keep.subject_kind === "person") delete keep.subject_kind;
+  // A subject the new kind cannot have goes, so the server's default for the
+  // kind applies: an event or a date is about a person unless told otherwise;
+  // a schedule, a start by hand or by an app is about the organisation.
+  if ((kind === "schedule" || kind === "manual" || kind === "api") && keep.subject_kind === "person") delete keep.subject_kind;
+  if ((kind === "event" || kind === "date") && keep.subject_kind === "org") delete keep.subject_kind;
+  if (kind === "schedule" || kind === "date") {
+    if (keep.subject_kind === "external") delete keep.subject_kind;
+    delete keep.subject_type;
+  }
   return keep;
 }
 

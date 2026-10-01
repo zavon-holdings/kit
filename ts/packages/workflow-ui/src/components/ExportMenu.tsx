@@ -15,6 +15,11 @@ import { nameOf, useEditor } from "./context.js";
 export function ExportMenu({ title, onImport }: { title: string; onImport?: (g: Graph) => void }) {
   const ed = useEditor();
   const file = useRef<HTMLInputElement>(null);
+  const menu = useRef<HTMLDetailsElement>(null);
+  /** Closes the menu once something in it was chosen. */
+  const done = () => {
+    if (menu.current) menu.current.open = false;
+  };
   const [error, setError] = useState("");
   const name = slug(title) || "workflow";
   const picture = () => graphSvg(ed.graph, { title, path: ed.path });
@@ -26,13 +31,19 @@ export function ExportMenu({ title, onImport }: { title: string; onImport?: (g: 
     });
 
   return (
-    <details className="zwf-menu">
+    <details className="zwf-menu" ref={menu}>
       <summary className="zwf-button">Export</summary>
       <div className="zwf-menu-body" role="group" aria-label="Export and import">
-        <button type="button" className="zwf-button zwf-quiet" onClick={() => download(`${name}.workflow.json`, graphToJson(ed.graph))}>
+        <button type="button" className="zwf-button zwf-quiet" onClick={() => {
+            download(`${name}.workflow.json`, graphToJson(ed.graph));
+            done();
+          }}>
           Download the graph (JSON)
         </button>
-        <button type="button" className="zwf-button zwf-quiet" onClick={() => download(`${name}.svg`, picture(), "image/svg+xml")}>
+        <button type="button" className="zwf-button zwf-quiet" onClick={() => {
+            download(`${name}.svg`, picture(), "image/svg+xml");
+            done();
+          }}>
           Download a picture (SVG)
         </button>
         <button
@@ -42,7 +53,10 @@ export function ExportMenu({ title, onImport }: { title: string; onImport?: (g: 
             setError("");
             try {
               const png = await svgToPng(picture());
-              if (png) download(`${name}.png`, png);
+              if (png) {
+                download(`${name}.png`, png);
+                done();
+              }
               else setError("This browser cannot draw a PNG; download the SVG instead.");
             } catch (e) {
               setError(e instanceof Error ? e.message : String(e));
@@ -51,7 +65,10 @@ export function ExportMenu({ title, onImport }: { title: string; onImport?: (g: 
         >
           Download a picture (PNG)
         </button>
-        <button type="button" className="zwf-button zwf-quiet" onClick={() => printGraph(picture(), title, outline())}>
+        <button type="button" className="zwf-button zwf-quiet" onClick={() => {
+            printGraph(picture(), title, outline());
+            done();
+          }}>
           Print
         </button>
         {onImport && (
@@ -72,7 +89,10 @@ export function ExportMenu({ title, onImport }: { title: string; onImport?: (g: 
                 e.target.value = "";
                 if (!f) return;
                 const out = readGraphJson(await f.text());
-                if (out.graph) onImport(out.graph);
+                if (out.graph) {
+                  onImport(out.graph);
+                  done();
+                }
                 else setError(out.error);
               }}
             />

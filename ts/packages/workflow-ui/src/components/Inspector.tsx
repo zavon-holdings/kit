@@ -24,6 +24,7 @@ import {
 import type { GraphEdge, GraphNode } from "../types.js";
 import { edgeKey, problemCount } from "../analysis.js";
 import { ConditionBuilder } from "./ConditionBuilder.js";
+import { Heading } from "./Heading.js";
 import { nameOf, useEditor } from "./context.js";
 import { BUILT_IN_INSPECTORS, JsonInspector } from "./inspectors.js";
 import { AssigneePreview } from "./AssigneePreview.js";
@@ -89,9 +90,9 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
   return (
     <div className="zwf-settings">
       <p className="zwf-kicker">{typeLabel(node.type)}</p>
-      <h3 ref={headingRef} className="zwf-heading" tabIndex={-1}>
+      <Heading level={ed.headingLevel} ref={headingRef} className="zwf-heading" tabIndex={-1}>
         {nameOf(ed.graph, node.id)}
-      </h3>
+      </Heading>
       {problems.length > 0 && (
         <div className="zwf-status zwf-status-danger" role="status">
           <span className="zwf-dot" aria-hidden="true" />
@@ -238,9 +239,9 @@ function WaysOut({ node, focusEdge }: { node: GraphNode; focusEdge?: number }) {
 
   return (
     <section className="zwf-section" aria-labelledby={`${id}-ways`}>
-      <h4 id={`${id}-ways`} className="zwf-subheading">
+      <Heading level={ed.headingLevel + 1} id={`${id}-ways`} className="zwf-subheading">
         Ways out
-      </h4>
+      </Heading>
       {outs.length === 0 && <p className="zwf-muted">None yet: connect it to what happens next.</p>}
       <ol className="zwf-ways">
         {outs.map(({ edge, index }, k) => (
@@ -427,7 +428,9 @@ function SeveralNodes({ ids }: { ids: string[] }) {
   return (
     <div className="zwf-settings">
       <p className="zwf-kicker">Selection</p>
-      <h3 className="zwf-heading">{ids.length} nodes</h3>
+      <Heading level={ed.headingLevel} className="zwf-heading">
+        {ids.length} nodes
+      </Heading>
       <ul className="zwf-plain zwf-selected-list">
         {ids.map((id) => (
           <li key={id}>

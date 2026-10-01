@@ -22,6 +22,7 @@ export {
   MoneyInspector,
   BUILT_IN_INSPECTORS,
 } from "./components/inspectors.js";
+export { Heading } from "./components/Heading.js";
 export { EditorContext, useEditor, useReducedMotion, type Editor, type TriggerEditor } from "./components/context.js";
 export { TriggerPanel, InterruptsPanel, type TriggerPanelProps, type InterruptsPanelProps } from "./components/TriggerPanel.js";
 export { AssigneePreview, ASKS_PEOPLE } from "./components/AssigneePreview.js";

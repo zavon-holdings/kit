@@ -131,7 +131,7 @@ describe("shortcuts", () => {
     expect(shortcutFor({ key: "z", ctrlKey: true, altKey: true })).toBeNull();
     expect(shortcutFor({ key: "q" })).toBeNull();
     expect(keyWords("Mod+Shift+Z")).toBe("Ctrl+Shift+Z");
-    expect(keyWords("Mod+Shift+Z", true)).toBe("⌘ShiftZ");
+    expect(keyWords("Mod+Shift+Z", true)).toBe("⌘⇧Z");
   });
 
   test("keys typed into a field are the field's", () => {
@@ -215,6 +215,9 @@ describe("triggers", () => {
     const t = withKind({ kind: "event", event_type: "a.b.c", filter: { field: "x", op: "is", value: 1 }, subject_kind: "person" }, "schedule");
     expect(t).toEqual({ kind: "schedule", cron_expression: "0 8 * * *" });
     expect(withKind({ kind: "date", date_var: "d" }, "event")).toEqual({ kind: "event" });
+    // The organisation a manual start is about is not what an event is about.
+    expect(withKind({ kind: "manual", subject_kind: "org" }, "event")).toEqual({ kind: "event" });
+    expect(withKind({ kind: "event", event_type: "a.b.c", subject_kind: "external", subject_type: "orders:order" }, "date")).toEqual({ kind: "date", date_var: "" });
   });
 
   test("the trigger in a sentence", () => {

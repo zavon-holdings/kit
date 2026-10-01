@@ -116,7 +116,7 @@ export function shortcutFor(e: KeyLike, mac = false): ShortcutAction | null {
 export function keyWords(keys: string, mac = false): string {
   return keys
     .split("+")
-    .map((k) => (k === "Mod" ? (mac ? "⌘" : "Ctrl") : k === "ArrowLeft" ? "←" : k === "ArrowRight" ? "→" : k === "ArrowUp" ? "↑" : k === "ArrowDown" ? "↓" : k))
+    .map((k) => (k === "Mod" ? (mac ? "⌘" : "Ctrl") : k === "Shift" && mac ? "⇧" : k === "ArrowLeft" ? "←" : k === "ArrowRight" ? "→" : k === "ArrowUp" ? "↑" : k === "ArrowDown" ? "↓" : k))
     .join(mac ? "" : "+");
 }
 

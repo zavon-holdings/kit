@@ -7,6 +7,7 @@ import type { Graph, Sample, Selection, Step } from "../types.js";
 import { EditorContext, nameOf, useReducedMotion, type Editor } from "./context.js";
 import { ListView } from "./ListView.js";
 import { WorkflowCanvas } from "./WorkflowCanvas.js";
+import { Heading } from "./Heading.js";
 
 const NO_SAMPLE: Sample = { subject: { type: "person", pid: "" }, vars: {} };
 
@@ -58,6 +59,7 @@ export function GraphView({ graph, marks, path = [], trigger = "", label = "Work
     setSample: () => {},
     reducedMotion,
     marks,
+    headingLevel: 3,
     scenariosTick: 0,
     bumpScenarios: () => {},
     snapToGrid: false,
@@ -83,7 +85,7 @@ const TONE: Record<Change | "moved", string> = { added: "ok", removed: "danger",
  * code — added, removed, changed (with why) or moved. A List view of both is
  * one switch away, for anybody who reads a list better than a picture.
  */
-export function VersionDiff({ before, after, trigger = "" }: { before: VersionSide; after: VersionSide; trigger?: string }) {
+export function VersionDiff({ before, after, trigger = "", headingLevel = 2 }: { before: VersionSide; after: VersionSide; trigger?: string; headingLevel?: number }) {
   const [view, setView] = useState<"canvas" | "list">("canvas");
   const [onlyChanges, setOnlyChanges] = useState(true);
   const diff = useMemo(() => diffGraphs(before.graph, after.graph), [before.graph, after.graph]);
@@ -111,18 +113,18 @@ export function VersionDiff({ before, after, trigger = "" }: { before: VersionSi
       </div>
       <div className="zwf-diff-sides">
         <div className="zwf-diff-side">
-          <h3 className="zwf-subheading">{before.label}</h3>
+          <Heading level={headingLevel} className="zwf-subheading">{before.label}</Heading>
           <GraphView graph={before.graph} marks={nodeMarks(diff, "before")} trigger={trigger} label={`${before.label}, drawn`} view={view} />
         </div>
         <div className="zwf-diff-side">
-          <h3 className="zwf-subheading">{after.label}</h3>
+          <Heading level={headingLevel} className="zwf-subheading">{after.label}</Heading>
           <GraphView graph={after.graph} marks={nodeMarks(diff, "after")} trigger={trigger} label={`${after.label}, drawn`} view={view} />
         </div>
       </div>
 
       {(changedNodes.length > 0 || changedEdges.length > 0) && (
         <section aria-label="Changes to the drawing">
-          <h3 className="zwf-subheading">Changes to the drawing</h3>
+          <Heading level={headingLevel} className="zwf-subheading">Changes to the drawing</Heading>
           <ul className="zwf-plain zwf-diff-list">
             {changedNodes.map((n) => (
               <li key={`n-${n.id}`} className={`zwf-status zwf-status-${TONE[n.change]}`}>
@@ -144,7 +146,7 @@ export function VersionDiff({ before, after, trigger = "" }: { before: VersionSi
 
       <section aria-label="Steps compared">
         <div className="zwf-row">
-          <h3 className="zwf-subheading">Steps</h3>
+          <Heading level={headingLevel} className="zwf-subheading">Steps</Heading>
           <label className="zwf-check">
             <input type="checkbox" checked={onlyChanges} onChange={(e) => setOnlyChanges(e.target.checked)} />
             <span>Only the steps that differ</span>

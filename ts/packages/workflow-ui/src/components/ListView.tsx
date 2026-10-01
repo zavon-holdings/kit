@@ -5,6 +5,7 @@ import { typeLabel } from "../catalogue.js";
 import { pathNodes, problemCount } from "../analysis.js";
 import { notesOf, outEdges, removeNote, setNote } from "../model.js";
 import { nameOf, useEditor } from "./context.js";
+import { Heading } from "./Heading.js";
 
 /**
  * The List tab: the same graph as an outline, in compiled order, arms
@@ -135,7 +136,9 @@ export function ListView() {
       </ol>
       {notes.length > 0 && (
         <section className="zwf-section" aria-label="Notes on the canvas">
-          <h4 className="zwf-subheading">Notes</h4>
+          <Heading level={ed.headingLevel + 1} className="zwf-subheading">
+            Notes
+          </Heading>
           <ul className="zwf-plain zwf-list-notes">
             {notes.map((n) => (
               <li key={n.id}>
