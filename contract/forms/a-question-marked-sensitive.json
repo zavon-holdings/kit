@@ -1,0 +1,27 @@
+{
+  "name": "a-question-marked-sensitive",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "key": "note",
+            "label": "Pastoral note",
+            "sensitive": true,
+            "type": "paragraph"
+          },
+          {
+            "key": "a",
+            "label": "A",
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": true
+}

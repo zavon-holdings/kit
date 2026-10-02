@@ -1,0 +1,31 @@
+{
+  "name": "refused-a-sensitive-section",
+  "kind": "definition",
+  "definition": {
+    "pages": [
+      {
+        "fields": [
+          {
+            "label": "S",
+            "sensitive": true,
+            "type": "section"
+          },
+          {
+            "key": "a",
+            "label": "A",
+            "type": "text"
+          }
+        ],
+        "key": "p",
+        "title": "P"
+      }
+    ],
+    "title": "A form"
+  },
+  "valid": false,
+  "problems": [
+    {
+      "page": "p"
+    }
+  ]
+}
