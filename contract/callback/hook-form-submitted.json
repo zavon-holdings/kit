@@ -1,0 +1,21 @@
+{
+  "name": "hook-form-submitted",
+  "path": "/hooks",
+  "secrets": [
+    "door-secret"
+  ],
+  "headers": {
+    "Content-Type": "application/json",
+    "Idempotency-Key": "run:r1:hook:form.submitted",
+    "X-Zavon-Delivery": "dv-hook-form-submitted",
+    "X-Zavon-Signature": "v1=bfa993226dbb4dd68e3c7935817bccd08c65366333e20c98660fa6a15eda7041",
+    "X-Zavon-Timestamp": "1790000000",
+    "Zavon-Workflow-Version": "1"
+  },
+  "body": "{\"action\":\"cms.notify\",\"tenant\":\"org-a\",\"run\":{\"uid\":\"r1\",\"definition\":\"pulse-survey\",\"version\":1,\"kind\":\"workflow\",\"tenant\":\"org-a\",\"property\":\"site-a\"},\"step\":{\"code\":\"\",\"kind\":\"hook\"},\"subject\":{\"property\":\"site-a\",\"type\":\"person\",\"pid\":\"u7\"},\"input\":{\"event\":\"form.submitted\",\"state\":\"open\",\"outcome\":\"\",\"pause_reason\":\"\",\"form\":{\"step\":\"ask\",\"pass\":0,\"form\":\"pulse\",\"version\":1,\"invitation\":\"i1\",\"submission\":\"s1\"}},\"attempt\":1}",
+  "decision": "done",
+  "answer": {
+    "status": 200,
+    "body": "{\"status\":\"done\"}"
+  }
+}

@@ -378,6 +378,11 @@ func vectorCases() []Vector {
 			`{"action":"messaging.channel.send","tenant":"org-a","run":{"uid":"r1","definition":"order-ready","version":1,"kind":"workflow","tenant":"org-a","property":"store-a"},"step":{"code":"ping","kind":"notification"},"subject":{"property":"store-a","type":"order","pid":"o1","label":"Order 1048"},"input":{"channel":"whatsapp","to":"+15555550199","template":"hsm_order_ready_v1","vars":{"order":"1048"}},"vars":{"order":"1048"},"attempt":1}`, "refused"),
 		mk("hook-finished", "/hooks", "run:r1:hook:finished",
 			`{"action":"cms.notify","tenant":"org-a","run":{"uid":"r1","definition":"page-review","version":2,"kind":"approval","tenant":"org-a","property":"site-a"},"step":{"code":"","kind":"hook"},"subject":{"property":"site-a","type":"page","pid":"p1"},"input":{"event":"finished","state":"done","outcome":"approved","pause_reason":""},"attempt":1}`, "done"),
+		// A form step's hook says where to read — the step, the invitation,
+		// the submission — and never carries an answer; the app reads them
+		// through the workflow service's submissions route.
+		mk("hook-form-submitted", "/hooks", "run:r1:hook:form.submitted",
+			`{"action":"cms.notify","tenant":"org-a","run":{"uid":"r1","definition":"pulse-survey","version":1,"kind":"workflow","tenant":"org-a","property":"site-a"},"step":{"code":"","kind":"hook"},"subject":{"property":"site-a","type":"person","pid":"u7"},"input":{"event":"form.submitted","state":"open","outcome":"","pause_reason":"","form":{"step":"ask","pass":0,"form":"pulse","version":1,"invitation":"i1","submission":"s1"}},"attempt":1}`, "done"),
 	}
 }
 
