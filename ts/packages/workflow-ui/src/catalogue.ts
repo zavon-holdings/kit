@@ -53,6 +53,13 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
     blurb: "The people it names approve or reject; nobody found is never an approval.",
     config: { assignees: [], mode: "any" },
   },
+  {
+    type: "todo",
+    label: "To-do",
+    group: "People",
+    blurb: "Somebody named does something by a date; done when they say so.",
+    config: { assignees: [], due: { value: 3, unit: "business_days" } },
+  },
   { type: "email", label: "Email", group: "Messages", blurb: "Sends one email.", config: { template_code: "" } },
   { type: "notification", label: "Notification", group: "Messages", blurb: "Tells people by email or in the app.", config: { channel: "email", to: [] } },
   {

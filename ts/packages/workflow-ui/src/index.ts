@@ -20,6 +20,7 @@ export {
   LoopInspector,
   SubWorkflowInspector,
   MoneyInspector,
+  TodoInspector,
   BUILT_IN_INSPECTORS,
 } from "./components/inspectors.js";
 export { Heading } from "./components/Heading.js";

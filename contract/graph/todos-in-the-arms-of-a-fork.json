@@ -1,0 +1,169 @@
+{
+  "name": "todos-in-the-arms-of-a-fork",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "fork"
+      },
+      {
+        "from": "fork",
+        "to": "venue"
+      },
+      {
+        "from": "fork",
+        "to": "food"
+      },
+      {
+        "from": "venue",
+        "to": "join"
+      },
+      {
+        "from": "food",
+        "to": "join"
+      },
+      {
+        "from": "join",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "fork",
+        "type": "fork"
+      },
+      {
+        "config": {
+          "assignees": [
+            {
+              "people": [
+                {
+                  "email": "ana@example.test"
+                }
+              ]
+            }
+          ],
+          "due": {
+            "unit": "business_days",
+            "value": 3
+          },
+          "title": "Book the venue"
+        },
+        "id": "venue",
+        "type": "todo"
+      },
+      {
+        "config": {
+          "assignees": [
+            {
+              "people": [
+                {
+                  "email": "ben@example.test"
+                }
+              ]
+            }
+          ],
+          "due": {
+            "unit": "business_days",
+            "value": 3
+          },
+          "title": "Order the food"
+        },
+        "id": "food",
+        "type": "todo"
+      },
+      {
+        "config": {
+          "join": "all"
+        },
+        "id": "join",
+        "type": "join"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "fork",
+      "name": "fork",
+      "kind": "parallel",
+      "config": {
+        "arms": {
+          "arm-1": [
+            "venue"
+          ],
+          "arm-2": [
+            "food"
+          ]
+        },
+        "join": "all"
+      }
+    },
+    {
+      "code": "venue",
+      "name": "venue",
+      "kind": "todo",
+      "config": {
+        "assignees": [
+          {
+            "people": [
+              {
+                "email": "ana@example.test"
+              }
+            ]
+          }
+        ],
+        "due": {
+          "unit": "business_days",
+          "value": 3
+        },
+        "title": "Book the venue"
+      },
+      "parent": "fork",
+      "branch": "arm-1"
+    },
+    {
+      "code": "food",
+      "name": "food",
+      "kind": "todo",
+      "config": {
+        "assignees": [
+          {
+            "people": [
+              {
+                "email": "ben@example.test"
+              }
+            ]
+          }
+        ],
+        "due": {
+          "unit": "business_days",
+          "value": 3
+        },
+        "title": "Order the food"
+      },
+      "parent": "fork",
+      "branch": "arm-2"
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ]
+}

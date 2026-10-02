@@ -1,0 +1,83 @@
+{
+  "name": "a-todo-in-sequence",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "book"
+      },
+      {
+        "from": "book",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "assignees": [
+            {
+              "people": [
+                {
+                  "email": "ana@example.test"
+                }
+              ]
+            }
+          ],
+          "due": {
+            "unit": "business_days",
+            "value": 3
+          },
+          "title": "Book the venue"
+        },
+        "id": "book",
+        "name": "Book the venue",
+        "type": "todo"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "book",
+      "name": "Book the venue",
+      "kind": "todo",
+      "config": {
+        "assignees": [
+          {
+            "people": [
+              {
+                "email": "ana@example.test"
+              }
+            ]
+          }
+        ],
+        "due": {
+          "unit": "business_days",
+          "value": 3
+        },
+        "title": "Book the venue"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ],
+  "normal": true
+}

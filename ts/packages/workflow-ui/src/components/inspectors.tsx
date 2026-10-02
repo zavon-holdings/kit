@@ -262,6 +262,67 @@ export function MoneyInspector({ node, onChange, readOnly }: InspectorProps) {
   );
 }
 
+type PeopleSource = { people?: { email: string; name?: string }[] } & Record<string, unknown>;
+
+/**
+ * A to-do: what is to be done, the people it is for, when it is due and when
+ * they are reminded. It edits the people named by address; any other source
+ * (a role, a permission, an app's resolver) is kept as it is and said, for
+ * the host's own inspector to edit.
+ */
+export function TodoInspector({ node, onChange, readOnly }: InspectorProps) {
+  const config = (node.config ?? {}) as { title?: string; assignees?: PeopleSource[]; due?: Span; reminders?: { after: Span }[] };
+  const set = (patch: Partial<typeof config>) => onChange({ ...config, ...patch });
+  const sources = config.assignees ?? [];
+  const others = sources.filter((s) => !(Array.isArray(s.people) && Object.keys(s).length === 1));
+  const named = sources.filter((s) => Array.isArray(s.people) && Object.keys(s).length === 1).flatMap((s) => s.people ?? []);
+  const [text, setText] = useState(named.map((p) => p.email).join("\n"));
+  const writePeople = (value: string) => {
+    setText(value);
+    const emails = value
+      .split(/[\n,]/)
+      .map((e) => e.trim())
+      .filter(Boolean);
+    const people = emails.map((email) => named.find((p) => p.email === email) ?? { email });
+    set({ assignees: people.length ? [...others, { people }] : others });
+  };
+  const reminders = config.reminders ?? [];
+  return (
+    <fieldset className="zwf-group" disabled={readOnly}>
+      <legend>The to-do</legend>
+      <label className="zwf-field">
+        <span>What is to be done</span>
+        <input value={config.title ?? ""} onChange={(e) => set({ title: e.target.value || undefined })} />
+      </label>
+      <label className="zwf-field">
+        <span>People it is for (one email address a line)</span>
+        <textarea rows={3} value={text} spellCheck={false} onChange={(e) => writePeople(e.target.value)} />
+      </label>
+      {others.length > 0 && (
+        <p className="zwf-muted">
+          And {others.length} other source{others.length === 1 ? "" : "s"} of people (a role, a permission or an app's list), kept as set.
+        </p>
+      )}
+      <p className="zwf-muted">Done when one of them completes it. Nobody approves or rejects a to-do.</p>
+      <SpanField label="Due in" value={config.due} onChange={(due) => set({ due })} />
+      <div className="zwf-group">
+        <p className="zwf-muted">Reminders while it is not done</p>
+        {reminders.map((r, i) => (
+          <div key={i} className="zwf-row">
+            <SpanField label={`Reminder ${i + 1} after`} value={r.after} onChange={(after) => set({ reminders: reminders.map((x, k) => (k === i ? { ...x, after } : x)) })} />
+            <button type="button" className="zwf-button zwf-quiet" onClick={() => set({ reminders: reminders.filter((_, k) => k !== i) })}>
+              Remove reminder {i + 1}
+            </button>
+          </div>
+        ))}
+        <button type="button" className="zwf-button" onClick={() => set({ reminders: [...reminders, { after: { value: 1, unit: "business_days" } }] })}>
+          Add a reminder
+        </button>
+      </div>
+    </fieldset>
+  );
+}
+
 /** The inspectors the package always has. A host's own win. */
 export const BUILT_IN_INSPECTORS = {
   condition: ConditionInspector,
@@ -271,4 +332,5 @@ export const BUILT_IN_INSPECTORS = {
   sub_workflow: SubWorkflowInspector,
   payment_request: MoneyInspector,
   invoice: MoneyInspector,
+  todo: TodoInspector,
 } as const;

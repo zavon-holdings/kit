@@ -60,10 +60,14 @@ export const PROBLEMS = Object.freeze({
 });
 const P = PROBLEMS;
 
-const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook"]);
+// A to-do is plain: one way on, done when one of its people completes it, and
+// at home in a fork's arm.
+const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook", "todo"]);
 // A task finishes with an outcome its edges may route on; a sub-workflow
 // finishes with its child run's.
 const isTask = (t) => t === "review" || t === "form" || t === "approval" || t === "sub_workflow";
+/** A stored task carries task_type; its node does not, the type says it. */
+const carriesTaskType = (t) => isTask(t) || t === "todo";
 const subWaits = (cfg) => typeof cfg.wait !== "boolean" || cfg.wait;
 /** The only outcomes a node type can finish with, when the type decides them. */
 const FIXED_OUTCOMES = Object.freeze({
@@ -197,7 +201,7 @@ function moneyConfig(x, ps, n, cfg) {
 }
 
 export const NOT_YET = Object.freeze({
-  task: "a task node is a review or a form",
+  task: "a task node is a review, a form, an approval or a to-do",
   branch: "draw a branch as a decision or a condition",
   parallel: "draw a parallel block as a fork and a join",
 });
@@ -1433,7 +1437,7 @@ export function decompile(steps) {
       return;
     }
     if (!isStepType(s.kind)) throw new NotDrawableError(`${s.code} is a ${s.kind} step, which the canvas does not draw yet`);
-    if (isTask(s.kind)) delete cfg.task_type;
+    if (carriesTaskType(s.kind)) delete cfg.task_type;
     let timeoutTo = "";
     if (s.kind === "wait_event" && typeof cfg.on_timeout === "string" && cfg.on_timeout.startsWith("branch:")) {
       timeoutTo = cfg.on_timeout.slice("branch:".length);
@@ -1581,7 +1585,7 @@ function decompileFork(g, s, cfg, arms, fresh) {
       if (!isStepType(child.kind)) throw new NotDrawableError(`${child.code} in an arm of ${s.code} is a ${child.kind} step`);
       const ccfg = object(child.config);
       if (ccfg === null) throw new NotDrawableError(`${child.code}'s settings are not an object`);
-      if (isTask(child.kind)) delete ccfg.task_type;
+      if (carriesTaskType(child.kind)) delete ccfg.task_type;
       const n = { id: child.code, type: child.kind };
       if (child.name !== child.code) n.name = child.name;
       if (Object.keys(ccfg).length > 0) n.config = ccfg;
@@ -1611,7 +1615,7 @@ function decompileLoop(g, s, cfg, arms) {
     if (!isStepType(child.kind)) throw new NotDrawableError(`${child.code} in the body of ${s.code} is a ${child.kind} step`);
     const ccfg = object(child.config);
     if (ccfg === null) throw new NotDrawableError(`${child.code}'s settings are not an object`);
-    if (isTask(child.kind)) delete ccfg.task_type;
+    if (carriesTaskType(child.kind)) delete ccfg.task_type;
     const c = { id: child.code, type: child.kind };
     if (child.name !== child.code) c.name = child.name;
     if (Object.keys(ccfg).length > 0) c.config = ccfg;

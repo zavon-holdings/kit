@@ -5,7 +5,7 @@ import type { ApiError, AssigneePreview as Preview, GraphNode } from "../types.j
 import { useEditor } from "./context.js";
 
 /** Node types a person is asked at, and so have somebody to ask. */
-export const ASKS_PEOPLE = new Set(["review", "form", "approval", "task"]);
+export const ASKS_PEOPLE = new Set(["review", "form", "approval", "task", "todo"]);
 
 /**
  * "Who would this go to?" for the simulation's sample subject, answered by
