@@ -63,10 +63,16 @@ type TriggerInput struct {
 	SubjectVar     string      `json:"subject_var,omitempty"`
 	SubjectType    string      `json:"subject_type,omitempty"`
 	Conditions     []Condition `json:"conditions,omitempty"`
-	DateVar        string      `json:"date_var,omitempty"`
-	DateOffsetDays int         `json:"date_offset_days,omitempty"`
-	DateRecurs     bool        `json:"date_recurs,omitempty"`
-	OncePerSubject bool        `json:"once_per_subject,omitempty"`
+	// Filter is the whole condition tree (all/any/not and every operator).
+	// A trigger is written as Conditions OR Filter, never both — the service
+	// refuses the pair — and is read back with both when the tree is flat.
+	Filter json.RawMessage `json:"filter,omitempty"`
+	// Binding is what an approval flow applies to, as the service writes it.
+	Binding        json.RawMessage `json:"binding,omitempty"`
+	DateVar        string          `json:"date_var,omitempty"`
+	DateOffsetDays int             `json:"date_offset_days,omitempty"`
+	DateRecurs     bool            `json:"date_recurs,omitempty"`
+	OncePerSubject bool            `json:"once_per_subject,omitempty"`
 	// Reads is the trigger in words, answered by the workflow service. Read-only.
 	Reads string `json:"reads,omitempty"`
 }
@@ -93,6 +99,20 @@ type DefinitionInput struct {
 	Steps       []StepInput  `json:"steps"`
 	Trigger     TriggerInput `json:"trigger"`
 	Actor       *Actor       `json:"actor,omitempty"`
+	// Graph is the decision tree the steps were drawn as (workflow.graph/1).
+	// The workflow service compiles it itself and refuses steps that
+	// differ (422 compile_mismatch), or a graph it cannot read (422
+	// invalid_graph); with no steps it compiles them. Kept as the bytes the
+	// editor produced: the service is the one reader.
+	Graph json.RawMessage `json:"graph,omitempty"`
+	// MigrationMap says where runs waiting at a step this save removes go:
+	// {removed code: top-level code of the new steps}.
+	MigrationMap map[string]string `json:"migration_map,omitempty"`
+	// OnEvent are the definition's interrupts. A save body is the whole
+	// definition, so leaving them out clears them.
+	OnEvent json.RawMessage `json:"on_event,omitempty"`
+	// OverrideScenarios saves although a stored test scenario fails.
+	OverrideScenarios bool `json:"override_scenarios,omitempty"`
 }
 
 // StepView is one stored step.
@@ -137,6 +157,14 @@ type Definition struct {
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt         time.Time      `json:"updated_at"`
 	ETag              string         `json:"etag"`
+	// Graph is the current version's decision tree: the one saved with it
+	// (GraphSource "saved") or one the service drew from its steps
+	// ("drawn"). GraphError says why there is none.
+	Graph       json.RawMessage `json:"graph,omitempty"`
+	GraphSource string          `json:"graph_source,omitempty"`
+	GraphError  string          `json:"graph_error,omitempty"`
+	// OnEvent are the definition's interrupts, as stored.
+	OnEvent json.RawMessage `json:"on_event,omitempty"`
 }
 
 // Saved is what PUT /definitions/{uid} answers.
@@ -147,12 +175,15 @@ type Saved struct {
 	LiveOnPrevious map[string]int `json:"live_on_previous"`
 }
 
-// Problem is one thing wrong with a definition.
+// Problem is one thing wrong with a definition. Node and Edge place it on
+// the drawing when the definition was saved as a graph.
 type Problem struct {
-	Step    string `json:"step,omitempty"`
-	Field   string `json:"field,omitempty"`
-	Code    string `json:"code"`
-	Message string `json:"message"`
+	Step    string          `json:"step,omitempty"`
+	Field   string          `json:"field,omitempty"`
+	Code    string          `json:"code"`
+	Message string          `json:"message"`
+	Node    string          `json:"node,omitempty"`
+	Edge    json.RawMessage `json:"edge,omitempty"`
 }
 
 // DefinitionFilter narrows GET /definitions.
@@ -428,7 +459,23 @@ type EventResult struct {
 	Code   string `json:"code,omitempty"`
 }
 
-// Settings is PUT /settings: an organisation's calendar.
+// Simulation is the body of POST /definitions/{uid}/simulate: a dry walk of
+// a graph (or steps, or the stored definition) with a sample. Nothing is
+// written by the service.
+type Simulation struct {
+	Graph     json.RawMessage           `json:"graph,omitempty"`
+	Steps     []StepInput               `json:"steps,omitempty"`
+	Trigger   *TriggerInput             `json:"trigger,omitempty"`
+	Subject   SubjectRef                `json:"subject"`
+	Vars      map[string]any            `json:"vars,omitempty"`
+	Event     json.RawMessage           `json:"event,omitempty"`
+	Decisions map[string]string         `json:"decisions,omitempty"`
+	Outputs   map[string]map[string]any `json:"outputs,omitempty"`
+	Now       *time.Time                `json:"now,omitempty"`
+}
+
+// Settings is PUT /settings: an organisation's calendar. A PUT is the whole
+// calendar — a field left out is the service's default, not "unchanged".
 type Settings struct {
 	Tenant    string            `json:"tenant"`
 	Name      string            `json:"name,omitempty"`
@@ -436,4 +483,17 @@ type Settings struct {
 	Workweek  []int             `json:"workweek,omitempty"`
 	WorkHours map[string]string `json:"work_hours,omitempty"`
 	Holidays  []string          `json:"holidays,omitempty"`
+	// HolidayRegion is whose public holidays are observed, computed by the
+	// service ("ZA"). Empty is the service's default region.
+	HolidayRegion string `json:"holiday_region,omitempty"`
+	// QuietHours is {start, end} as HH:MM: when nothing is sent.
+	QuietHours map[string]string `json:"quiet_hours,omitempty"`
+	// Closures are the organisation's own days off.
+	Closures []Closure `json:"closures,omitempty"`
+}
+
+// Closure is one day an organisation is closed, and why.
+type Closure struct {
+	On     string `json:"on"`
+	Reason string `json:"reason,omitempty"`
 }

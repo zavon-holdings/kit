@@ -13,7 +13,7 @@ byte.
 |--------------|------------|
 | `webhooksig` | Sign and verify the `X-Zavon-Signature` / `X-Zavon-Timestamp` HMAC-SHA256 request signature, with secret rotation. Fails closed. |
 | `policy`     | A statement evaluator: allow/deny statements over `<app>:<type>:<verb>` actions and `org/<slug>/…` resources. Deny beats allow; default deny. |
-| `wfclient`   | A client for the workflow API (`/api/workflows/*`): definitions, runs, events, tasks, manifest, deliveries. Errors carry the server's code. |
+| `wfclient`   | A client for the workflow API (`/api/workflows/*`): definitions (with the graph drawn beside the steps, the migration map and interrupts), validate and simulate, runs, events, tasks, manifest, deliveries, and an organisation's calendar. Errors carry the server's code. |
 | `wfhandler`  | A callback endpoint for an app: verifies the signature, dedupes on `Idempotency-Key`, and shapes the answer. `DoorTx` writes the replay record in the handler's own transaction. |
 | `outbox`     | An at-least-once outbox: rows added in the caller's transaction, drained later with backoff. |
 | `permits`    | A versioned cache of who holds what in an organisation, with an HTTP refresher and a `Decide` over `policy`. |

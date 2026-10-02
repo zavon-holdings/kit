@@ -298,6 +298,15 @@ func (c *Client) Validate(ctx context.Context, uid string, in *DefinitionInput) 
 	return out.Problems, err
 }
 
+// Simulate walks a definition with a sample and answers the walk as the
+// service wrote it ({path, steps, recipients, stopped, ended, vars}). The
+// shape belongs to the editor that draws it, so it is handed back whole.
+func (c *Client) Simulate(ctx context.Context, uid string, in Simulation) (json.RawMessage, error) {
+	var out json.RawMessage
+	_, err := c.call(ctx, http.MethodPost, "/api/workflows/definitions/"+url.PathEscape(uid)+"/simulate", nil, nil, in, &out)
+	return out, err
+}
+
 // Archive takes a definition out of listings. Refused (409 runs_live) while
 // runs are going unless cancelRuns.
 func (c *Client) Archive(ctx context.Context, uid string, cancelRuns bool, reason string, actor *Actor) error {
@@ -547,6 +556,14 @@ func (c *Client) CompleteDelivery(ctx context.Context, deliveryUID string, done 
 	}
 	_, err := c.call(ctx, http.MethodPost, "/api/workflows/deliveries/"+url.PathEscape(deliveryUID)+"/complete", nil, nil, body, nil)
 	return err
+}
+
+// GetSettings reads an organisation's calendar; one never written answers
+// the service's defaults.
+func (c *Client) GetSettings(ctx context.Context, tenant string) (Settings, error) {
+	var out Settings
+	_, err := c.call(ctx, http.MethodGet, "/api/workflows/settings", url.Values{"tenant": {tenant}}, nil, nil, &out)
+	return out, err
 }
 
 // PutSettings writes an organisation's calendar.
