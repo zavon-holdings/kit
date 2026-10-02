@@ -136,8 +136,8 @@ describe("the List tab", () => {
     await openList(user);
     await user.click(row("Which tier?"));
     const inspector = screen.getByRole("complementary", { name: "Inspector" });
-    expect(within(inspector).getAllByRole("button", { name: "Remove this way out" })).toHaveLength(1);
-    expect(within(inspector).getByText("The default way out stays until another is made the default.")).toBeInTheDocument();
+    expect(within(inspector).getAllByRole("button", { name: "Remove connection" })).toHaveLength(1);
+    expect(within(inspector).getByText("A default connection is required. Make another the default to change it.")).toBeInTheDocument();
   });
 
   test("making another way out the default moves the default", async () => {

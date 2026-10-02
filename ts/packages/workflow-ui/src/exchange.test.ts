@@ -23,7 +23,7 @@ describe("export and import", () => {
     expect(readGraphJson("{").error).toMatch(/not JSON/);
     expect(readGraphJson("[]").error).toMatch(/not a JSON object/);
     expect(readGraphJson(JSON.stringify({ format: "other/1", nodes: [], edges: [] })).error).toMatch(/says other\/1/);
-    expect(readGraphJson(JSON.stringify({ ...sampleTree(), extra: 1 })).error).toMatch(/nobody reads: extra/);
+    expect(readGraphJson(JSON.stringify({ ...sampleTree(), extra: 1 })).error).toMatch(/unsupported field: extra/);
     expect(readGraphJson(JSON.stringify({ format: "workflow.graph/1", nodes: [{ id: "a" }], edges: [] })).error).toMatch(/id and a type/);
     expect(readGraphJson(JSON.stringify({ format: "workflow.graph/1", nodes: [{ id: "a", type: "end" }], edges: [] })).error).toMatch(/no start/);
   });

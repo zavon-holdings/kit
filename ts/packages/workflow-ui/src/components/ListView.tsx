@@ -122,7 +122,7 @@ export function ListView() {
                 </span>
               )}
               {outs.length > 0 && (
-                <ul className="zwf-plain zwf-list-ways" aria-label={`Ways out of ${nameOf(graph, id)}`}>
+                <ul className="zwf-plain zwf-list-ways" aria-label={`Connections from ${nameOf(graph, id)}`}>
                   {outs.map(({ edge, index }) => (
                     <li key={index}>
                       {edge.label ? `${edge.label}${edge.default ? " (default)" : ""}` : "next"} → {nameOf(graph, edge.to)}

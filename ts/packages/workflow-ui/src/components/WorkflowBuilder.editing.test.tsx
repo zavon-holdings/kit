@@ -177,7 +177,7 @@ describe("several nodes at once", () => {
     await openList(user);
     fireEvent.keyDown(rows()[0], { key: "a", ctrlKey: true });
     expect(within(inspector()).getByRole("heading", { name: `${sampleTree().nodes.length} nodes` })).toBeInTheDocument();
-    expect(within(inspector()).getByText("The start stays: every workflow begins somewhere.")).toBeInTheDocument();
+    expect(within(inspector()).getByText("The start node cannot be removed.")).toBeInTheDocument();
     await user.click(within(inspector()).getByRole("button", { name: `Remove ${sampleTree().nodes.length - 1} nodes` }));
     expect(last(onGraph).nodes.map((n) => n.id)).toEqual(["start"]);
   });
@@ -285,7 +285,7 @@ describe("the trigger and interrupts, on the start node", () => {
     render(<Harness initialTrigger={{ kind: "event", event_type: "" }} onTrigger={onTrigger} events={[{ type: "orders.order.placed", label: "An order is placed", vars: ["total_cents"] }]} />);
     await openList(user);
     await user.click(row("Start"));
-    const panel = within(inspector()).getByRole("group", { name: "What starts a run" });
+    const panel = within(inspector()).getByRole("group", { name: "Trigger" });
     expect(within(panel).getByText("An event trigger needs the event it starts on.")).toBeInTheDocument();
     await user.type(within(panel).getByRole("combobox", { name: "The event" }), "orders.order.placed");
     expect(onTrigger.mock.calls.at(-1)![0]).toMatchObject({ kind: "event", event_type: "orders.order.placed" });
@@ -314,7 +314,7 @@ describe("the trigger and interrupts, on the start node", () => {
     await openList(user);
     await user.click(row("Start"));
     expect(within(inspector()).getByText("Starts when a thing happens.")).toBeInTheDocument();
-    expect(within(inspector()).queryByRole("group", { name: "What starts a run" })).toBeNull();
+    expect(within(inspector()).queryByRole("group", { name: "Trigger" })).toBeNull();
   });
 });
 
@@ -333,7 +333,7 @@ describe("who a task goes to", () => {
     expect(await within(inspector()).findByText("Ada <a@example.org>")).toBeInTheDocument();
     expect(previewAssignees.mock.calls[0][0]).toMatchObject({ node: { id: "approve", type: "review" }, sample: { subject: { pid: "r-1" } } });
     await user.click(ask);
-    expect(await within(inspector()).findByText(/Nobody: a task here would be unassignable/)).toBeInTheDocument();
+    expect(await within(inspector()).findByText(/No assignees: a task here could not be assigned/)).toBeInTheDocument();
   });
 
   test("is not offered on a node nobody is asked at", async () => {

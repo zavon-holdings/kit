@@ -233,7 +233,7 @@ export function MoneyInspector({ node, onChange, readOnly }: InspectorProps) {
         <input value={config.currency ?? ""} maxLength={3} onChange={(e) => set({ currency: e.target.value.toUpperCase() })} />
       </label>
       <label className="zwf-field">
-        <span>What it is for</span>
+        <span>Description</span>
         <input value={config.description ?? ""} onChange={(e) => set({ description: e.target.value || undefined })} />
       </label>
       {invoice ? (
@@ -291,11 +291,11 @@ export function TodoInspector({ node, onChange, readOnly }: InspectorProps) {
     <fieldset className="zwf-group" disabled={readOnly}>
       <legend>The to-do</legend>
       <label className="zwf-field">
-        <span>What is to be done</span>
+        <span>Task</span>
         <input value={config.title ?? ""} onChange={(e) => set({ title: e.target.value || undefined })} />
       </label>
       <label className="zwf-field">
-        <span>People it is for (one email address a line)</span>
+        <span>Assignees (one email address per line)</span>
         <textarea rows={3} value={text} spellCheck={false} onChange={(e) => writePeople(e.target.value)} />
       </label>
       {others.length > 0 && (
@@ -303,7 +303,7 @@ export function TodoInspector({ node, onChange, readOnly }: InspectorProps) {
           And {others.length} other source{others.length === 1 ? "" : "s"} of people (a role, a permission or an app's list), kept as set.
         </p>
       )}
-      <p className="zwf-muted">Done when one of them completes it. Nobody approves or rejects a to-do.</p>
+      <p className="zwf-muted">Complete when any of them marks it done. A to-do has no approval.</p>
       <SpanField label="Due in" value={config.due} onChange={(due) => set({ due })} />
       <div className="zwf-group">
         <p className="zwf-muted">Reminders while it is not done</p>

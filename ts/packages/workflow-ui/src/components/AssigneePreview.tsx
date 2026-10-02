@@ -38,7 +38,7 @@ export function AssigneePreview({ node }: { node: GraphNode }) {
         <button type="button" className="zwf-button" disabled={busy} onClick={() => void ask()}>
           {busy ? "Asking…" : `Who would this go to for ${ed.sample.subject.label || `${ed.sample.subject.type} ${ed.sample.subject.pid}`}?`}
         </button>
-        {state && !fresh && <span className="zwf-muted">The settings changed since; ask again.</span>}
+        {state && !fresh && <span className="zwf-muted">Settings have changed. Check again.</span>}
       </div>
       {state?.error && (
         <p className="zwf-status zwf-status-danger" role="alert">
@@ -51,7 +51,7 @@ export function AssigneePreview({ node }: { node: GraphNode }) {
           {p.unassignable ? (
             <p className="zwf-status zwf-status-danger">
               <span className="zwf-dot" aria-hidden="true" />
-              Nobody: a task here would be unassignable. {p.says}
+              No assignees: a task here could not be assigned. {p.says}
             </p>
           ) : (
             <>

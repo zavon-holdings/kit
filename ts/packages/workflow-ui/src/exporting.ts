@@ -36,7 +36,7 @@ export function readGraphJson(text: string): { graph: Graph; error?: undefined }
   const o = v as Record<string, unknown>;
   if (o.format !== FORMAT) return { error: `That file is not a ${FORMAT} graph${typeof o.format === "string" ? ` (it says ${o.format})` : ""}.` };
   const unknown = Object.keys(o).filter((k) => !KNOWN_KEYS.has(k));
-  if (unknown.length) return { error: `That graph has ${unknown.length === 1 ? "a field" : "fields"} nobody reads: ${unknown.join(", ")}.` };
+  if (unknown.length) return { error: `That graph has unsupported ${unknown.length === 1 ? "field" : "fields"}: ${unknown.join(", ")}.` };
   if (!Array.isArray(o.nodes) || !Array.isArray(o.edges)) return { error: "That graph has no nodes or edges list." };
   for (const n of o.nodes as unknown[]) {
     const node = n as Record<string, unknown>;

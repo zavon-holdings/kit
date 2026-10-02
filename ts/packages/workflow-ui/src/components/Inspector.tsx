@@ -54,7 +54,7 @@ export function Inspector() {
   if (!node) {
     return (
       <aside className="zwf-inspector" aria-label="Inspector">
-        <p className="zwf-muted">Select a node to see its settings and its ways out.</p>
+        <p className="zwf-muted">Select a node to see its settings and connections.</p>
       </aside>
     );
   }
@@ -123,7 +123,7 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
             )}
           </>
         ) : (
-          <p className="zwf-muted">{ed.triggerSummary || "Every run begins here. What starts a run is the definition's trigger, not a setting of this node."}</p>
+          <p className="zwf-muted">{ed.triggerSummary || "Every run begins here. The trigger is set on the workflow, not on this node."}</p>
         )
       ) : (
         <>
@@ -226,7 +226,7 @@ function WaysOut({ node, focusEdge }: { node: GraphNode; focusEdge?: number }) {
     focused.current?.scrollIntoView?.({ block: "nearest" });
   }, [focusEdge]);
 
-  if (node.type === "end") return <p className="zwf-muted">The run ends here, so nothing follows.</p>;
+  if (node.type === "end") return <p className="zwf-muted">The run ends here.</p>;
 
   const candidates = ed.graph.nodes.filter((n) => n.id !== node.id && n.type !== "start");
   const outcomeNames = FIXED_OUTCOMES[node.type]
@@ -240,9 +240,9 @@ function WaysOut({ node, focusEdge }: { node: GraphNode; focusEdge?: number }) {
   return (
     <section className="zwf-section" aria-labelledby={`${id}-ways`}>
       <Heading level={ed.headingLevel + 1} id={`${id}-ways`} className="zwf-subheading">
-        Ways out
+        Connections
       </Heading>
-      {outs.length === 0 && <p className="zwf-muted">None yet: connect it to what happens next.</p>}
+      {outs.length === 0 && <p className="zwf-muted">No connections yet. Connect it to the next step.</p>}
       <ol className="zwf-ways">
         {outs.map(({ edge, index }, k) => (
           <li key={index} ref={index === focusEdge ? focused : undefined} className="zwf-way" aria-current={index === focusEdge ? "true" : undefined}>
@@ -321,9 +321,9 @@ function WayOut({
       )}
       <fieldset className="zwf-group" disabled={ro}>
         <legend className="zwf-visually-hidden">
-          Way out {position + 1} of {count} from {nameOf(ed.graph, node.id)}
+          Connection {position + 1} of {count} from {nameOf(ed.graph, node.id)}
         </legend>
-        {isTimeout && <p className="zwf-muted">Taken when the wait times out.</p>}
+        {isTimeout && <p className="zwf-muted">Used when the wait times out.</p>}
         {labelled && !isTimeout && (
           <label className="zwf-field">
             <span>
@@ -358,7 +358,7 @@ function WayOut({
         {chooses(role) && (
           <label className="zwf-check">
             <input type="radio" name={`default-${node.id}`} checked={!!edge.default} onChange={() => ed.update((g) => setDefault(g, index))} />
-            <span>The default: taken when nothing else matches</span>
+            <span>Default (used when no other condition matches)</span>
           </label>
         )}
         {role === "decision" && !edge.default && (
@@ -397,10 +397,10 @@ function WayOut({
               </>
             )}
             {lastDefault ? (
-              <span className="zwf-muted">The default way out stays until another is made the default.</span>
+              <span className="zwf-muted">A default connection is required. Make another the default to change it.</span>
             ) : (
               <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.update((g) => disconnect(g, index))}>
-                Remove this way out
+                Remove connection
               </button>
             )}
           </div>
@@ -480,7 +480,7 @@ function SeveralNodes({ ids }: { ids: string[] }) {
           Remove {removable.length} node{removable.length === 1 ? "" : "s"}
         </button>
       )}
-      {removable.length < ids.length && <p className="zwf-muted">The start stays: every workflow begins somewhere.</p>}
+      {removable.length < ids.length && <p className="zwf-muted">The start node cannot be removed.</p>}
     </div>
   );
 }

@@ -41,7 +41,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
 
   return (
     <fieldset className="zwf-group zwf-trigger" disabled={ro}>
-      <legend>What starts a run</legend>
+      <legend>Trigger</legend>
       <p className="zwf-muted">{describeTrigger(value)}</p>
       <div role="radiogroup" aria-label="Starts" className="zwf-choices-col">
         {TRIGGER_KINDS.map((k) => (
@@ -83,7 +83,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
           />
           <label className="zwf-check">
             <input type="checkbox" checked={!!value.once_per_subject} onChange={(e) => set({ once_per_subject: e.target.checked || undefined })} />
-            <span>At most one run per subject, ever</span>
+            <span>One run per subject</span>
           </label>
         </>
       )}
@@ -115,7 +115,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
       {value.kind === "date" && (
         <>
           <label className="zwf-field">
-            <span>The date it watches (a value each subject carries)</span>
+            <span>Date field (a value on each subject)</span>
             <input value={value.date_var ?? ""} spellCheck={false} placeholder="renewal_date" onChange={(e) => set({ date_var: e.target.value })} />
           </label>
           <label className="zwf-field">
@@ -137,7 +137,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
 
       {value.kind !== "manual" && value.kind !== "schedule" && (
         <fieldset className="zwf-group">
-          <legend>Each run is about</legend>
+          <legend>Subject</legend>
           <label className="zwf-field">
             <span>Subject</span>
             <select value={value.subject_kind ?? ""} onChange={(e) => set({ subject_kind: e.target.value || undefined })}>
@@ -149,7 +149,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
           </label>
           {value.subject_kind === "external" && (
             <label className="zwf-field">
-              <span>Kind of thing (app:type)</span>
+              <span>Subject type (app:type)</span>
               <input value={value.subject_type ?? ""} spellCheck={false} placeholder="orders:order" onChange={(e) => set({ subject_type: e.target.value })} />
             </label>
           )}

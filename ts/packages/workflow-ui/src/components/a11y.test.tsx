@@ -83,7 +83,7 @@ describe("axe finds nothing", () => {
     await user.click(screen.getByRole("tab", { name: "List" }));
     const start = within(screen.getByRole("list", { name: "Workflow, as a list" })).getAllByRole("listitem")[0];
     await user.click(start);
-    expect(within(inspector()).getByRole("group", { name: "What starts a run" })).toBeInTheDocument();
+    expect(within(inspector()).getByRole("group", { name: "Trigger" })).toBeInTheDocument();
     expect(await violations()).toEqual([]);
   });
 

@@ -51,8 +51,8 @@ describe("the to-do node", () => {
     let last: Record<string, unknown> = {};
     const role = { role: { app: "pages", code: "events_lead" } };
     render(<Harness initial={{ assignees: [role] }} onConfig={(c) => (last = c)} />);
-    await user.type(screen.getByLabelText("What is to be done"), "Book the hall");
-    await user.type(screen.getByLabelText("People it is for (one email address a line)"), "ana@example.test{enter}ben@example.test");
+    await user.type(screen.getByLabelText("Task"), "Book the hall");
+    await user.type(screen.getByLabelText("Assignees (one email address per line)"), "ana@example.test{enter}ben@example.test");
     await user.clear(screen.getByLabelText("Due in"));
     await user.type(screen.getByLabelText("Due in"), "3");
     await user.selectOptions(screen.getByLabelText("Due in: unit"), "business_days");
@@ -69,7 +69,7 @@ describe("the to-do node", () => {
     const user = userEvent.setup();
     let last: Record<string, unknown> = {};
     render(<Harness initial={{ assignees: [{ people: [{ email: "ana@example.test" }] }] }} onConfig={(c) => (last = c)} />);
-    await user.clear(screen.getByLabelText("People it is for (one email address a line)"));
+    await user.clear(screen.getByLabelText("Assignees (one email address per line)"));
     expect(last.assignees).toEqual([]);
   });
 });

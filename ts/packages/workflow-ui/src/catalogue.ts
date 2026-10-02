@@ -18,11 +18,11 @@ export type NodeKind = {
 };
 
 export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
-  { type: "start", label: "Start", group: "Structure", blurb: "Where every run begins. The trigger belongs to the definition." },
-  { type: "condition", label: "Condition", group: "Logic", blurb: "Asks one question: yes or no.", config: { when: {} } },
-  { type: "decision", label: "Decision", group: "Logic", blurb: "Several ways out, each with its own condition, and a default." },
-  { type: "fork", label: "Fork", group: "Logic", blurb: "Runs two or more arms at once." },
-  { type: "join", label: "Join", group: "Logic", blurb: "Where a fork's arms meet: all, any, or a quorum.", config: { join: "all" } },
+  { type: "start", label: "Start", group: "Structure", blurb: "Where every run begins. The trigger is set on the workflow." },
+  { type: "condition", label: "Condition", group: "Logic", blurb: "A yes/no branch.", config: { when: {} } },
+  { type: "decision", label: "Decision", group: "Logic", blurb: "Multiple branches, each with a condition, plus a default." },
+  { type: "fork", label: "Fork", group: "Logic", blurb: "Runs two or more branches in parallel." },
+  { type: "join", label: "Join", group: "Logic", blurb: "Merges parallel branches: all, any, or a quorum.", config: { join: "all" } },
   { type: "end", label: "End", group: "Logic", blurb: "Ends the run with an outcome.", config: { outcome: "completed" } },
   {
     type: "loop",
@@ -42,31 +42,31 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
     type: "review",
     label: "Review",
     group: "People",
-    blurb: "Somebody decides; each outcome can lead somewhere else.",
+    blurb: "A reviewer chooses an outcome; each outcome can branch.",
     config: { outcomes: [{ name: "approved" }, { name: "rejected" }] },
   },
-  { type: "form", label: "Form", group: "People", blurb: "Somebody fills something in." },
+  { type: "form", label: "Form", group: "People", blurb: "Collects information from a person." },
   {
     type: "approval",
     label: "Approval",
     group: "People",
-    blurb: "The people it names approve or reject; nobody found is never an approval.",
+    blurb: "Named approvers approve or reject. No approvers found is never an approval.",
     config: { assignees: [], mode: "any" },
   },
   {
     type: "todo",
     label: "To-do",
     group: "People",
-    blurb: "Somebody named does something by a date; done when they say so.",
+    blurb: "A task for named people, with a due date; complete when they mark it done.",
     config: { assignees: [], due: { value: 3, unit: "business_days" } },
   },
   { type: "email", label: "Email", group: "Messages", blurb: "Sends one email.", config: { template_code: "" } },
-  { type: "notification", label: "Notification", group: "Messages", blurb: "Tells people by email or in the app.", config: { channel: "email", to: [] } },
+  { type: "notification", label: "Notification", group: "Messages", blurb: "Notifies people by email or in the app.", config: { channel: "email", to: [] } },
   {
     type: "payment_request",
     label: "Payment request",
     group: "Money",
-    blurb: "Asks an app for a payment link, tells the payer, and waits: paid, failed or expired.",
+    blurb: "Requests a payment link, notifies the payer, and waits: paid, failed or expired.",
     config: { action: "", amount: 0, currency: "ZAR", expires: { value: 7, unit: "days" } },
   },
   {
@@ -76,11 +76,11 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
     blurb: "Issues a numbered invoice, sends it, reminds, and waits: paid, voided or overdue.",
     config: { action: "", amount: 0, currency: "ZAR", due: { value: 14, unit: "days" } },
   },
-  { type: "delay", label: "Delay", group: "Timing", blurb: "Waits a while before going on.", config: { value: 1, unit: "days" } },
-  { type: "wait_event", label: "Wait for event", group: "Timing", blurb: "Waits until something happens, with an optional timeout.", config: { event: [] } },
-  { type: "call", label: "Call an app", group: "Apps", blurb: "Asks an app to do something.", config: { action: "" } },
+  { type: "delay", label: "Delay", group: "Timing", blurb: "Pauses for a set time.", config: { value: 1, unit: "days" } },
+  { type: "wait_event", label: "Wait for event", group: "Timing", blurb: "Waits for an event, with an optional timeout.", config: { event: [] } },
+  { type: "call", label: "Call an app", group: "Apps", blurb: "Runs an action in an app.", config: { action: "" } },
   { type: "webhook", label: "Webhook", group: "Apps", blurb: "Calls an allowed address over HTTPS.", config: { url: "" } },
-  { type: "set_var", label: "Set a value", group: "Apps", blurb: "Writes values the rest of the run can read.", config: { set: {} } },
+  { type: "set_var", label: "Set a value", group: "Apps", blurb: "Stores values for later steps.", config: { set: {} } },
 ]);
 
 export const PALETTE_GROUPS: readonly NodeGroup[] = ["Logic", "People", "Messages", "Money", "Timing", "Apps"];
