@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { Analysis } from "../analysis.js";
 import type { Graph, Inspectors, Sample, Selection, WorkflowApi } from "../types.js";
 import type { CatalogueEvent, Interrupt, Trigger } from "../trigger.js";
+import type { ConfirmDialogProps } from "./ConfirmDialog.js";
 
 /** What every part of the editor shares. One graph, one analysis, one selection. */
 export type Editor = {
@@ -54,9 +55,22 @@ export type Editor = {
   /** Canvas preferences. */
   snapToGrid: boolean;
   minimap: boolean;
+  /** Shows or hides the overview map. */
+  setMinimap?: (on: boolean) => void;
   /** The definition's trigger, when the host lets the editor change it. */
   triggerEditor?: TriggerEditor;
+  /** Asks before something consequential, with a confirmation card. */
+  confirm?: (request: ConfirmRequest) => void;
+  /**
+   * Removes nodes the way the editor removes them: at once with a "Restore"
+   * card, or after a confirmation when the host asked for one (and always
+   * for a whole branch).
+   */
+  removeNodes?: (ids: string[], how?: "nodes" | "branch") => void;
 };
+
+/** What a confirmation card asks: the dialog's words, and what happens on yes. */
+export type ConfirmRequest = Omit<ConfirmDialogProps, "onCancel">;
 
 /** What the start node's inspector edits when the host hands the trigger in. */
 export type TriggerEditor = {

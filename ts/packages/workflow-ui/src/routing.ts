@@ -73,3 +73,41 @@ export function lanePath(sx: number, sy: number, tx: number, ty: number, lane: n
   const into = ty - 14;
   return [`M ${sx} ${sy} L ${sx} ${out} L ${lane} ${out} L ${lane} ${into} L ${tx} ${into} L ${tx} ${ty}`, lane, (out + into) / 2];
 }
+
+/**
+ * The same lane with its corners rounded, and where its label sits: beside
+ * the lane on the side away from the nodes it passes, so a long label never
+ * lies under a card. `side` is -1 when the lane runs left of the source.
+ */
+export function roundedLanePath(sx: number, sy: number, tx: number, ty: number, lane: number, radius = 10): { d: string; labelX: number; labelY: number; side: -1 | 1 } {
+  const out = sy + 14;
+  const into = ty - 14;
+  const pts: [number, number][] = [
+    [sx, sy],
+    [sx, out],
+    [lane, out],
+    [lane, into],
+    [tx, into],
+    [tx, ty],
+  ];
+  let d = `M ${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [px, py] = pts[i - 1];
+    const [cx, cy] = pts[i];
+    const [nx, ny] = pts[i + 1];
+    const inLen = Math.hypot(cx - px, cy - py);
+    const outLen = Math.hypot(nx - cx, ny - cy);
+    const r = Math.min(radius, inLen / 2, outLen / 2);
+    if (r < 0.5) {
+      d += ` L ${cx} ${cy}`;
+      continue;
+    }
+    const ax = cx - ((cx - px) / inLen) * r;
+    const ay = cy - ((cy - py) / inLen) * r;
+    const bx = cx + ((nx - cx) / outLen) * r;
+    const by = cy + ((ny - cy) / outLen) * r;
+    d += ` L ${ax} ${ay} Q ${cx} ${cy} ${bx} ${by}`;
+  }
+  d += ` L ${pts[pts.length - 1][0]} ${pts[pts.length - 1][1]}`;
+  return { d, labelX: lane, labelY: (out + into) / 2, side: lane < sx ? -1 : 1 };
+}

@@ -6,6 +6,8 @@ import { pathNodes, problemCount } from "../analysis.js";
 import { notesOf, outEdges, removeNote, setNote } from "../model.js";
 import { nameOf, useEditor } from "./context.js";
 import { Heading } from "./Heading.js";
+import { categoryOf } from "../design.js";
+import { Icon } from "./icons.js";
 
 /**
  * The List tab: the same graph as an outline, in compiled order, arms
@@ -60,6 +62,7 @@ export function ListView() {
                 else refs.current.delete(id);
               }}
               className="zwf-list-row"
+              data-category={categoryOf(n.type)}
               data-depth={arm ? 1 : 0}
               data-selected={selected ? "true" : undefined}
               data-on-path={pathSet.has(id) ? "true" : undefined}
@@ -91,6 +94,9 @@ export function ListView() {
               }}
             >
               <span className="zwf-list-head">
+                <span className="zwf-list-chip" aria-hidden="true">
+                  <Icon name={n.type} size={14} />
+                </span>
                 <span className="zwf-node-type">{typeLabel(n.type)}</span> <strong>{nameOf(graph, id)}</strong>
                 {nameOf(graph, id) !== id && <code className="zwf-node-id"> {id}</code>}
                 {arm && (

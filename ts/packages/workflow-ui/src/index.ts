@@ -24,7 +24,7 @@ export {
   BUILT_IN_INSPECTORS,
 } from "./components/inspectors.js";
 export { Heading } from "./components/Heading.js";
-export { EditorContext, useEditor, useReducedMotion, type Editor, type TriggerEditor } from "./components/context.js";
+export { EditorContext, useEditor, useReducedMotion, type Editor, type TriggerEditor, type ConfirmRequest } from "./components/context.js";
 export { TriggerPanel, InterruptsPanel, type TriggerPanelProps, type InterruptsPanelProps } from "./components/TriggerPanel.js";
 export { AssigneePreview, ASKS_PEOPLE } from "./components/AssigneePreview.js";
 export { VersionDiff, GraphView, type GraphViewProps, type VersionSide } from "./components/VersionDiff.js";
@@ -32,6 +32,11 @@ export { ScenariosPanel } from "./components/ScenariosPanel.js";
 export { ShortcutsSheet } from "./components/ShortcutsSheet.js";
 export { ExportMenu } from "./components/ExportMenu.js";
 export { FindNode } from "./components/FindNode.js";
+export { ConfirmDialog, type ConfirmDialogProps } from "./components/ConfirmDialog.js";
+export { Icon } from "./components/icons.js";
+export { categoryOf, outcomeTone, endOutcome, summarize, CATEGORY_LABELS, type NodeCategory, type Tone } from "./design.js";
+export { branchOf } from "./branch.js";
+export { readableView, fitView, VIEW, type Bounds, type View } from "./viewport.js";
 export * from "./history.js";
 export * from "./clipboard.js";
 export * from "./arrange.js";

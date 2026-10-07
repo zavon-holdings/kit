@@ -12,7 +12,6 @@ import {
   moveEdge,
   nodeById,
   outEdges,
-  removeNode,
   renameNode,
   roleOf,
   setDefault,
@@ -31,6 +30,9 @@ import { AssigneePreview } from "./AssigneePreview.js";
 import { InterruptsPanel, TriggerPanel } from "./TriggerPanel.js";
 import { alignNodes, distributeNodes, removeNodes, type Alignment } from "../arrange.js";
 import { subtree } from "../clipboard.js";
+import { branchOf } from "../branch.js";
+import { categoryOf, CATEGORY_LABELS, summarize } from "../design.js";
+import { Icon } from "./icons.js";
 
 /**
  * The selected node's settings and its ways out. Everything the canvas can
@@ -87,14 +89,36 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
     }
   };
 
+  const uid = useId();
+  const category = categoryOf(node.type);
+  const summary = node.type === "start" ? "" : summarize(node, ed.graph);
+  const branch = ro || node.type === "start" ? [] : branchOf(ed.graph, node.id);
+  const remove = (ids: string[], how?: "nodes" | "branch") => {
+    if (ed.removeNodes) return ed.removeNodes(ids, how);
+    ed.update((g) => removeNodes(g, ids));
+    ed.select(null);
+  };
+
   return (
-    <div className="zwf-settings">
-      <p className="zwf-kicker">{typeLabel(node.type)}</p>
-      <Heading level={ed.headingLevel} ref={headingRef} className="zwf-heading" tabIndex={-1}>
-        {nameOf(ed.graph, node.id)}
-      </Heading>
+    <div className="zwf-settings" data-category={category}>
+      <div className="zwf-inspector-head">
+        <span className="zwf-inspector-chip" aria-hidden="true">
+          <Icon name={node.type} size={18} />
+        </span>
+        <div className="zwf-inspector-titles">
+          <p className="zwf-kicker">
+            {typeLabel(node.type)}
+            <span className="zwf-visually-hidden"> · </span>
+            <span className="zwf-kicker-group">{CATEGORY_LABELS[category]}</span>
+          </p>
+          <Heading level={ed.headingLevel} ref={headingRef} className="zwf-heading" tabIndex={-1}>
+            {nameOf(ed.graph, node.id)}
+          </Heading>
+          {summary && <p className="zwf-muted zwf-inspector-summary">{summary}</p>}
+        </div>
+      </div>
       {problems.length > 0 && (
-        <div className="zwf-status zwf-status-danger" role="status">
+        <div className="zwf-status zwf-status-danger zwf-callout" role="status">
           <span className="zwf-dot" aria-hidden="true" />
           <span>
             {problemCount(problems.length)}
@@ -109,7 +133,7 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
 
       {node.type === "start" ? (
         ed.triggerEditor ? (
-          <>
+          <div className="zwf-card">
             <TriggerPanel value={ed.triggerEditor.value} onChange={ed.triggerEditor.onChange} events={ed.triggerEditor.events} />
             {ed.triggerEditor.interrupts && (
               <InterruptsPanel
@@ -121,34 +145,49 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
                   .map((st) => ({ code: st.code, name: nameOf(ed.graph, st.code) }))}
               />
             )}
-          </>
+          </div>
         ) : (
-          <p className="zwf-muted">{ed.triggerSummary || "Every run begins here. The trigger is set on the workflow, not on this node."}</p>
+          <p className="zwf-muted zwf-card">{ed.triggerSummary || "Every run begins here. The trigger is set on the workflow, not on this node."}</p>
         )
       ) : (
-        <>
+        <div className="zwf-card zwf-fields">
           <label className="zwf-field">
             <span>Name</span>
             <input value={node.name ?? ""} placeholder={node.id} readOnly={ro} onChange={(e) => ed.update((g) => setNodeName(g, node.id, e.target.value), { coalesce: `name:${node.id}` })} />
           </label>
-          <label className="zwf-field">
-            <span>Id (the step's code)</span>
-            <input
-              value={idDraft}
-              readOnly={ro}
-              spellCheck={false}
-              onChange={(e) => setIdDraft(e.target.value)}
-              onBlur={commitId}
-              onKeyDown={(e) => e.key === "Enter" && commitId()}
-              aria-invalid={idError ? true : undefined}
-            />
-            {idError && <span className="zwf-ink-danger">{idError}</span>}
-          </label>
-        </>
+          <div className="zwf-field">
+            <label className="zwf-field">
+              <span>Id (the step's code)</span>
+              <input
+                value={idDraft}
+                readOnly={ro}
+                spellCheck={false}
+                onChange={(e) => setIdDraft(e.target.value)}
+                onBlur={commitId}
+                onKeyDown={(e) => e.key === "Enter" && commitId()}
+                aria-invalid={idError ? true : undefined}
+                aria-describedby={`${uid}-id-help`}
+                className="zwf-mono"
+              />
+            </label>
+            {idError ? (
+              <span id={`${uid}-id-help`} className="zwf-field-error" role="alert">
+                {idError}
+              </span>
+            ) : (
+              <span id={`${uid}-id-help`} className="zwf-help">
+                Runs, reports and other steps refer to this step by its code.
+              </span>
+            )}
+          </div>
+        </div>
       )}
 
       {!structural && (
-        <section className="zwf-section" aria-label="Settings">
+        <section className="zwf-section zwf-card" aria-label="Settings">
+          <Heading level={ed.headingLevel + 1} className="zwf-subheading zwf-card-title">
+            Settings
+          </Heading>
           {HostInspector ? (
             <HostInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
           ) : (
@@ -167,22 +206,27 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
       <WaysOut node={node} focusEdge={focusEdge} />
 
       {node.type !== "start" && node.type !== "end" && (
-        <label className="zwf-field">
-          <span>Times a loop may come back here (1–100; empty is 25)</span>
-          <input
-            type="number"
-            min={1}
-            max={100}
-            readOnly={ro}
-            value={node.max_passes ?? ""}
-            onChange={(e) => ed.update((g) => setMaxPasses(g, node.id, e.target.value ? Number(e.target.value) : undefined), { coalesce: `passes:${node.id}` })}
-          />
-        </label>
+        <div className="zwf-card">
+          <label className="zwf-field">
+            <span>Times a loop may come back here (1–100; empty is 25)</span>
+            <input
+              type="number"
+              min={1}
+              max={100}
+              readOnly={ro}
+              value={node.max_passes ?? ""}
+              aria-invalid={node.max_passes !== undefined && (node.max_passes < 1 || node.max_passes > 100) ? true : undefined}
+              onChange={(e) => ed.update((g) => setMaxPasses(g, node.id, e.target.value ? Number(e.target.value) : undefined), { coalesce: `passes:${node.id}` })}
+            />
+            {node.max_passes !== undefined && (node.max_passes < 1 || node.max_passes > 100) && <span className="zwf-field-error">Use a number from 1 to 100.</span>}
+          </label>
+        </div>
       )}
 
       {node.type !== "start" && (
-        <div className="zwf-row">
+        <div className="zwf-row zwf-actions">
           <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.copy([node.id])}>
+            <Icon name="copy" size={14} />
             Copy
           </button>
           {node.type !== "end" && (
@@ -199,16 +243,17 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
       )}
 
       {!ro && node.type !== "start" && (
-        <button
-          type="button"
-          className="zwf-button zwf-danger"
-          onClick={() => {
-            ed.update((g) => removeNode(g, node.id));
-            ed.select(null);
-          }}
-        >
-          Remove {nameOf(ed.graph, node.id)}
-        </button>
+        <div className="zwf-danger-zone">
+          <button type="button" className="zwf-button zwf-danger" onClick={() => remove([node.id])}>
+            <Icon name="trash" size={14} />
+            Remove {nameOf(ed.graph, node.id)}
+          </button>
+          {branch.length > 1 && (
+            <button type="button" className="zwf-button zwf-danger zwf-quiet-danger" onClick={() => remove(branch, "branch")}>
+              Remove it and everything after it ({branch.length} steps)
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
@@ -473,10 +518,12 @@ function SeveralNodes({ ids }: { ids: string[] }) {
           type="button"
           className="zwf-button zwf-danger"
           onClick={() => {
+            if (ed.removeNodes) return ed.removeNodes(removable);
             ed.update((g) => removeNodes(g, removable));
             ed.select(null);
           }}
         >
+          <Icon name="trash" size={14} />
           Remove {removable.length} node{removable.length === 1 ? "" : "s"}
         </button>
       )}

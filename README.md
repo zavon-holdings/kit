@@ -86,8 +86,31 @@ The `api` is optional member by member (`validate`, `simulate`,
   (install all three kit packs). Depends on `@xyflow/react` (MIT), which
   brings `@xyflow/system`, `zustand`, `classcat` (MIT) and the `d3-*` modules
   it uses (ISC, `d3-ease` BSD-3-Clause), all from npm and bundled by the host.
+- **The look** (1.9): node cards coloured by category (Logic, People and
+  approvals, Messages, Money, Timing, Apps and integrations; start and end)
+  with an icon chip, the name and one line that says who, when or what
+  (`summarize`); the start a pill and each end an outcome badge toned by
+  its outcome; edges curved, their outcome labels toned by meaning
+  (`outcomeTone`: approved and yes ok, rejected and no danger, timeout,
+  expired and overdue warn), flowing on hover and along a simulated path; a
+  palette of described cards with search, clicked or dragged onto the
+  canvas; a sectioned inspector; icon buttons with tooltips, zoom, a
+  readable Fit (`fitView`) and an overview map; an empty canvas that offers
+  the first step. The first view (`readableView`) fits a tall tree to its
+  width at a readable size from the top; far out, a card drops its details
+  and its name grows. A lane's label sits clear of the cards it passes.
+- **Confirmation cards** (`ConfirmDialog`, a modal alertdialog with the
+  impact listed, exported for a host's own publish, go-live or discard).
+  Removing a step with everything only it reaches (`branchOf`) always asks;
+  `confirmRemovals` makes every removal ask. Otherwise a removal is at once
+  and offers Restore, and Undo always brings it back.
 - No typography of its own; colours are `--zwf-*` CSS variables a host sets
-  on any element around the editor. Status is tint, dot and words. The
+  on any element around the editor — the base set, `--zwf-on-accent`,
+  `--zwf-cat-{logic,people,messages,money,timing,apps,structure}`,
+  `--zwf-shadow-{sm,md,lg}`, `--zwf-backdrop`, and optionally
+  `--zwf-edge[-ok|-danger|-warn]`, `--zwf-grid`, `--zwf-canvas-ground`.
+  Tints are worked out from them, so a dark host sets the same variables
+  darker. Status is tint, dot and words. The
   editor's headings start at `headingLevel` (2 unless the host says), so
   they follow the host page's own outline.
 - Every canvas edit is possible in the List tab with ordinary controls;

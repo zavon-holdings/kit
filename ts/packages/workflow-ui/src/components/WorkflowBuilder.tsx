@@ -10,7 +10,9 @@ import { positions } from "../layout.js";
 import { isTyping, shortcutFor } from "../shortcuts.js";
 import type { ApiError, Graph, Inspectors, Problem, Sample, Selection, Step, WorkflowApi } from "../types.js";
 import type { CatalogueEvent, Interrupt, Trigger } from "../trigger.js";
-import { EditorContext, useReducedMotion, type Editor, type TriggerEditor } from "./context.js";
+import { EditorContext, nameOf, useReducedMotion, type ConfirmRequest, type Editor, type TriggerEditor } from "./context.js";
+import { ConfirmDialog } from "./ConfirmDialog.js";
+import { Icon } from "./icons.js";
 import { ExportMenu } from "./ExportMenu.js";
 import { FindNode } from "./FindNode.js";
 import { Inspector } from "./Inspector.js";
@@ -64,6 +66,12 @@ export type WorkflowBuilderProps = {
   title?: string;
   /** The level the editor's headings start at, under the host's own (default 2). */
   headingLevel?: number;
+  /**
+   * Ask before removing nodes (a confirmation card with what goes). Off by
+   * default: a removal happens at once and offers Restore, and Undo always
+   * brings it back. Removing a step with everything after it always asks.
+   */
+  confirmRemovals?: boolean;
 };
 
 const DEFAULT_SAMPLE: Sample = { subject: { type: "person", pid: "sample-1" }, vars: {} };
@@ -116,6 +124,8 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
   const [sheet, setSheet] = useState(false);
   const [said, setSaid] = useState("");
   const [scenariosTick, setScenariosTick] = useState(0);
+  const [ask, setAsk] = useState<ConfirmRequest | null>(null);
+  const [removedCard, setRemovedCard] = useState<{ words: string; key: number; at: Graph } | null>(null);
   const findRef = useRef<HTMLInputElement>(null);
 
   // The latest graph, so two edits in one event compose rather than race.
@@ -213,14 +223,52 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
     [readOnly, update, setFocus],
   );
 
-  const removeSelected = useCallback(() => {
-    if (readOnly || ids.length === 0) return;
-    const removable = ids.filter((id) => graph.nodes.find((n) => n.id === id)?.type !== "start");
-    if (removable.length === 0) return;
-    update((g) => removeNodes(g, removable));
-    setSelection(null);
-    setSaid(`Removed ${removable.length} node${removable.length === 1 ? "" : "s"}.`);
-  }, [readOnly, ids, graph, update]);
+  /** Removes nodes: at once (with Restore), or after a confirmation. A branch always asks. */
+  const removeNodesFlow = useCallback(
+    (which: string[], how: "nodes" | "branch" = "nodes") => {
+      if (readOnly) return;
+      const g = latest.current;
+      const removable = which.filter((id) => g.nodes.find((n) => n.id === id)?.type !== "start");
+      if (removable.length === 0) return;
+      const names = removable.map((id) => nameOf(g, id));
+      const words = removable.length === 1 ? names[0] : `${removable.length} node${removable.length === 1 ? "" : "s"}`;
+      const go = () => {
+        update((gg) => removeNodes(gg, removable));
+        setSelection(null);
+        setSaid(`Removed ${removable.length} node${removable.length === 1 ? "" : "s"}.`);
+        setRemovedCard({ words: `Removed ${words}.`, key: Date.now(), at: latest.current });
+      };
+      if (how !== "branch" && !props.confirmRemovals) return go();
+      const ids = new Set(removable);
+      const cut = g.edges.filter((e) => ids.has(e.to) && !ids.has(e.from)).length;
+      const listed = names.length <= 4 ? names.join(", ") : `${names.slice(0, 3).join(", ")} and ${names.length - 3} more`;
+      setAsk({
+        title: removable.length === 1 ? `Remove ${names[0]}?` : `Remove ${removable.length} steps?`,
+        description: how === "branch" ? "This removes the step and every step that can only be reached through it." : "The steps and their connections are removed from the drawing.",
+        impact: [
+          `${removable.length === 1 ? "Removes" : `Removes ${removable.length} steps:`} ${listed}`,
+          cut > 0 ? `${cut} connection${cut === 1 ? "" : "s"} into ${removable.length === 1 ? "it" : "them"} from other steps ${cut === 1 ? "is" : "are"} removed too` : "No other step connects into them",
+          `Undo brings ${removable.length === 1 ? "it" : "them"} back`,
+        ],
+        confirmLabel: removable.length === 1 ? "Remove step" : `Remove ${removable.length} steps`,
+        tone: "danger",
+        onConfirm: go,
+      });
+    },
+    [readOnly, update, props.confirmRemovals],
+  );
+
+  const removeSelected = useCallback(() => removeNodesFlow(ids), [removeNodesFlow, ids]);
+
+  // The Restore card goes after a while, or once anything else changes; Undo stays in the toolbar.
+  useEffect(() => {
+    if (removedCard && graph !== removedCard.at) setRemovedCard(null);
+  }, [graph, removedCard]);
+  useEffect(() => {
+    if (!removedCard) return;
+    const t = setTimeout(() => setRemovedCard(null), 8000);
+    return () => clearTimeout(t);
+  }, [removedCard]);
 
   const reveal = useCallback(
     (id: string) => {
@@ -269,7 +317,10 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
     bumpScenarios: () => setScenariosTick((t) => t + 1),
     snapToGrid,
     minimap,
+    setMinimap,
     triggerEditor,
+    confirm: setAsk,
+    removeNodes: removeNodesFlow,
   };
 
   const check = async () => {
@@ -407,43 +458,50 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
           <FindNode inputRef={findRef} />
           <div className="zwf-row zwf-bar-actions">
             {readOnly && (
-              <span className="zwf-status zwf-status-muted">
+              <span className="zwf-status zwf-status-muted zwf-readonly-badge">
                 <span className="zwf-dot" aria-hidden="true" />
                 Read only
               </span>
             )}
             {!readOnly && (
               <>
-                <button type="button" className="zwf-button" onClick={undo} disabled={history.past.length === 0} aria-keyshortcuts="Control+Z Meta+Z">
-                  Undo
-                </button>
-                <button type="button" className="zwf-button" onClick={redo} disabled={history.future.length === 0} aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z">
-                  Redo
-                </button>
-                <button type="button" className="zwf-button" onClick={() => update(layoutAll)}>
-                  Tidy the layout
-                </button>
-                <button
-                  type="button"
-                  className="zwf-button"
-                  onClick={() => {
-                    const about = ids.length === 1 ? ids[0] : undefined;
-                    update((g) => {
-                      const at = positions(g);
-                      const p = about ? at[about] : undefined;
-                      const xs = Object.values(at).map((q) => q.x);
-                      const spot = p ? { x: p.x + 220, y: p.y } : { x: (xs.length ? Math.max(...xs) : 0) + 260, y: 0 };
-                      return addNote(g, spot, "", about).graph;
-                    });
-                    setSaid(about ? "Added a note beside the selected node." : "Added a note.");
-                  }}
-                >
-                  Add a note
-                </button>
+                <span className="zwf-button-group">
+                  <button type="button" className="zwf-icon-button" aria-label="Undo" data-tip="Undo" onClick={undo} disabled={history.past.length === 0} aria-keyshortcuts="Control+Z Meta+Z">
+                    <Icon name="undo" />
+                  </button>
+                  <button type="button" className="zwf-icon-button" aria-label="Redo" data-tip="Redo" onClick={redo} disabled={history.future.length === 0} aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z">
+                    <Icon name="redo" />
+                  </button>
+                </span>
+                <span className="zwf-button-group">
+                  <button type="button" className="zwf-icon-button" aria-label="Tidy the layout" data-tip="Tidy the layout" onClick={() => update(layoutAll)}>
+                    <Icon name="tidy" />
+                  </button>
+                  <button
+                    type="button"
+                    className="zwf-icon-button"
+                    aria-label="Add a note"
+                    data-tip="Add a note"
+                    onClick={() => {
+                      const about = ids.length === 1 ? ids[0] : undefined;
+                      update((g) => {
+                        const at = positions(g);
+                        const p = about ? at[about] : undefined;
+                        const xs = Object.values(at).map((q) => q.x);
+                        const spot = p ? { x: p.x + 220, y: p.y } : { x: (xs.length ? Math.max(...xs) : 0) + 260, y: 0 };
+                        return addNote(g, spot, "", about).graph;
+                      });
+                      setSaid(about ? "Added a note beside the selected node." : "Added a note.");
+                    }}
+                  >
+                    <Icon name="note" />
+                  </button>
+                </span>
               </>
             )}
             {api?.validate && (
               <button type="button" className="zwf-button" onClick={check} disabled={checking === "busy"}>
+                <Icon name="check" size={14} />
                 {checking === "busy" ? "Checking…" : "Check with the server"}
               </button>
             )}
@@ -473,8 +531,8 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
                 </label>
               </div>
             </details>
-            <button type="button" className="zwf-button zwf-quiet" onClick={() => setSheet(true)} aria-keyshortcuts="Shift+?">
-              Keyboard shortcuts
+            <button type="button" className="zwf-icon-button" aria-label="Keyboard shortcuts" data-tip="Keyboard shortcuts" onClick={() => setSheet(true)} aria-keyshortcuts="Shift+?">
+              <Icon name="keyboard" />
             </button>
             {toolbar}
           </div>
@@ -521,6 +579,35 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
             </div>
           ))}
         </div>
+        {removedCard && !readOnly && (
+          <div className="zwf-toast" key={removedCard.key} role="status">
+            <Icon name="trash" size={14} />
+            <span>{removedCard.words}</span>
+            <button
+              type="button"
+              className="zwf-link"
+              onClick={() => {
+                if (latest.current === removedCard.at) undo();
+                setRemovedCard(null);
+              }}
+            >
+              Restore
+            </button>
+            <button type="button" className="zwf-toast-close" aria-label="Dismiss" onClick={() => setRemovedCard(null)}>
+              <Icon name="x" size={14} />
+            </button>
+          </div>
+        )}
+        {ask && (
+          <ConfirmDialog
+            {...ask}
+            onCancel={() => setAsk(null)}
+            onConfirm={() => {
+              setAsk(null);
+              ask.onConfirm();
+            }}
+          />
+        )}
         {sheet && <ShortcutsSheet mac={isMac()} onClose={() => setSheet(false)} />}
       </section>
     </EditorContext.Provider>
