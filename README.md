@@ -30,6 +30,7 @@ are passed as strings.
 | `@zavon/conditions`      | The workflow condition language: parse, evaluate, describe, fields. |
 | `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. Draws decisions, forks, loops, approvals, sub-workflows, payment requests and invoices (each one node, compiled to a sequence), and carries canvas notes that never compile. |
 | `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
+| `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; "seen" through a storage adapter. |
 
 ### `@zavon/workflow-ui`
 
@@ -119,6 +120,55 @@ The `api` is optional member by member (`validate`, `simulate`,
   Axe runs over every editor state in the package's tests.
 - Built with `tsc` into `dist/` when packed; `npm test` typechecks and runs
   vitest with testing-library.
+
+### `@zavon/tour`
+
+Tours are data: an id, an optional `version`, and steps of `{ id, target,
+title, body, docsUrl?, learnLabel?, placement? }`. A step's `target` is the
+value of a `data-tour` attribute on the host's page — never a free CSS
+selector — so a host test can read every target with `targetsOf(tours)` and
+check its own source still renders each one; `docsUrlsOf` does the same for
+the links, and `validateTour` names anything malformed.
+
+```tsx
+import "@zavon/tour/styles.css";
+import { TourProvider, useTours, fallbackStore, localStorageStore } from "@zavon/tour";
+
+<TourProvider
+  tours={tours}
+  person={user?.id}              // nothing starts until the person is known
+  scope="my-app"                 // records are per person, per product
+  autoStart="first-run"          // starts once, on the first visit
+  docsBase="https://example.org/docs"
+  store={fallbackStore(serverStore, localStorageStore())}
+>
+  {app}
+</TourProvider>
+
+const { start } = useTours();   // a Help menu's "Take the tour": start("first-run")
+```
+
+- **On screen** (`Spotlight`): the page dimmed with a cut-out around the
+  target and the tooltip beside it on whichever side fits; a step with no
+  target sits in the middle. At 640px and below the tooltip is a sheet along
+  the bottom. A step whose target is not on the page is skipped and not
+  counted; a tour with nothing to point at waits briefly, then closes as
+  `unavailable`, which is not recorded as seen.
+- **Never traps**: Escape, "Skip tour" and the close button end it from any
+  step; a click on the dimmed page does nothing. The tooltip is a modal
+  dialog named by its title and described by its body; focus moves into it on
+  every step, Tab stays inside it, and focus returns where it was. Arrow keys
+  step; a live region says "Step 2 of 5". The docs link opens in a new tab and
+  says so. `prefers-reduced-motion` turns off every transition and smooth
+  scroll.
+- **Seen state** through a `TourStore` (`get`, `set` of a `TourRecord`):
+  `localStorageStore` (never throws), `memoryStore`, and `fallbackStore`
+  (a host's server first, the device's copy when it fails). A record from an
+  older `version` counts as not seen. The package holds no fetch code.
+- No typography of its own; colours, radius and z-index are `--ztour-*` CSS
+  variables. Every label is a prop (`labels`). Axe runs over the tooltip in
+  the package's tests.
+- Peers: `react`, `react-dom`. No other dependencies.
 
 ## Contract vectors (`contract/`)
 
