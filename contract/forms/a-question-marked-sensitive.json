@@ -7,7 +7,7 @@
         "fields": [
           {
             "key": "note",
-            "label": "Pastoral note",
+            "label": "Confidential note",
             "sensitive": true,
             "type": "paragraph"
           },

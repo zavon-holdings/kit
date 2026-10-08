@@ -168,7 +168,7 @@ func TestATriggersConditionTreeSurvivesARoundTrip(t *testing.T) {
 	// next save of anything else.
 	ctx := context.Background()
 	f, c := newFakeCore(t)
-	f.answer = `{"uid":"d1","trigger":{"kind":"event","event_type":"acme.thing.made","filter":{"any":[{"field":"campus","op":"is","value":"North"},{"field":"campus","op":"is","value":"South"}]}}}`
+	f.answer = `{"uid":"d1","trigger":{"kind":"event","event_type":"acme.thing.made","filter":{"any":[{"field":"location","op":"is","value":"North"},{"field":"location","op":"is","value":"South"}]}}}`
 	d, err := c.GetDefinition(ctx, "d1")
 	if err != nil || d.Trigger == nil || !strings.Contains(string(d.Trigger.Filter), `"any"`) {
 		t.Fatalf("read %+v %v", d.Trigger, err)
