@@ -30,7 +30,7 @@ are passed as strings.
 | `@zavon/conditions`      | The workflow condition language: parse, evaluate, describe, fields. |
 | `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. Draws decisions, forks, loops, approvals, sub-workflows, payment requests and invoices (each one node, compiled to a sequence), and carries canvas notes that never compile. |
 | `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
-| `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; "seen" through a storage adapter. |
+| `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; progress through a storage adapter — this browser, or a server with an offline queue (1.1) — and What's new. |
 
 ### `@zavon/workflow-ui`
 
@@ -132,20 +132,20 @@ the links, and `validateTour` names anything malformed.
 
 ```tsx
 import "@zavon/tour/styles.css";
-import { TourProvider, useTours, fallbackStore, localStorageStore } from "@zavon/tour";
+import { TourProvider, useTours, createServerTourStore } from "@zavon/tour";
 
 <TourProvider
   tours={tours}
-  person={user?.id}              // nothing starts until the person is known
+  person={user?.sub}             // a stable account id; nothing starts until it is known
   scope="my-app"                 // records are per person, per product
   autoStart="first-run"          // starts once, on the first visit
   docsBase="https://example.org/docs"
-  store={fallbackStore(serverStore, localStorageStore())}
+  store={createServerTourStore({ fetch: authedFetch, endpoint: "https://id.example.org/api/me", app: "my-app" })}
 >
   {app}
 </TourProvider>
 
-const { start } = useTours();   // a Help menu's "Take the tour": start("first-run")
+const { start, restart } = useTours();   // Help menu: start("first-run"), "Restart tour": restart("first-run")
 ```
 
 - **On screen** (`Spotlight`): the page dimmed with a cut-out around the
@@ -164,7 +164,36 @@ const { start } = useTours();   // a Help menu's "Take the tour": start("first-r
 - **Seen state** through a `TourStore` (`get`, `set` of a `TourRecord`):
   `localStorageStore` (never throws), `memoryStore`, and `fallbackStore`
   (a host's server first, the device's copy when it fails). A record from an
-  older `version` counts as not seen. The package holds no fetch code.
+  older `version`, or one that is not finished, counts as not seen.
+- **Progress on a server** (1.1, `createServerTourStore({ fetch, endpoint,
+  app, legacy? })`): the host's `fetch` (it adds and renews the credential)
+  and an address; the package names no service. Reads ask the server once
+  per person and fall back to this browser's copy; writes go to the copy at
+  once and to the server through a queue in localStorage, retried with
+  backoff, flushed with `keepalive` when the page is hidden and when the
+  browser comes back online; a 400/403/404 is dropped, a 401/429/5xx waits.
+  Everything local is filed under the person (the host's account id, never
+  an address), and only the person named last is ever sent, so two people
+  on one browser never share an answer or a queue. `legacy: { prefix, scope,
+  person }` sends a pre-1.1 host's localStorage records up once, with their
+  dates, so nobody who finished a tour sees it again. Wire:
+  `GET {endpoint}/tours?app=`, `PUT|DELETE {endpoint}/tours/{app}/{tour}`,
+  `POST {endpoint}/tours/{app}/events` (batches of 50, each event with a
+  client id; writes carry the reset count they were made under as `gen`).
+- **Step events** (1.1): the provider tells a store's optional `event` each
+  step `shown`, `next` or `back` (the step the button was pressed on),
+  `completed` and `skipped`; `get`/`set` receive `{ tour, version, person,
+  scope }`. `useTours().restart(id)` is "Restart tour": the store's optional
+  `reset` forgets the record (on the server too), then the tour starts.
+- **What's new** (1.1): `createAnnouncementsClient({ fetch, endpoint, app,
+  mainTour })` lists a person's notes (`GET {endpoint}/announcements`) and
+  posts receipts (`shown`, `toasted`, `opened`, `tour_started`,
+  `tour_completed`, `dismissed`); the server decides who sees what.
+  `useWhatsNew` is the state a Help menu draws: items, the `unseen` badge,
+  `markShown`, `dismiss`, `opened`, `showMe` (the tour to start),
+  `tourClosed` (records a "Show me" tour's last step), and `toast` — at most
+  one big-ticket note a day across products (`toastCandidate`). Provide it
+  once per page with `WhatsNewContext`. The drawing is the host's.
 - No typography of its own; colours, radius and z-index are `--ztour-*` CSS
   variables. Every label is a prop (`labels`). Axe runs over the tooltip in
   the package's tests.

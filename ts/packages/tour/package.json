@@ -1,7 +1,7 @@
 {
   "name": "@zavon/tour",
-  "version": "1.0.0",
-  "description": "A spotlight tour for React: a dimmed page with a cut-out around each step's target, a tooltip with a link to further reading, next, back and skip — tours as data, seen state through a storage adapter.",
+  "version": "1.1.0",
+  "description": "A spotlight tour for React: a dimmed page with a cut-out around each step’s target, a tooltip with a link to further reading, next, back and skip — tours as data, progress through a storage adapter (local, or a server with an offline queue), and What’s new.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

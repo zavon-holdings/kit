@@ -3,7 +3,7 @@
 // for a Help menu's "Take the tour".
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Spotlight, type CloseReason, type TourLabels } from "./Spotlight.js";
-import { isSeen, localStorageStore, tourKey, type TourStore } from "./storage.js";
+import { isSeen, localStorageStore, tourKey, type TourStepAction, type TourStore, type TourStoreContext } from "./storage.js";
 import type { Tour, TourStep } from "./tour.js";
 
 export type TourContextValue = {
@@ -11,6 +11,12 @@ export type TourContextValue = {
   tours: Tour[];
   /** Start a tour now, seen or not. False when there is no such tour. */
   start: (id: string) => boolean;
+  /**
+   * "Restart tour" (1.1): forget the person's record (the store's `reset`,
+   * on the server too for a server store), then start it from the first
+   * step. False when there is no such tour.
+   */
+  restart: (id: string) => boolean;
   /** The id of the tour on screen, or null. */
   active: string | null;
   /** Whether the person has seen a tour; undefined until the store has answered. */
@@ -25,6 +31,7 @@ export function useTours(): TourContextValue {
     useContext(TourContext) ?? {
       tours: [],
       start: () => false,
+      restart: () => false,
       active: null,
       seen: () => undefined,
     }
@@ -78,6 +85,24 @@ export function TourProvider({
   const autoTried = useRef<string | null>(null);
   const byId = useMemo(() => new Map(tours.map((t) => [t.id, t])), [tours]);
   const keyFor = useCallback((id: string) => tourKey({ tour: id, person: person ?? "", scope }), [person, scope]);
+  const ctxFor = useCallback(
+    (id: string): TourStoreContext => ({ tour: id, version: byId.get(id)?.version ?? 1, person: person ?? "", scope }),
+    [person, scope, byId],
+  );
+  // The step on screen, so the next one shown can say whether it came by
+  // Next or by Back.
+  const lastStep = useRef<{ tour: string; index: number; id: string } | null>(null);
+  const record = useCallback(
+    (tour: string, action: TourStepAction, index: number, step: string) => {
+      if (!person || !store.event) return;
+      try {
+        void Promise.resolve(store.event({ action, step, index, at: new Date().toISOString() }, ctxFor(tour))).catch(() => {});
+      } catch {
+        /* history is best effort; the tour goes on */
+      }
+    },
+    [person, store, ctxFor],
+  );
 
   // Ask the store about every tour once the person is known.
   useEffect(() => {
@@ -87,7 +112,7 @@ export function TourProvider({
     Promise.all(
       tours.map(async (t) => {
         try {
-          return [t.id, isSeen(await store.get(keyFor(t.id)), t.version ?? 1)] as const;
+          return [t.id, isSeen(await store.get(keyFor(t.id), ctxFor(t.id)), t.version ?? 1)] as const;
         } catch {
           return [t.id, false] as const;
         }
@@ -98,6 +123,8 @@ export function TourProvider({
     return () => {
       cancelled = true;
     };
+    // ctxFor follows person and tours, which are here already.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [person, tours, store, keyFor]);
 
   // The first visit: start the tour once, after the store said "not seen".
@@ -114,10 +141,42 @@ export function TourProvider({
   const start = useCallback(
     (id: string) => {
       if (!byId.has(id)) return false;
+      lastStep.current = null;
       setActive(id);
       return true;
     },
     [byId],
+  );
+
+  const restart = useCallback(
+    (id: string) => {
+      if (!byId.has(id)) return false;
+      setSeenMap((m) => ({ ...m, [id]: false }));
+      const begin = () => {
+        lastStep.current = null;
+        setActive(id);
+      };
+      if (person && store.reset) {
+        // Start once the store has forgotten, so the steps that follow are
+        // written after the reset; a failed reset still starts the tour.
+        void store.reset(keyFor(id), ctxFor(id)).then(begin, begin);
+      } else begin();
+      return true;
+    },
+    [byId, person, store, keyFor, ctxFor],
+  );
+
+  const onShow = useCallback(
+    (tour: string, index: number, step: TourStep) => {
+      const prev = lastStep.current;
+      if (prev && prev.tour === tour && prev.index !== index) {
+        record(tour, index > prev.index ? "next" : "back", prev.index, prev.id);
+      }
+      lastStep.current = { tour, index, id: step.id };
+      record(tour, "shown", index, step.id);
+      onStep?.(tour, index, step);
+    },
+    [record, onStep],
   );
 
   const close = useCallback(
@@ -126,25 +185,32 @@ export function TourProvider({
       setActive(null);
       if (!id) return;
       onClose?.(id, reason, step);
+      const last = lastStep.current;
+      lastStep.current = null;
       // Nothing to point at is not "seen": the next visit tries again.
       if (reason === "unavailable" || !person) return;
       const tour = byId.get(id);
+      record(id, reason === "completed" ? "completed" : "skipped", step, last && last.tour === id ? last.id : tour?.steps[step]?.id ?? "");
       setSeenMap((m) => ({ ...m, [id]: true }));
       void store
-        .set(keyFor(id), {
-          status: reason === "completed" ? "completed" : "dismissed",
-          version: tour?.version ?? 1,
-          at: new Date().toISOString(),
-          ...(reason === "dismissed" ? { step } : {}),
-        })
+        .set(
+          keyFor(id),
+          {
+            status: reason === "completed" ? "completed" : "dismissed",
+            version: tour?.version ?? 1,
+            at: new Date().toISOString(),
+            ...(reason === "dismissed" ? { step } : {}),
+          },
+          ctxFor(id),
+        )
         .catch(() => {});
     },
-    [active, person, byId, store, keyFor, onClose],
+    [active, person, byId, store, keyFor, ctxFor, onClose, record],
   );
 
   const value = useMemo<TourContextValue>(
-    () => ({ tours, start, active, seen: (id) => seenMap[id] }),
-    [tours, start, active, seenMap],
+    () => ({ tours, start, restart, active, seen: (id) => seenMap[id] }),
+    [tours, start, restart, active, seenMap],
   );
   const tour = active ? byId.get(active) : undefined;
 
@@ -159,7 +225,7 @@ export function TourProvider({
           docsBase={docsBase}
           labels={labels}
           headingLevel={headingLevel}
-          onStep={onStep ? (i, s) => onStep(tour.id, i, s) : undefined}
+          onStep={(i, s) => onShow(tour.id, i, s)}
         />
       ) : null}
     </TourContext.Provider>
