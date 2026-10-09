@@ -1,0 +1,101 @@
+{
+  "name": "slot-added",
+  "description": "A adds a slot to a unit; B edits the unit.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Card"
+          },
+          "key": "c",
+          "kind": "card"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Card"
+          },
+          "key": "c",
+          "kind": "card",
+          "slots": {
+            "footer": [
+              {
+                "fields": {
+                  "text": "Small print"
+                },
+                "key": "f1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Card, edited"
+          },
+          "key": "c",
+          "kind": "card"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "title": "Card, edited"
+            },
+            "key": "c",
+            "kind": "card",
+            "slots": {
+              "footer": [
+                {
+                  "fields": {
+                    "text": "Small print"
+                  },
+                  "key": "f1",
+                  "kind": "text"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

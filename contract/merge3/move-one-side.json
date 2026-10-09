@@ -1,0 +1,151 @@
+{
+  "name": "move-one-side",
+  "description": "A moves a unit into a group; B edits it.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "Child"
+                },
+                "key": "c1",
+                "kind": "text"
+              }
+            ]
+          }
+        },
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "Child"
+                },
+                "key": "c1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "Child"
+                },
+                "key": "c1",
+                "kind": "text"
+              }
+            ]
+          }
+        },
+        {
+          "fields": {
+            "text": "One, edited"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "title": "Group"
+            },
+            "key": "g1",
+            "kind": "group",
+            "slots": {
+              "items": [
+                {
+                  "fields": {
+                    "text": "Child"
+                  },
+                  "key": "c1",
+                  "kind": "text"
+                },
+                {
+                  "fields": {
+                    "text": "One, edited"
+                  },
+                  "key": "p1",
+                  "kind": "text"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

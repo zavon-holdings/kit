@@ -1,0 +1,211 @@
+{
+  "name": "move-into-new-keyless-group",
+  "description": "A moves a unit into a group without a key that A added; B moves it elsewhere. The conflict names the new group by its synthetic key, which is a digest of its content.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": []
+          }
+        },
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": []
+          }
+        },
+        {
+          "fields": {
+            "title": "New group"
+          },
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": {
+          "parent": "~~/body/+11930facaac50d03#0",
+          "slot": "items"
+        },
+        "b": {
+          "parent": "g1",
+          "slot": "items"
+        },
+        "base": {
+          "parent": "~",
+          "slot": "body"
+        },
+        "id": "move:p1",
+        "key": "p1",
+        "kind": "move",
+        "path": "@parent"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "title": "Group"
+            },
+            "key": "g1",
+            "kind": "group",
+            "slots": {
+              "items": []
+            }
+          },
+          {
+            "fields": {
+              "title": "New group"
+            },
+            "kind": "group",
+            "slots": {
+              "items": [
+                {
+                  "fields": {
+                    "text": "One"
+                  },
+                  "key": "p1",
+                  "kind": "text"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take A",
+      "decisions": {
+        "move:p1": {
+          "choice": "a"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g1",
+                "kind": "group",
+                "slots": {
+                  "items": []
+                }
+              },
+              {
+                "fields": {
+                  "title": "New group"
+                },
+                "kind": "group",
+                "slots": {
+                  "items": [
+                    {
+                      "fields": {
+                        "text": "One"
+                      },
+                      "key": "p1",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

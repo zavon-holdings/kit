@@ -1,0 +1,122 @@
+{
+  "name": "field-removed-vs-edited",
+  "description": "A removes a field B edits: a conflict whose A side is absent.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "note": "x",
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "note": "y",
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "b": "y",
+        "base": "x",
+        "id": "field:p1:note",
+        "key": "p1",
+        "kind": "field",
+        "path": "note"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "One"
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take A removes the field",
+      "decisions": {
+        "field:p1:note": {
+          "choice": "a"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

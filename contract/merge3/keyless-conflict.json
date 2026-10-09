@@ -1,0 +1,146 @@
+{
+  "name": "keyless-conflict",
+  "description": "Both edit a keyless unit's field differently: the conflict names its synthetic key.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One A"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One B"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": "One A",
+        "b": "One B",
+        "base": "One",
+        "id": "field:~~/body/0:text",
+        "key": "~~/body/0",
+        "kind": "field",
+        "path": "text"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "One A"
+            },
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "Two"
+            },
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take B",
+      "decisions": {
+        "field:~~/body/0:text": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "One B"
+                },
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Two"
+                },
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

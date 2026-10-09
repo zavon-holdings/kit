@@ -1,0 +1,109 @@
+{
+  "name": "add-same-key-both",
+  "description": "Both add a unit with the same key and different content: field conflicts without a base.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "From A"
+          },
+          "key": "n",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "From B"
+          },
+          "key": "n",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": "From A",
+        "b": "From B",
+        "id": "field:n:text",
+        "key": "n",
+        "kind": "field",
+        "path": "text"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "One"
+            },
+            "key": "p1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "From A"
+            },
+            "key": "n",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

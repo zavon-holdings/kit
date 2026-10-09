@@ -1,0 +1,121 @@
+{
+  "name": "kind-conflict",
+  "description": "Both change a unit's kind differently: a field conflict at @kind.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "heading"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "quote"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": "heading",
+        "b": "quote",
+        "base": "text",
+        "id": "field:p1:@kind",
+        "key": "p1",
+        "kind": "field",
+        "path": "@kind"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "One"
+            },
+            "key": "p1",
+            "kind": "heading"
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take B",
+      "decisions": {
+        "field:p1:@kind": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "quote"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

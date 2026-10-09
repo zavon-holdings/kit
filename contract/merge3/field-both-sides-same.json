@@ -1,0 +1,107 @@
+{
+  "name": "field-both-sides-same",
+  "description": "Both make the same edit: no conflict.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "Same"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "Same"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "Same"
+            },
+            "key": "p1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "Two"
+            },
+            "key": "p2",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "name": "keyless-by-kind",
+  "description": "Units without keys whose content changed are matched by kind in order.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Hello"
+          },
+          "kind": "heading"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One, edited"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Hello"
+          },
+          "kind": "heading"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Hello"
+          },
+          "kind": "heading"
+        },
+        {
+          "fields": {
+            "text": "Two, edited"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "One, edited"
+            },
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "Hello"
+            },
+            "kind": "heading"
+          },
+          {
+            "fields": {
+              "text": "Two, edited"
+            },
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

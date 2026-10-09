@@ -1,0 +1,296 @@
+{
+  "name": "move-cycle",
+  "description": "A moves g1 into g2 and B moves g2 into g1: both moves conflict.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "In one"
+                },
+                "key": "c1",
+                "kind": "text"
+              }
+            ]
+          }
+        },
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g2",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "In two"
+                },
+                "key": "c2",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g2",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "In two"
+                },
+                "key": "c2",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g1",
+                "kind": "group",
+                "slots": {
+                  "items": [
+                    {
+                      "fields": {
+                        "text": "In one"
+                      },
+                      "key": "c1",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "In one"
+                },
+                "key": "c1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g2",
+                "kind": "group",
+                "slots": {
+                  "items": [
+                    {
+                      "fields": {
+                        "text": "In two"
+                      },
+                      "key": "c2",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": {
+          "parent": "g2",
+          "slot": "items"
+        },
+        "b": {
+          "parent": "~",
+          "slot": "body"
+        },
+        "base": {
+          "parent": "~",
+          "slot": "body"
+        },
+        "id": "move:g1",
+        "key": "g1",
+        "kind": "move",
+        "path": "@parent"
+      },
+      {
+        "a": {
+          "parent": "~",
+          "slot": "body"
+        },
+        "b": {
+          "parent": "g1",
+          "slot": "items"
+        },
+        "base": {
+          "parent": "~",
+          "slot": "body"
+        },
+        "id": "move:g2",
+        "key": "g2",
+        "kind": "move",
+        "path": "@parent"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "title": "Group"
+            },
+            "key": "g2",
+            "kind": "group",
+            "slots": {
+              "items": [
+                {
+                  "fields": {
+                    "text": "In two"
+                  },
+                  "key": "c2",
+                  "kind": "text"
+                },
+                {
+                  "fields": {
+                    "title": "Group"
+                  },
+                  "key": "g1",
+                  "kind": "group",
+                  "slots": {
+                    "items": [
+                      {
+                        "fields": {
+                          "text": "In one"
+                        },
+                        "key": "c1",
+                        "kind": "text"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take B for both",
+      "decisions": {
+        "move:g1": {
+          "choice": "b"
+        },
+        "move:g2": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g1",
+                "kind": "group",
+                "slots": {
+                  "items": [
+                    {
+                      "fields": {
+                        "text": "In one"
+                      },
+                      "key": "c1",
+                      "kind": "text"
+                    },
+                    {
+                      "fields": {
+                        "title": "Group"
+                      },
+                      "key": "g2",
+                      "kind": "group",
+                      "slots": {
+                        "items": [
+                          {
+                            "fields": {
+                              "text": "In two"
+                            },
+                            "key": "c2",
+                            "kind": "text"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "name": "move-vs-delete",
+  "description": "A moves a unit; B deletes it: a delete conflict.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": []
+          }
+        },
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": []
+          }
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "id": "delete:p1",
+        "key": "p1",
+        "kind": "delete",
+        "side": "b"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "title": "Group"
+            },
+            "key": "g1",
+            "kind": "group",
+            "slots": {
+              "items": [
+                {
+                  "fields": {
+                    "text": "One"
+                  },
+                  "key": "p1",
+                  "kind": "text"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
