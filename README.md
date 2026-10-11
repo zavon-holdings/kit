@@ -18,6 +18,7 @@ byte.
 | `outbox`     | An at-least-once outbox: rows added in the caller's transaction, drained later with backoff. |
 | `permits`    | A versioned cache of who holds what in an organisation, with an HTTP refresher and a `Decide` over `policy`. |
 | `merge3`     | A three-way merge of ordered trees of keyed units (a document's blocks, an outline's sections): fields, deletions, moves and order, with conflicts and `Resolve`. Twin of `@zavon/merge3`. |
+| `aiclient`   | A client for an AI gateway's property routes: invoke a tool, start and read a job, the status a screen renders, feedback, and an organisation's AI settings. The credential is read on every request. |
 
 Database access goes through a small `Querier` interface (`Exec`, `QueryRow`)
 that a pgx pool or transaction satisfies; kit imports no driver. JSONB values
@@ -33,6 +34,7 @@ are passed as strings.
 | `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
 | `@zavon/merge3`          | The three-way tree merge, for Node and the browser. Twin of `go/merge3`. |
 | `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; progress through a storage adapter — this browser, or a server with an offline queue (1.1) — and What's new. |
+| `@zavon/assistant`       | AI assistance controls for React: the gateway's wire types, a status hook, a button that shows a tool's credit price or why it is not available, a side sheet for help answers and proposals, a before and after view, and feedback thumbs. Every word comes from the host. |
 
 ### `@zavon/workflow-ui`
 
@@ -254,10 +256,63 @@ const { start, restart } = useTours();   // Help menu: start("first-run"), "Rest
   the package's tests.
 - Peers: `react`, `react-dom`. No other dependencies.
 
+### `@zavon/assistant`
+
+The wire types mirror `go/aiclient` and `contract/ai` field for field
+(`AiStatus`, `AiToolStatus`, `AiJob`, `AiInvokeResult`, `AiFeedback`,
+`AiError` and the rest). The package holds no address and names no product:
+the host passes `load`, `ask` and `onApply`, routed through its own backend,
+and every visible string through `copy`, with neutral English defaults.
+
+```tsx
+import "@zavon/assistant/styles.css";
+import { useAiStatus, AiAction, AssistantSheet, ProposalDiff } from "@zavon/assistant";
+
+const { status, refresh } = useAiStatus({ load: () => api.aiStatus() });
+
+<AiAction status={status} toolKey="docs.section" onRun={run} copy={{ label: "Write a section" }} data-tour="ai-section" />
+
+<AssistantSheet
+  open={open}
+  onClose={close}
+  ask={(question) => api.askDocs(question)}
+  onFeedback={(choice, answer) => api.feedback(answer.usage_event_id, choice)}
+  proposal={<ProposalDiff before={blocks} after={proposed} />}
+  onApply={apply}
+/>
+```
+
+- The UI rule follows the status. When AI is not configured, off or
+  blocked, or the status does not list the tool, `AiAction` renders nothing.
+  For no permission or no credits (or a tool that is not allowed), it is a
+  disabled button with an info tip that gives the reason. When ready, it
+  shows the tool's price. `isShown` and `toolState` give the same answer to
+  a host's own controls.
+- Prices come only from the status: `priceLabel` writes a fixed price, "Up
+  to" the hold of a metered tool, and "Free"; `formatCredits` writes a
+  number of credits to one decimal place. A guard test fails on a credit
+  price or a product name in the package's source.
+- `useAiStatus({ load, refreshMs })` returns `{ status, loading, error,
+  refresh }`. A failed or malformed load gives a null status, so the
+  controls hide; it never throws into render.
+- `AssistantSheet` is a modal side sheet: focus moves in, Tab stays inside,
+  Escape closes it and focus goes back. At 640px and below it fills the
+  screen. Answers show their sources as links that open in a new tab. A
+  proposal is applied only after Apply and then Confirm. `FeedbackThumbs`
+  sends a rating once per choice, with an optional comment of at most 500
+  characters.
+- `ProposalDiff` compares a list of blocks or a set of plain fields and
+  marks each item Added, Removed or Changed in words; `diffItems` and
+  `diffFields` do the same without drawing.
+- No typography of its own; colours, radius and z-index are `--zai-*` CSS
+  variables. `prefers-reduced-motion` turns off the sheet's motion. Axe runs
+  over every component in the package's tests.
+- Peers: `react`, `react-dom`. No other dependencies.
+
 ## Contract vectors (`contract/`)
 
 JSON files every implementation's tests replay: `signature/`, `callback/`,
-`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`.
+`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`.
 `forms/` holds form definitions (valid, or refused at a page and question),
 which pages and questions a respondent sees for given answers, and what a
 submit keeps. A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
