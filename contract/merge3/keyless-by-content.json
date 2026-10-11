@@ -1,0 +1,123 @@
+{
+  "name": "keyless-by-content",
+  "description": "Units without keys are matched by content: A reorders them, B edits a field of the root.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Three"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "Three"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Renamed"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Three"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Renamed"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "Three"
+            },
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "One"
+            },
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "Two"
+            },
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "name": "keyless-same-addition",
+  "description": "Both add the same unit without a key at the same place: kept once.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "New"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "New"
+          },
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "One"
+            },
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "New"
+            },
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

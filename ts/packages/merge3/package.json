@@ -1,0 +1,13 @@
+{
+  "name": "@zavon/merge3",
+  "version": "1.0.0",
+  "description": "A three-way merge of ordered trees of keyed units: fields, deletions, moves and order, with conflicts and their resolution. Twin of kit/go/merge3, held to the vectors in contract/merge3.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  }
+}

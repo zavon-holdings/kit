@@ -1,0 +1,135 @@
+{
+  "name": "add-both-same-place",
+  "description": "Both add after the same unit: A's before B's.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "From A"
+          },
+          "key": "a1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "From B"
+          },
+          "key": "b1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "One"
+            },
+            "key": "p1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "From A"
+            },
+            "key": "a1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "From B"
+            },
+            "key": "b1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "Two"
+            },
+            "key": "p2",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

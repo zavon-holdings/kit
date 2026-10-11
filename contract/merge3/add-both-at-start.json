@@ -1,0 +1,121 @@
+{
+  "name": "add-both-at-start",
+  "description": "Both add at the start.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "A"
+          },
+          "key": "a1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "A2"
+          },
+          "key": "a2",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "B"
+          },
+          "key": "b1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "A"
+            },
+            "key": "a1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "A2"
+            },
+            "key": "a2",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "B"
+            },
+            "key": "b1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "One"
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

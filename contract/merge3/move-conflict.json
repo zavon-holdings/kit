@@ -1,0 +1,349 @@
+{
+  "name": "move-conflict",
+  "description": "A and B move a unit to different groups: a move conflict, tentatively A.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": []
+          }
+        },
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g2",
+          "kind": "group",
+          "slots": {
+            "items": []
+          }
+        },
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        },
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g2",
+          "kind": "group",
+          "slots": {
+            "items": []
+          }
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g1",
+          "kind": "group",
+          "slots": {
+            "items": []
+          }
+        },
+        {
+          "fields": {
+            "title": "Group"
+          },
+          "key": "g2",
+          "kind": "group",
+          "slots": {
+            "items": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": {
+          "parent": "g1",
+          "slot": "items"
+        },
+        "b": {
+          "parent": "g2",
+          "slot": "items"
+        },
+        "base": {
+          "parent": "~",
+          "slot": "body"
+        },
+        "id": "move:p1",
+        "key": "p1",
+        "kind": "move",
+        "path": "@parent"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "title": "Group"
+            },
+            "key": "g1",
+            "kind": "group",
+            "slots": {
+              "items": [
+                {
+                  "fields": {
+                    "text": "One"
+                  },
+                  "key": "p1",
+                  "kind": "text"
+                }
+              ]
+            }
+          },
+          {
+            "fields": {
+              "title": "Group"
+            },
+            "key": "g2",
+            "kind": "group",
+            "slots": {
+              "items": []
+            }
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take B",
+      "decisions": {
+        "move:p1": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g1",
+                "kind": "group",
+                "slots": {
+                  "items": []
+                }
+              },
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g2",
+                "kind": "group",
+                "slots": {
+                  "items": [
+                    {
+                      "fields": {
+                        "text": "One"
+                      },
+                      "key": "p1",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "both keeps it in A's place and a copy in B's",
+      "decisions": {
+        "move:p1": {
+          "choice": "both"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {
+          "p1": "p1~b"
+        },
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g1",
+                "kind": "group",
+                "slots": {
+                  "items": [
+                    {
+                      "fields": {
+                        "text": "One"
+                      },
+                      "key": "p1",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              },
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g2",
+                "kind": "group",
+                "slots": {
+                  "items": [
+                    {
+                      "fields": {
+                        "text": "One"
+                      },
+                      "key": "p1~b",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "by hand",
+      "decisions": {
+        "move:p1": {
+          "choice": "manual",
+          "value": {
+            "parent": "~",
+            "slot": "body"
+          }
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g1",
+                "kind": "group",
+                "slots": {
+                  "items": []
+                }
+              },
+              {
+                "fields": {
+                  "title": "Group"
+                },
+                "key": "g2",
+                "kind": "group",
+                "slots": {
+                  "items": []
+                }
+              },
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

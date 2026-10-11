@@ -1,0 +1,229 @@
+{
+  "name": "outline-of-sections",
+  "description": "An outline of sections, each with blocks: A edits a block and adds a section, B reorders sections and adds a block.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "issue",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Intro"
+          },
+          "key": "s1",
+          "kind": "section",
+          "slots": {
+            "blocks": [
+              {
+                "fields": {
+                  "text": "Hello"
+                },
+                "key": "b1",
+                "kind": "text"
+              }
+            ]
+          }
+        },
+        {
+          "fields": {
+            "title": "News"
+          },
+          "key": "s2",
+          "kind": "section",
+          "slots": {
+            "blocks": [
+              {
+                "fields": {
+                  "text": "Item"
+                },
+                "key": "b2",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "issue",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "Intro"
+          },
+          "key": "s1",
+          "kind": "section",
+          "slots": {
+            "blocks": [
+              {
+                "fields": {
+                  "text": "Hello, edited"
+                },
+                "key": "b1",
+                "kind": "text"
+              }
+            ]
+          }
+        },
+        {
+          "fields": {
+            "title": "News"
+          },
+          "key": "s2",
+          "kind": "section",
+          "slots": {
+            "blocks": [
+              {
+                "fields": {
+                  "text": "Item"
+                },
+                "key": "b2",
+                "kind": "text"
+              }
+            ]
+          }
+        },
+        {
+          "fields": {
+            "title": "Events"
+          },
+          "key": "s3",
+          "kind": "section",
+          "slots": {
+            "blocks": []
+          }
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "issue",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "title": "News"
+          },
+          "key": "s2",
+          "kind": "section",
+          "slots": {
+            "blocks": [
+              {
+                "fields": {
+                  "text": "Item"
+                },
+                "key": "b2",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Another"
+                },
+                "key": "b3",
+                "kind": "text"
+              }
+            ]
+          }
+        },
+        {
+          "fields": {
+            "title": "Intro"
+          },
+          "key": "s1",
+          "kind": "section",
+          "slots": {
+            "blocks": [
+              {
+                "fields": {
+                  "text": "Hello"
+                },
+                "key": "b1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "issue",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "title": "News"
+            },
+            "key": "s2",
+            "kind": "section",
+            "slots": {
+              "blocks": [
+                {
+                  "fields": {
+                    "text": "Item"
+                  },
+                  "key": "b2",
+                  "kind": "text"
+                },
+                {
+                  "fields": {
+                    "text": "Another"
+                  },
+                  "key": "b3",
+                  "kind": "text"
+                }
+              ]
+            }
+          },
+          {
+            "fields": {
+              "title": "Events"
+            },
+            "key": "s3",
+            "kind": "section",
+            "slots": {
+              "blocks": []
+            }
+          },
+          {
+            "fields": {
+              "title": "Intro"
+            },
+            "key": "s1",
+            "kind": "section",
+            "slots": {
+              "blocks": [
+                {
+                  "fields": {
+                    "text": "Hello, edited"
+                  },
+                  "key": "b1",
+                  "kind": "text"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

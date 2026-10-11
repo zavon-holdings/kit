@@ -1,0 +1,300 @@
+{
+  "name": "delete-vs-modify",
+  "description": "A deletes a unit B edits: a delete conflict, tentatively kept.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Three"
+          },
+          "key": "p3",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Three"
+          },
+          "key": "p3",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two, edited"
+          },
+          "key": "p2",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Three"
+          },
+          "key": "p3",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "id": "delete:p2",
+        "key": "p2",
+        "kind": "delete",
+        "side": "a"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "One"
+            },
+            "key": "p1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "Two, edited"
+            },
+            "key": "p2",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "Three"
+            },
+            "key": "p3",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take A (the deletion)",
+      "decisions": {
+        "delete:p2": {
+          "choice": "a"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Three"
+                },
+                "key": "p3",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "take B (keep the edit)",
+      "decisions": {
+        "delete:p2": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Two, edited"
+                },
+                "key": "p2",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Three"
+                },
+                "key": "p3",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "both keeps it",
+      "decisions": {
+        "delete:p2": {
+          "choice": "both"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Two, edited"
+                },
+                "key": "p2",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Three"
+                },
+                "key": "p3",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "manual false deletes",
+      "decisions": {
+        "delete:p2": {
+          "choice": "manual",
+          "value": false
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "One"
+                },
+                "key": "p1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Three"
+                },
+                "key": "p3",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

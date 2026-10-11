@@ -1,0 +1,313 @@
+{
+  "name": "field-conflict",
+  "description": "Both edit one field differently: tentatively A.",
+  "base": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "One"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "From A"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "fields": {
+      "title": "Draft"
+    },
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "From B"
+          },
+          "key": "p1",
+          "kind": "text"
+        },
+        {
+          "fields": {
+            "text": "Two"
+          },
+          "key": "p2",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": "From A",
+        "b": "From B",
+        "base": "One",
+        "id": "field:p1:text",
+        "key": "p1",
+        "kind": "field",
+        "path": "text"
+      }
+    ],
+    "tree": {
+      "fields": {
+        "title": "Draft"
+      },
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "From A"
+            },
+            "key": "p1",
+            "kind": "text"
+          },
+          {
+            "fields": {
+              "text": "Two"
+            },
+            "key": "p2",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take A",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "a"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "From A"
+                },
+                "key": "p1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Two"
+                },
+                "key": "p2",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "take B",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "From B"
+                },
+                "key": "p1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Two"
+                },
+                "key": "p2",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "by hand",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "manual",
+          "value": "Written by hand"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "Written by hand"
+                },
+                "key": "p1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Two"
+                },
+                "key": "p2",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "both is refused for a field",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "both"
+        }
+      },
+      "expect": {
+        "error": true
+      }
+    },
+    {
+      "description": "both duplicates the unit when allowed",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "both"
+        }
+      },
+      "options": {
+        "duplicateAsUnits": true
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {
+          "p1": "p1~b"
+        },
+        "tree": {
+          "fields": {
+            "title": "Draft"
+          },
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "From A"
+                },
+                "key": "p1",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "From B"
+                },
+                "key": "p1~b",
+                "kind": "text"
+              },
+              {
+                "fields": {
+                  "text": "Two"
+                },
+                "key": "p2",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "manual needs a value",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "manual"
+        }
+      },
+      "expect": {
+        "error": true
+      }
+    },
+    {
+      "description": "an unknown conflict is refused",
+      "decisions": {
+        "field:p9:text": {
+          "choice": "a"
+        }
+      },
+      "expect": {
+        "error": true
+      }
+    }
+  ]
+}

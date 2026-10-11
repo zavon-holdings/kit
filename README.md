@@ -17,6 +17,7 @@ byte.
 | `wfhandler`  | A callback endpoint for an app: verifies the signature, dedupes on `Idempotency-Key`, and shapes the answer. `DoorTx` writes the replay record in the handler's own transaction. |
 | `outbox`     | An at-least-once outbox: rows added in the caller's transaction, drained later with backoff. |
 | `permits`    | A versioned cache of who holds what in an organisation, with an HTTP refresher and a `Decide` over `policy`. |
+| `merge3`     | A three-way merge of ordered trees of keyed units (a document's blocks, an outline's sections): fields, deletions, moves and order, with conflicts and `Resolve`. Twin of `@zavon/merge3`. |
 
 Database access goes through a small `Querier` interface (`Exec`, `QueryRow`)
 that a pgx pool or transaction satisfies; kit imports no driver. JSONB values
@@ -30,6 +31,7 @@ are passed as strings.
 | `@zavon/conditions`      | The workflow condition language: parse, evaluate, describe, fields. |
 | `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. Draws decisions, forks, loops, approvals, sub-workflows, payment requests and invoices (each one node, compiled to a sequence), and carries canvas notes that never compile. |
 | `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
+| `@zavon/merge3`          | The three-way tree merge, for Node and the browser. Twin of `go/merge3`. |
 | `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; progress through a storage adapter — this browser, or a server with an offline queue (1.1) — and What's new. |
 
 ### `@zavon/workflow-ui`
@@ -121,6 +123,59 @@ The `api` is optional member by member (`validate`, `simulate`,
 - Built with `tsc` into `dist/` when packed; `npm test` typechecks and runs
   vitest with testing-library.
 
+### `@zavon/merge3` and `go/merge3`
+
+A three-way merge for documents two people edited from the same version. A
+tree is units — `{ key, kind, fields: { path: value }, slots: { name:
+[unit] } }` — and the merge takes the common ancestor and both edits:
+
+```ts
+import { merge3 } from "@zavon/merge3";
+
+const result = merge3(base, mine, theirs);   // { tree, conflicts, resolve }
+const done = result.resolve({ "field:p1:text": { choice: "b" } });
+```
+
+```go
+r, err := merge3.Merge(base, mine, theirs)
+res, err := r.Resolve(map[string]merge3.Decision{"field:p1:text": {Choice: "b"}}, merge3.Options{})
+```
+
+- **Matching** is by key. A unit with no key is matched to one under the
+  same parent and slot by identical content, then by a longest common
+  subsequence of kinds. Keys beginning with `~` are reserved: the root is
+  `~`, and a keyless unit is named `~parent/slot/…` in conflicts.
+- **Fields** merge one path at a time (one side unchanged takes the other;
+  both the same takes it); otherwise a `field` conflict, tentatively A. The
+  kind merges as the field `@kind`.
+- **Deletion**: a unit deleted on one side and untouched on the other goes.
+  Deleted on one side and changed on the other — its fields, its place, or
+  anything beneath it — is a `delete` conflict, tentatively kept; its
+  children follow it.
+- **Moves**: a unit's place merges like a field (`@parent`); two different
+  moves, or moves that together would make a unit its own ancestor, are a
+  `move` conflict, tentatively A.
+- **Order** merges per slot over the units all three versions kept there:
+  one side's reorder wins; two different reorders are an `order` conflict,
+  tentatively A. Additions go after their nearest surviving earlier sibling,
+  A's before B's.
+- **Resolving**: per conflict `a`, `b`, `manual` (with a value: the field's
+  value, a boolean for a delete, `{parent, slot}` for a move, the keys for
+  an order) or `both`. `both` keeps a deleted unit, keeps a moved unit in A's
+  place and a copy in B's, and — only with `duplicateAsUnits` — keeps a unit
+  whose field conflicts twice, A's then a copy with B's. A copy and
+  everything in it get fresh keys (`mintKey`, default `key~b`), reported in
+  `ids`. An order has no `both`. The tree is valid (`validate`) for every
+  combination of decisions.
+- Conflict ids are stable — `field:<key>:<path>`, `delete:<key>`,
+  `move:<key>`, `order:<parent>:<slot>` — so a host can keep a decision
+  while the people editing keep going.
+- No dependencies; the TypeScript twin carries its own SHA-256 so it runs
+  in the browser. Property tests (Go fuzz targets, seeded random documents
+  in TypeScript) hold: one side unchanged gives the other; the same edit on
+  both gives that edit; conflicts are the same either way round; disjoint
+  edits merge losslessly; nothing either side kept is lost.
+
 ### `@zavon/tour`
 
 Tours are data: an id, an optional `version`, and steps of `{ id, target,
@@ -202,20 +257,27 @@ const { start, restart } = useTours();   // Help menu: start("first-run"), "Rest
 ## Contract vectors (`contract/`)
 
 JSON files every implementation's tests replay: `signature/`, `callback/`,
-`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`.
+`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`.
 `forms/` holds form definitions (valid, or refused at a page and question),
 which pages and questions a respondent sees for given answers, and what a
 submit keeps. A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
 `runs/` and `errors/` vectors are written by kit's own Go tests
 (`KIT_WRITE_VECTORS=1 go test ./webhooksig ./wfclient ./wfhandler -run
-TestContractVectors`); the rest are written by the server implementation and
-only checked here.
+TestContractVectors`), and so are `merge3/` and its random `merge3/parity/`
+cases (`KIT_WRITE_VECTORS=1 go test ./merge3 -run 'TestContractVectors|TestParityCases'`);
+the rest are written by the server implementation and only checked here.
 
 ## Releases
 
 A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
+
+**1.10.0** (Go `go/v1.10.0`): `go/merge3` and `@zavon/merge3` 1.0.0 — the
+three-way merge of ordered trees of keyed units, held to `contract/merge3`;
+`@zavon/tour` 1.1.0 — a server store with an offline queue, step events,
+`restart`, and What's new (`createAnnouncementsClient`, `useWhatsNew`).
+Unchanged packs keep their versions.
 
 ## Development
 
