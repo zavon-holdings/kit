@@ -6,8 +6,8 @@ import { vector, violations } from "./test/helpers.js";
 
 type Block = { type: string; data: Record<string, unknown> };
 
-const p = (text: string): Block => ({ type: "paragraph", data: { text } });
-const h = (text: string): Block => ({ type: "heading", data: { text, level: 2 } });
+const p = (text: string): Block => ({ type: "text", data: { text } });
+const h = (text: string): Block => ({ type: "heading", data: { eyebrow: "Visit", text } });
 
 describe("diffItems", () => {
   test("keeps equal items, pairs a removal and an addition in one place as a change", () => {
