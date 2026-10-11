@@ -1,0 +1,25 @@
+{
+  "tool_key": "pages.brand.suggest",
+  "mode": "inline",
+  "input": {
+    "image": {
+      "media_type": "image/png",
+      "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    },
+    "site_name": "Example Organisation"
+  },
+  "result": {
+    "colours": {
+      "primary": "#1f4e79",
+      "secondary": "#2e7d32",
+      "accent": "#f9a825",
+      "background": "#ffffff",
+      "text": "#1a1a1a"
+    },
+    "fonts": {
+      "heading": "serif",
+      "body": "sans-serif"
+    },
+    "notes": "Colours taken from the logo's blue and green."
+  }
+}

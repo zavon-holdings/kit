@@ -1,0 +1,9 @@
+{
+  "balance": 3.5,
+  "balance_tenths": 35,
+  "code": "insufficient_credits",
+  "credits_charged": 0,
+  "error": "There are not enough credits for this.",
+  "required": 14,
+  "required_tenths": 140
+}

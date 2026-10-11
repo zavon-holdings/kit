@@ -1,0 +1,37 @@
+{
+  "tenant": "org-a",
+  "state": "ready",
+  "layer": "",
+  "features": {
+    "ai": true,
+    "ai.pages": true,
+    "ai.reach": false,
+    "ai.shop": false
+  },
+  "balance_tenths": 985,
+  "monthly_cap_tenths": 5000,
+  "month_used_tenths": 140,
+  "popia_notice_accepted_at": "2026-10-12T08:00:00Z",
+  "popia_notice_accepted_by": "admin@example.test",
+  "widgets": {
+    "AIU-02": {
+      "rows": [
+        {
+          "tool_key": "pages.section.generate",
+          "calls": 3,
+          "tokens": 12000,
+          "credits_tenths": 420
+        }
+      ]
+    }
+  },
+  "ledger": [
+    {
+      "at": "2026-10-12T08:05:00Z",
+      "delta_tenths": -140,
+      "reason": "debit",
+      "ref": "6f1c2b9e-1a7d-4c51-9a0e-6c3f1d2b8a10",
+      "actor": "editor@example.test"
+    }
+  ]
+}

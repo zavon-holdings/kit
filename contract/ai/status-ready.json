@@ -1,0 +1,32 @@
+{
+  "state": "ready",
+  "layer": "",
+  "balance_tenths": 985,
+  "monthly_cap_tenths": 5000,
+  "monthly_cap": 500,
+  "month_used_tenths": 140,
+  "notice": "",
+  "tools": [
+    {
+      "key": "pages.section.generate",
+      "credits": 14,
+      "pricing_mode": "fixed",
+      "allowed": true,
+      "reason": ""
+    },
+    {
+      "key": "pages.page.generate",
+      "credits": 40,
+      "pricing_mode": "metered",
+      "allowed": true,
+      "reason": ""
+    },
+    {
+      "key": "platform.docs.answer",
+      "credits": 0,
+      "pricing_mode": "free",
+      "allowed": true,
+      "reason": ""
+    }
+  ]
+}

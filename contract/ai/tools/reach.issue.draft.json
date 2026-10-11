@@ -1,0 +1,63 @@
+{
+  "tool_key": "reach.issue.draft",
+  "mode": "inline",
+  "input": {
+    "brief": "Monthly update: the new hall opens on 1 November.",
+    "merge_tags": [
+      "{{first_name}}"
+    ],
+    "allowed_types": [
+      "heading",
+      "paragraph"
+    ],
+    "block_schemas": {
+      "heading": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "level"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          }
+        }
+      },
+      "paragraph": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        }
+      }
+    },
+    "issue_title": "November update",
+    "locale": "en"
+  },
+  "result": {
+    "subject": "The new hall opens on 1 November",
+    "preheader": "Everything you need to know",
+    "blocks": [
+      {
+        "type": "paragraph",
+        "data": {
+          "text": "Hello {{first_name}}, the new hall opens on 1 November."
+        }
+      }
+    ],
+    "summary": "One paragraph with the date."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "tool_key": "reach.comms.check",
+  "mode": "inline",
+  "input": {
+    "kind": "issue",
+    "language": "en",
+    "subject": "The new hall opens on 1 November",
+    "text": "The new hall opens on 2 November.",
+    "facts": {
+      "opening_date": "1 November"
+    }
+  },
+  "result": {
+    "warnings": [
+      {
+        "kind": "fact",
+        "message": "The text gives a different opening date from the source.",
+        "excerpt": "opens on 2 November"
+      }
+    ]
+  }
+}

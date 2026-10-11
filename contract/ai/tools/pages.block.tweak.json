@@ -1,0 +1,36 @@
+{
+  "tool_key": "pages.block.tweak",
+  "mode": "inline",
+  "input": {
+    "instruction": "Make this shorter and warmer.",
+    "block": {
+      "type": "paragraph",
+      "data": {
+        "text": "We are an organisation that has existed for a long time and we welcome everybody who wants to visit us."
+      }
+    },
+    "block_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      }
+    },
+    "page_title": "About us"
+  },
+  "result": {
+    "block": {
+      "type": "paragraph",
+      "data": {
+        "text": "Everybody is welcome. Come and visit us."
+      }
+    },
+    "summary": "Shortened the paragraph."
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "tool_key": "pages.section.generate",
+  "mode": "inline",
+  "input": {
+    "instruction": "Add a section with our opening hours.",
+    "allowed_types": [
+      "heading",
+      "paragraph"
+    ],
+    "block_schemas": {
+      "heading": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "level"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          }
+        }
+      },
+      "paragraph": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        }
+      }
+    },
+    "page_title": "Visit",
+    "context_blocks": [
+      {
+        "type": "heading",
+        "data": {
+          "text": "Visit",
+          "level": 1
+        }
+      }
+    ]
+  },
+  "result": {
+    "blocks": [
+      {
+        "type": "heading",
+        "data": {
+          "text": "Opening hours",
+          "level": 2
+        }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "text": "Monday to Friday, 08:00 to 17:00."
+        }
+      }
+    ],
+    "summary": "A heading and the hours."
+  }
+}

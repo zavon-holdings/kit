@@ -1,0 +1,15 @@
+{
+  "tool_key": "reach.sms.optimise",
+  "mode": "inline",
+  "input": {
+    "text": "Hello {{first_name}}, we are very happy to tell you that the new hall will open on the first of November and everybody is welcome to come.",
+    "max_segments": 1,
+    "merge_tags": [
+      "{{first_name}}"
+    ],
+    "locale": "en"
+  },
+  "result": {
+    "text": "Hi {{first_name}}, the new hall opens 1 Nov. Everybody is welcome."
+  }
+}

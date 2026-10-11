@@ -1,0 +1,10 @@
+{
+  "state": "off",
+  "layer": "org",
+  "balance_tenths": 0,
+  "monthly_cap_tenths": 0,
+  "monthly_cap": 0,
+  "month_used_tenths": 0,
+  "notice": "",
+  "tools": []
+}

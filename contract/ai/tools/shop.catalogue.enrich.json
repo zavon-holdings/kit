@@ -1,0 +1,38 @@
+{
+  "tool_key": "shop.catalogue.enrich",
+  "mode": "job",
+  "input": {
+    "rows": [
+      {
+        "ref": "sku-1",
+        "title": "mug white",
+        "description": "",
+        "category": "Kitchen"
+      },
+      {
+        "ref": "sku-2",
+        "title": "tote bag"
+      }
+    ]
+  },
+  "result": {
+    "rows": [
+      {
+        "ref": "sku-1",
+        "title": "White mug",
+        "description": "A plain white ceramic mug.",
+        "tags": [
+          "mug"
+        ]
+      },
+      {
+        "ref": "sku-2",
+        "title": "Tote bag",
+        "description": "A cotton tote bag.",
+        "tags": [
+          "bag"
+        ]
+      }
+    ]
+  }
+}

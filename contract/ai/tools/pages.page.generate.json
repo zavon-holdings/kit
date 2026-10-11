@@ -1,0 +1,66 @@
+{
+  "tool_key": "pages.page.generate",
+  "mode": "job",
+  "input": {
+    "instruction": "A page about our volunteer programme.",
+    "title": "Volunteer",
+    "allowed_types": [
+      "heading",
+      "paragraph"
+    ],
+    "block_schemas": {
+      "heading": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "level"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "level": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          }
+        }
+      },
+      "paragraph": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 4000
+          }
+        }
+      }
+    },
+    "site_name": "Example Organisation"
+  },
+  "result": {
+    "title": "Volunteer",
+    "blocks": [
+      {
+        "type": "heading",
+        "data": {
+          "text": "Volunteer with us",
+          "level": 1
+        }
+      },
+      {
+        "type": "paragraph",
+        "data": {
+          "text": "Give a few hours a month and help your community."
+        }
+      }
+    ],
+    "summary": "A heading and an introduction."
+  }
+}

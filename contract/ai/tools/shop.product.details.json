@@ -1,0 +1,30 @@
+{
+  "tool_key": "shop.product.details",
+  "mode": "inline",
+  "input": {
+    "image": {
+      "media_type": "image/png",
+      "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    },
+    "hints": {
+      "name": "Mug",
+      "category": "Kitchen"
+    },
+    "attributes": [
+      "colour",
+      "capacity"
+    ]
+  },
+  "result": {
+    "title": "White ceramic mug",
+    "description": "A plain white ceramic mug for tea or coffee.",
+    "tags": [
+      "mug",
+      "kitchen"
+    ],
+    "attributes": {
+      "colour": "white",
+      "capacity": "350 ml"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "tool_key": "reach.audience.suggest",
+  "mode": "inline",
+  "input": {
+    "goal": "People interested in volunteering",
+    "tags": [
+      {
+        "name": "volunteer",
+        "count": 120
+      },
+      {
+        "name": "youth",
+        "count": 80
+      }
+    ],
+    "lists": [
+      {
+        "key": "newsletter",
+        "name": "Newsletter",
+        "count": 900
+      }
+    ],
+    "fields": [
+      "tag",
+      "list",
+      "created_at"
+    ]
+  },
+  "result": {
+    "cond": "tag == \"volunteer\"",
+    "explanation": "Everybody with the volunteer tag."
+  }
+}

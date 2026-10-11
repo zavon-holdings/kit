@@ -1,0 +1,15 @@
+{
+  "tool_key": "pages.seo.meta",
+  "mode": "inline",
+  "input": {
+    "kind": "page",
+    "title": "Volunteer",
+    "text": "Give a few hours a month and help your community. We train every volunteer.",
+    "locale": "en"
+  },
+  "result": {
+    "title": "Volunteer with us",
+    "description": "Give a few hours a month and help your community. Training is included.",
+    "alt": ""
+  }
+}

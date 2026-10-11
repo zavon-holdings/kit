@@ -1,0 +1,6 @@
+{
+  "code": "missing_permission",
+  "credits_charged": 0,
+  "error": "You do not have the permission this needs.",
+  "required": "pages:ai:use"
+}

@@ -1,0 +1,9 @@
+{
+  "actor": {
+    "email": "admin@example.test",
+    "sub": "u_7",
+    "acting": false
+  },
+  "monthly_cap_tenths": 5000,
+  "accept_popia_notice": true
+}

@@ -1,0 +1,25 @@
+{
+  "state": "no_permission",
+  "layer": "",
+  "balance_tenths": 985,
+  "monthly_cap_tenths": 0,
+  "monthly_cap": 0,
+  "month_used_tenths": 0,
+  "notice": "",
+  "tools": [
+    {
+      "key": "pages.section.generate",
+      "credits": 14,
+      "pricing_mode": "fixed",
+      "allowed": false,
+      "reason": "missing_permission"
+    },
+    {
+      "key": "platform.docs.answer",
+      "credits": 0,
+      "pricing_mode": "free",
+      "allowed": true,
+      "reason": ""
+    }
+  ]
+}

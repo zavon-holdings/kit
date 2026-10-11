@@ -1,0 +1,17 @@
+{
+  "tool_key": "platform.docs.answer",
+  "mode": "inline",
+  "input": {
+    "question": "How do I add a page?",
+    "product": "pages"
+  },
+  "result": {
+    "answer": "Open Pages and select New page.",
+    "citations": [
+      {
+        "title": "Pages",
+        "url": "https://www.zavonpages.com/docs/pages"
+      }
+    ]
+  }
+}

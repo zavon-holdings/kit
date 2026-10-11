@@ -1,0 +1,14 @@
+{
+  "tenant": "org-a",
+  "actor": {
+    "email": "editor@example.test",
+    "sub": "u_101",
+    "acting": false
+  },
+  "tool_key": "platform.docs.answer",
+  "resource": "org/org-a",
+  "input": {
+    "question": "How do I add a page?",
+    "product": "pages"
+  }
+}

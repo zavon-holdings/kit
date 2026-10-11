@@ -1,0 +1,18 @@
+{
+  "tool_key": "reach.subject.variants",
+  "mode": "inline",
+  "input": {
+    "summary": "The new hall opens on 1 November.",
+    "subject": "Hall news",
+    "locale": "en"
+  },
+  "result": {
+    "variants": [
+      "The new hall opens on 1 November",
+      "Our new hall: open from 1 November",
+      "Save the date: 1 November",
+      "A new hall for everybody",
+      "Hall news: we open on 1 November"
+    ]
+  }
+}
