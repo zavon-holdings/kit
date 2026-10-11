@@ -5,41 +5,59 @@
     "instruction": "A page about our volunteer programme.",
     "title": "Volunteer",
     "allowed_types": [
+      "button",
       "heading",
-      "paragraph"
+      "text"
     ],
     "block_schemas": {
+      "button": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "href": {
+            "type": "string",
+            "maxLength": 2048,
+            "pattern": "^https://"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 60
+          }
+        },
+        "required": [
+          "href",
+          "label"
+        ]
+      },
       "heading": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "text",
-          "level"
-        ],
         "properties": {
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 120
+          },
           "text": {
             "type": "string",
-            "maxLength": 200
-          },
-          "level": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 4
+            "maxLength": 300
           }
-        }
-      },
-      "paragraph": {
-        "type": "object",
-        "additionalProperties": false,
+        },
         "required": [
           "text"
-        ],
+        ]
+      },
+      "text": {
+        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "text": {
             "type": "string",
-            "maxLength": 4000
+            "maxLength": 10000
           }
-        }
+        },
+        "required": [
+          "text"
+        ]
       }
     },
     "site_name": "Example Organisation"
@@ -50,12 +68,11 @@
       {
         "type": "heading",
         "data": {
-          "text": "Volunteer with us",
-          "level": 1
+          "text": "Volunteer with us"
         }
       },
       {
-        "type": "paragraph",
+        "type": "text",
         "data": {
           "text": "Give a few hours a month and help your community."
         }

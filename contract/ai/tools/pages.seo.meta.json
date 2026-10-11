@@ -2,14 +2,18 @@
   "tool_key": "pages.seo.meta",
   "mode": "inline",
   "input": {
-    "kind": "page",
+    "kind": "alt",
     "title": "Volunteer",
-    "text": "Give a few hours a month and help your community. We train every volunteer.",
+    "text": "Volunteers at the open day.",
+    "image": {
+      "media_type": "image/png",
+      "data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    },
     "locale": "en"
   },
   "result": {
-    "title": "Volunteer with us",
-    "description": "Give a few hours a month and help your community. Training is included.",
-    "alt": ""
+    "title": "",
+    "description": "",
+    "alt": "Three volunteers set out chairs in a hall."
   }
 }

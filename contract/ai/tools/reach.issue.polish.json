@@ -4,51 +4,88 @@
   "input": {
     "blocks": [
       {
-        "type": "paragraph",
+        "type": "text",
         "data": {
-          "text": "hello {{first_name}} the hall opens soon its on 1 nov"
+          "text": "hello {{recipient.first_name|there}} the hall opens soon its on 1 nov"
         }
       }
     ],
     "merge_tags": [
-      "{{first_name}}"
+      "{{recipient.first_name}}",
+      "{{recipient.last_name}}",
+      "{{recipient.name}}",
+      "{{org.name}}"
     ],
     "allowed_types": [
+      "button",
+      "divider",
       "heading",
-      "paragraph"
+      "quote",
+      "text"
     ],
     "block_schemas": {
+      "button": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 2000,
+            "pattern": "^https://"
+          }
+        },
+        "required": [
+          "label",
+          "url"
+        ]
+      },
+      "divider": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      },
       "heading": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "text",
-          "level"
-        ],
         "properties": {
           "text": {
             "type": "string",
-            "maxLength": 200
-          },
-          "level": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 4
+            "maxLength": 300
           }
-        }
-      },
-      "paragraph": {
-        "type": "object",
-        "additionalProperties": false,
+        },
         "required": [
           "text"
-        ],
+        ]
+      },
+      "quote": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "text"
+        ]
+      },
+      "text": {
+        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "text": {
             "type": "string",
             "maxLength": 4000
           }
-        }
+        },
+        "required": [
+          "text"
+        ]
       }
     },
     "instruction": "Fix grammar.",
@@ -57,9 +94,9 @@
   "result": {
     "blocks": [
       {
-        "type": "paragraph",
+        "type": "text",
         "data": {
-          "text": "Hello {{first_name}}, the hall opens on 1 November."
+          "text": "Hello {{recipient.first_name|there}}, the hall opens on 1 November."
         }
       }
     ],

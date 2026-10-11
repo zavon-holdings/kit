@@ -2,14 +2,21 @@
   "tool_key": "reach.sms.optimise",
   "mode": "inline",
   "input": {
-    "text": "Hello {{first_name}}, we are very happy to tell you that the new hall will open on the first of November and everybody is welcome to come.",
+    "text": "Hello {{recipient.first_name}}, we are very happy to tell you that the new hall will open on the first of November and everybody is welcome to come.",
     "max_segments": 1,
     "merge_tags": [
-      "{{first_name}}"
+      "{{campaign.link}}",
+      "{{events.upcoming}}",
+      "{{org.name}}",
+      "{{recipient.email}}",
+      "{{recipient.first_name}}",
+      "{{recipient.last_name}}",
+      "{{recipient.name}}",
+      "{{recipient.phone}}"
     ],
     "locale": "en"
   },
   "result": {
-    "text": "Hi {{first_name}}, the new hall opens 1 Nov. Everybody is welcome."
+    "text": "Hi {{recipient.first_name}}, the new hall opens 1 Nov. Everybody is welcome."
   }
 }

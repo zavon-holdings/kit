@@ -2,43 +2,61 @@
   "tool_key": "pages.section.generate",
   "mode": "inline",
   "input": {
-    "instruction": "Add a section with our opening hours.",
+    "instruction": "Add a section with our opening hours and a link to the visit page.",
     "allowed_types": [
+      "button",
       "heading",
-      "paragraph"
+      "text"
     ],
     "block_schemas": {
+      "button": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "href": {
+            "type": "string",
+            "maxLength": 2048,
+            "pattern": "^https://"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 60
+          }
+        },
+        "required": [
+          "href",
+          "label"
+        ]
+      },
       "heading": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "text",
-          "level"
-        ],
         "properties": {
+          "eyebrow": {
+            "type": "string",
+            "maxLength": 120
+          },
           "text": {
             "type": "string",
-            "maxLength": 200
-          },
-          "level": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 4
+            "maxLength": 300
           }
-        }
-      },
-      "paragraph": {
-        "type": "object",
-        "additionalProperties": false,
+        },
         "required": [
           "text"
-        ],
+        ]
+      },
+      "text": {
+        "type": "object",
+        "additionalProperties": false,
         "properties": {
           "text": {
             "type": "string",
-            "maxLength": 4000
+            "maxLength": 10000
           }
-        }
+        },
+        "required": [
+          "text"
+        ]
       }
     },
     "page_title": "Visit",
@@ -46,8 +64,14 @@
       {
         "type": "heading",
         "data": {
-          "text": "Visit",
-          "level": 1
+          "text": "Visit"
+        }
+      },
+      {
+        "type": "button",
+        "data": {
+          "label": "Plan your visit",
+          "href": "https://example.org/visit"
         }
       }
     ]
@@ -57,17 +81,24 @@
       {
         "type": "heading",
         "data": {
-          "text": "Opening hours",
-          "level": 2
+          "eyebrow": "Visit",
+          "text": "Opening hours"
         }
       },
       {
-        "type": "paragraph",
+        "type": "text",
         "data": {
           "text": "Monday to Friday, 08:00 to 17:00."
         }
+      },
+      {
+        "type": "button",
+        "data": {
+          "href": "https://example.org/visit",
+          "label": "Plan your visit"
+        }
       }
     ],
-    "summary": "A heading and the hours."
+    "summary": "A heading, the hours and the visit link."
   }
 }
