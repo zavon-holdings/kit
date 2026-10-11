@@ -21,13 +21,17 @@
       }
     ],
     "fields": [
-      "tag",
-      "list",
+      "tags",
+      "lists",
       "created_at"
     ]
   },
   "result": {
-    "cond": "tag == \"volunteer\"",
+    "cond": {
+      "field": "tags",
+      "op": "contains",
+      "value": "volunteer"
+    },
     "explanation": "Everybody with the volunteer tag."
   }
 }
