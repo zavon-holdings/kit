@@ -332,6 +332,16 @@ A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
 
+**1.13.0** (Go: `go/aiclient`, new; tag `go/v1.13.0`): AI assistance.
+`contract/ai/` wire vectors (invoke, status, jobs, feedback, errors and one
+vector per tool, including `workflow.requirements.suggest`); `go/aiclient`,
+a strict client for core's AI routes; `@zavon/assistant` 1.0.0 (AI controls
+for React, which render nothing while AI is not configured or off); and
+`@zavon/workflow-ui` 1.11.0 — `suggestRequirements` on the editor: "Suggest
+requirements" on each review step, shown only when the host passes it, with
+draft chips a person adds one by one or all at once. These were built as
+1.11.0 before 1.12.0 shipped, so they release as 1.13.0.
+
 **1.12.0** (no Go change; 1.11.0 is reserved; the packs are built from this release's commit):
 `@zavon/step-gates` 1.0.0 — step requirements (a forward move out of a step
 waits until its required fields are filled; backward and closing moves never

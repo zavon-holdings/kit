@@ -1,0 +1,26 @@
+{
+  "tool_key": "workflow.requirements.suggest",
+  "mode": "inline",
+  "input": {
+    "workflow": "Volunteer intake",
+    "stages": [
+      {"code": "new", "name": "New", "required": []},
+      {"code": "interview", "name": "Interview", "required": []},
+      {"code": "checks", "name": "Background checks", "required": ["reference_ok"]},
+      {"code": "placed", "name": "Placed", "required": []}
+    ],
+    "fields": [
+      {"key": "phone", "label": "Phone", "type": "phone", "source": "Form: Sign-up"},
+      {"key": "interviewer", "label": "Interviewer", "type": "email", "source": "Kept on the item"},
+      {"key": "interview_score", "label": "Interview score", "type": "number", "source": "Kept on the item"},
+      {"key": "reference_ok", "label": "References checked", "type": "choice", "source": "Kept on the item"},
+      {"key": "start_date", "label": "Start date", "type": "date", "source": "Record"}
+    ]
+  },
+  "result": {
+    "suggestions": [
+      {"stage": "interview", "fields": ["interviewer", "interview_score"], "reason": "An interview is done when somebody has held it and scored it."},
+      {"stage": "checks", "fields": ["start_date"], "reason": "A placement needs a start date before it is confirmed."}
+    ]
+  }
+}

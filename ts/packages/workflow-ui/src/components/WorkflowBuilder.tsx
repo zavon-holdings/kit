@@ -25,7 +25,7 @@ import { SimulatePanel } from "./SimulatePanel.js";
 import { StepsPanel } from "./StepsPanel.js";
 import { layoutAll, WorkflowCanvas } from "./WorkflowCanvas.js";
 
-import type { RequirementField } from "../requirements.js";
+import type { RequirementField, RequirementSuggestInput, RequirementSuggestion } from "../requirements.js";
 
 export type WorkflowBuilderProps = {
   graph: Graph;
@@ -82,6 +82,11 @@ export type WorkflowBuilderProps = {
   requirementFields?: RequirementField[];
   /** Docs for step requirements, linked from a small info icon. */
   requirementsDocsUrl?: string;
+  /**
+   * "Suggest requirements": the host calls its AI and answers draft chips per
+   * step. Pass it only when AI is on for the organisation; absent, no button.
+   */
+  suggestRequirements?: (input: RequirementSuggestInput) => Promise<RequirementSuggestion[]>;
 };
 
 const DEFAULT_SAMPLE: Sample = { subject: { type: "person", pid: "sample-1" }, vars: {} };
@@ -333,6 +338,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
     removeNodes: removeNodesFlow,
     requirementFields: props.requirementFields,
     requirementsDocsUrl: props.requirementsDocsUrl,
+    suggestRequirements: props.suggestRequirements,
   };
 
   const check = async () => {

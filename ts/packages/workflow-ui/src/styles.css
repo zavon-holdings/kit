@@ -1959,3 +1959,13 @@
   display: grid;
   gap: 8px;
 }
+
+.zwf-suggest {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+
+.zwf-chip-draft {
+  border-style: dashed;
+}

@@ -20,6 +20,11 @@ export type StepRequirementsProps = {
   headingLevel?: number;
   /** A link to the docs, shown as a small info icon beside the heading. */
   docsUrl?: string;
+  /**
+   * "Suggest requirements": asks the host's AI for this step's drafts. The
+   * button shows only when the host passes this (AI on for the organisation).
+   */
+  suggest?: () => Promise<{ fields: string[]; reason: string }>;
 };
 
 const NEW = "__new__";
@@ -37,6 +42,9 @@ export function StepRequirements(props: StepRequirementsProps) {
   const [type, setType] = useState("text");
   const [options, setOptions] = useState("");
   const [error, setError] = useState("");
+  const [drafts, setDrafts] = useState<{ fields: string[]; reason: string } | null>(null);
+  const [asking, setAsking] = useState(false);
+  const [suggestError, setSuggestError] = useState("");
   const byKey = new Map(catalogue.map((f) => [f.key, f]));
   const labels = required.map((k) => byKey.get(k)?.label ?? k);
   const unknown = required.filter((k) => !byKey.has(k));
@@ -52,6 +60,23 @@ export function StepRequirements(props: StepRequirementsProps) {
       required.filter((k) => k !== key),
       own ? itemFields.filter((f) => f.key !== key) : itemFields,
     );
+  };
+  const ask = async () => {
+    if (!props.suggest) return;
+    setAsking(true);
+    setSuggestError("");
+    try {
+      const d = await props.suggest();
+      setDrafts({ fields: d.fields.filter((k) => byKey.has(k) && !required.includes(k)), reason: d.reason });
+    } catch (e) {
+      setSuggestError(e instanceof Error && e.message ? e.message : "The suggestion did not arrive. Try again.");
+    } finally {
+      setAsking(false);
+    }
+  };
+  const accept = (keys: string[]) => {
+    set([...required, ...keys.filter((k) => !required.includes(k))]);
+    setDrafts((d) => (d ? { ...d, fields: d.fields.filter((k) => !keys.includes(k)) } : d));
   };
   const create = () => {
     const name = label.trim();
@@ -105,6 +130,47 @@ export function StepRequirements(props: StepRequirementsProps) {
       <p className="zwf-help zwf-requirements-preview" aria-live="polite">
         {requirementSentence(stageName, labels) || "Items can leave this step at any time."}
       </p>
+      {!readOnly && props.suggest && (
+        <div className="zwf-suggest">
+          <button type="button" className="zwf-button zwf-quiet" onClick={ask} disabled={asking} aria-busy={asking || undefined}>
+            {asking ? "Asking…" : "Suggest requirements"}
+          </button>
+          {suggestError && (
+            <span className="zwf-field-error" role="alert">
+              {suggestError}
+            </span>
+          )}
+          {drafts && (
+            <div className="zwf-drafts" role="group" aria-label="Suggested fields">
+              {drafts.fields.length === 0 ? (
+                <p className="zwf-help">No more fields to suggest for this step.</p>
+              ) : (
+                <>
+                  <ul className="zwf-chips">
+                    {drafts.fields.map((k) => (
+                      <li key={k} className="zwf-chip zwf-chip-draft">
+                        <span>{byKey.get(k)?.label ?? k}</span>
+                        <button type="button" className="zwf-chip-remove" aria-label={`Add ${byKey.get(k)?.label ?? k}`} onClick={() => accept([k])}>
+                          +
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  {drafts.reason && <p className="zwf-help">{drafts.reason}</p>}
+                  <div className="zwf-row zwf-actions">
+                    <button type="button" className="zwf-button" onClick={() => accept(drafts.fields)}>
+                      Add all
+                    </button>
+                    <button type="button" className="zwf-button zwf-quiet" onClick={() => setDrafts(null)}>
+                      Dismiss
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
       {!readOnly && !adding && (
         <label className="zwf-field">
           <span>Add a required field</span>

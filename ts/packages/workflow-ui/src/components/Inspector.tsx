@@ -34,7 +34,7 @@ import { branchOf } from "../branch.js";
 import { categoryOf, CATEGORY_LABELS, summarize } from "../design.js";
 import { Icon } from "./icons.js";
 import { StepRequirements } from "./StepRequirements.js";
-import { catalogueFromGraph, itemFieldsOf, requiredOf, withRequirements } from "../requirements.js";
+import { catalogueFromGraph, draftsFor, itemFieldsOf, requiredOf, suggestInput, withRequirements } from "../requirements.js";
 
 /**
  * The selected node's settings and its ways out. Everything the canvas can
@@ -215,6 +215,15 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
             readOnly={ro}
             headingLevel={ed.headingLevel + 1}
             docsUrl={ed.requirementsDocsUrl}
+            suggest={
+              ed.suggestRequirements
+                ? async () => {
+                    const catalogue = catalogueFromGraph(ed.graph, ed.requirementFields);
+                    const out = await ed.suggestRequirements!(suggestInput(ed.graph, catalogue));
+                    return draftsFor(node.id, out, requiredOf(node), catalogue);
+                  }
+                : undefined
+            }
             onChange={({ required, itemFields }) =>
               ed.update((g) => setNodeConfig(g, node.id, withRequirements(nodeById(g, node.id)?.config, required, itemFields)))
             }

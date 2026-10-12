@@ -111,3 +111,76 @@ describe("step requirements", () => {
     expect(keyFor("!!!", [])).toBe("field");
   });
 });
+
+describe("suggest requirements (AI)", () => {
+  function Suggesting({ suggest, onConfig }: { suggest?: () => Promise<{ fields: string[]; reason: string }>; onConfig?: (c: Record<string, unknown>) => void }) {
+    const [config, setConfig] = useState<Record<string, unknown>>({});
+    const node: GraphNode = { id: "review", name: "Review", type: "review", config };
+    const g: Graph = { format: "workflow.graph/1", nodes: [node], edges: [] } as Graph;
+    return (
+      <StepRequirements
+        stageName="Review"
+        required={requiredOf(node)}
+        itemFields={itemFieldsOf(node)}
+        catalogue={catalogueFromGraph(g, host)}
+        suggest={suggest}
+        onChange={({ required, itemFields }) => {
+          const next = withRequirements(config, required, itemFields);
+          setConfig(next);
+          onConfig?.(next);
+        }}
+      />
+    );
+  }
+
+  test("no suggest, no button", () => {
+    render(<Suggesting />);
+    expect(screen.queryByRole("button", { name: "Suggest requirements" })).toBeNull();
+  });
+
+  test("drafts are shown as chips and added one by one or all at once", async () => {
+    const user = userEvent.setup();
+    let last: Record<string, unknown> = {};
+    render(<Suggesting suggest={async () => ({ fields: ["score", "reviewer", "ghost"], reason: "A review is scored." })} onConfig={(c) => (last = c)} />);
+    await user.click(screen.getByRole("button", { name: "Suggest requirements" }));
+    const drafts = await screen.findByRole("group", { name: "Suggested fields" });
+    expect(drafts).toHaveTextContent("A review is scored.");
+    // A key outside the catalogue is never offered.
+    expect(screen.queryByText("ghost")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Add Score" }));
+    expect(last).toEqual({ required_fields: ["score"] });
+    await user.click(screen.getByRole("button", { name: "Add all" }));
+    expect(last).toEqual({ required_fields: ["score", "reviewer"] });
+    expect(await violations()).toEqual([]);
+  });
+
+  test("a failed suggestion says so and changes nothing", async () => {
+    const user = userEvent.setup();
+    let last: Record<string, unknown> | null = null;
+    render(<Suggesting suggest={async () => Promise.reject(new Error("AI is off for this organisation."))} onConfig={(c) => (last = c)} />);
+    await user.click(screen.getByRole("button", { name: "Suggest requirements" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("AI is off for this organisation.");
+    expect(last).toBeNull();
+  });
+
+  test("the input names every review step and the catalogue; drafts drop what is required already", async () => {
+    const { suggestInput, draftsFor } = await import("../requirements.js");
+    const g = {
+      format: "workflow.graph/1",
+      nodes: [
+        { id: "a", name: "First", type: "review", config: { required_fields: ["score"] } },
+        { id: "b", type: "review" },
+        { id: "c", type: "email" },
+      ],
+      edges: [],
+    } as unknown as Graph;
+    const input = suggestInput(g, host, "Intake");
+    expect(input.stages).toEqual([
+      { code: "a", name: "First", required: ["score"] },
+      { code: "b", name: "b", required: [] },
+    ]);
+    expect(input.fields.map((f) => f.key)).toEqual(["score", "reviewer"]);
+    expect(draftsFor("a", [{ stage: "a", fields: ["score", "reviewer", "nope"], reason: "r" }], ["score"], host)).toEqual({ fields: ["reviewer"], reason: "r" });
+    expect(draftsFor("z", [], [], host)).toEqual({ fields: [], reason: "" });
+  });
+});

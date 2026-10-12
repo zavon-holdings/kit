@@ -116,3 +116,31 @@ export function withRequirements(
   else delete next.fields;
   return next;
 }
+
+/** What "Suggest requirements" sends: the workflow's steps and the fields they may require. */
+export type RequirementSuggestInput = {
+  workflow?: string;
+  stages: { code: string; name: string; required: string[] }[];
+  fields: { key: string; label: string; type?: string; source?: string }[];
+};
+
+/** One proposal for one step: draft chips a person accepts one by one. */
+export type RequirementSuggestion = { stage: string; fields: string[]; reason: string };
+
+/** The input for every review step of a graph, with the catalogue the editor offers. */
+export function suggestInput(g: Graph, catalogue: RequirementField[], workflow?: string): RequirementSuggestInput {
+  return {
+    ...(workflow ? { workflow } : {}),
+    stages: g.nodes.filter((n) => n.type === "review").map((n) => ({ code: n.id, name: n.name || n.id, required: requiredOf(n) })),
+    fields: catalogue.map(({ key, label, type, source }) => ({ key, label, ...(type ? { type } : {}), ...(source ? { source } : {}) })),
+  };
+}
+
+/** Drafts for one step: keys the catalogue holds that the step does not require yet. */
+export function draftsFor(stage: string, suggestions: RequirementSuggestion[], required: string[], catalogue: RequirementField[]): { fields: string[]; reason: string } {
+  const known = new Set(catalogue.map((f) => f.key));
+  const have = new Set(required);
+  const s = suggestions.find((x) => x.stage === stage);
+  if (!s) return { fields: [], reason: "" };
+  return { fields: s.fields.filter((k) => known.has(k) && !have.has(k)), reason: s.reason };
+}

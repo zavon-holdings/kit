@@ -76,7 +76,11 @@ export {
   withRequirements,
   ITEM_FIELD_TYPES,
   KEPT_ON_ITEM,
+  suggestInput,
+  draftsFor,
   type RequirementField,
+  type RequirementSuggestInput,
+  type RequirementSuggestion,
 } from "./requirements.js";
 export { nextFocus } from "./nav.js";
 export type * from "./types.js";
