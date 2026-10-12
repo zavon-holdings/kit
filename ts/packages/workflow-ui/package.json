@@ -1,7 +1,7 @@
 {
   "name": "@zavon/workflow-ui",
-  "version": "1.9.0",
-  "description": "A workflow decision-tree editor for React: canvas, list twin, inspector, trigger, steps, simulate, scenarios and version comparison over @zavon/workflow-graph.",
+  "version": "1.10.0",
+  "description": "A workflow decision-tree editor for React: canvas, list twin, inspector, trigger, steps, simulate, scenarios and version comparison and step requirements over @zavon/workflow-graph.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -35,7 +35,8 @@
     "@zavon/conditions": "^1.4.2",
     "@zavon/workflow-graph": "^1.7.0",
     "react": ">=18",
-    "react-dom": ">=18"
+    "react-dom": ">=18",
+    "@zavon/step-gates": "^1.0.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",

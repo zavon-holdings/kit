@@ -1,0 +1,9 @@
+{
+  "about": "The words a screen shows: the editor's preview of a step's requirements, and the message a refused move returns. Labels, never raw keys.",
+  "cases": [
+    {"stage": "Review", "labels": [], "requirement": "", "blocked": ""},
+    {"stage": "Review", "labels": ["Score"], "requirement": "Items can't leave Review until Score is filled.", "blocked": "Fill in Score to move this item out of Review."},
+    {"stage": "Review", "labels": ["Score", "Reviewer"], "requirement": "Items can't leave Review until Score and Reviewer are filled.", "blocked": "Fill in Score and Reviewer to move this item out of Review."},
+    {"stage": "Checks", "labels": ["Score", "Reviewer", "Start date"], "requirement": "Items can't leave Checks until Score, Reviewer and Start date are filled.", "blocked": "Fill in Score, Reviewer and Start date to move this item out of Checks."}
+  ]
+}

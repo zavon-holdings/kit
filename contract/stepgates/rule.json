@@ -1,0 +1,25 @@
+{
+  "about": "Step requirements: which required fields block a move from one step to another. Only a forward move to a step that does not close the item is checked. A key outside the catalogue is never filled (fail closed).",
+  "stages": [
+    {"code": "new", "name": "New", "order": 1, "closing": false, "required": []},
+    {"code": "review", "name": "Review", "order": 2, "closing": false, "required": ["score", "reviewer"]},
+    {"code": "interview", "name": "Interview", "order": 3, "closing": false, "required": ["shoe_size"]},
+    {"code": "accepted", "name": "Accepted", "order": 4, "closing": false, "required": []},
+    {"code": "declined", "name": "Declined", "order": 5, "closing": true, "required": []},
+    {"code": "withdrawn", "name": "Withdrawn", "order": 6, "closing": true, "required": []}
+  ],
+  "catalogue": ["score", "reviewer", "notes"],
+  "cases": [
+    {"name": "forward to the next step without the fields is refused", "from": "review", "to": "interview", "filled": [], "missing": ["score", "reviewer"]},
+    {"name": "only the fields still empty are named", "from": "review", "to": "interview", "filled": ["score"], "missing": ["reviewer"]},
+    {"name": "straight to success skips no data", "from": "review", "to": "accepted", "filled": [], "missing": ["score", "reviewer"]},
+    {"name": "filling every field unlocks the move", "from": "review", "to": "interview", "filled": ["score", "reviewer"], "missing": []},
+    {"name": "backward is never blocked", "from": "review", "to": "new", "filled": [], "missing": []},
+    {"name": "a closing step is never blocked", "from": "review", "to": "declined", "filled": [], "missing": []},
+    {"name": "a later closing step is never blocked either", "from": "review", "to": "withdrawn", "filled": [], "missing": []},
+    {"name": "the same step is not a move", "from": "review", "to": "review", "filled": [], "missing": []},
+    {"name": "a step with no requirements lets everything through", "from": "new", "to": "accepted", "filled": [], "missing": []},
+    {"name": "an unknown field fails closed even when a value is present", "from": "interview", "to": "accepted", "filled": ["shoe_size"], "missing": ["shoe_size"]},
+    {"name": "only the step being left decides", "from": "accepted", "to": "declined", "filled": [], "missing": []}
+  ]
+}

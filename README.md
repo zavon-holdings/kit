@@ -257,7 +257,7 @@ const { start, restart } = useTours();   // Help menu: start("first-run"), "Rest
 ## Contract vectors (`contract/`)
 
 JSON files every implementation's tests replay: `signature/`, `callback/`,
-`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`.
+`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`.
 `forms/` holds form definitions (valid, or refused at a page and question),
 which pages and questions a respondent sees for given answers, and what a
 submit keeps. A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
@@ -266,12 +266,25 @@ submit keeps. A vector changing is a wire change. The `signature/`, `callback/`,
 TestContractVectors`), and so are `merge3/` and its random `merge3/parity/`
 cases (`KIT_WRITE_VECTORS=1 go test ./merge3 -run 'TestContractVectors|TestParityCases'`);
 the rest are written by the server implementation and only checked here.
+`stepgates/` is written by hand: the step-requirements rule, what counts as
+filled, the words a screen shows, the 422 body, the snooze grammar and the
+snoozed filter. Core, Reach and Pages replay it in their Go tests and
+`@zavon/step-gates` in its own.
 
 ## Releases
 
 A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
+
+**1.12.0** (no Go change; 1.11.0 is reserved; the packs are built from this release's commit):
+`@zavon/step-gates` 1.0.0 — step requirements (a forward move out of a step
+waits until its required fields are filled; backward and closing moves never
+wait; an unknown key fails closed) and snooze (the grammar, the snoozed
+filter with counts, the remembered toggle), held to `contract/stepgates`;
+`@zavon/workflow-ui` 1.10.0 — "Required to move on" on every review step,
+with chips from the host's catalogue (`requirementFields`), a field made in
+place and a one-sentence preview. Unchanged packs keep their versions.
 
 **1.10.0** (Go `go/v1.10.0`): `go/merge3` and `@zavon/merge3` 1.0.0 — the
 three-way merge of ordered trees of keyed units, held to `contract/merge3`;

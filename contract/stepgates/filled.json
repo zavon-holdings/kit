@@ -1,0 +1,16 @@
+{
+  "about": "Whether one stored value counts as filled. Empty text, an empty list and no value are not; zero and false are answers.",
+  "cases": [
+    {"name": "no value", "value": null, "filled": false},
+    {"name": "empty text", "value": "", "filled": false},
+    {"name": "spaces only", "value": "   ", "filled": false},
+    {"name": "text", "value": "Thandi", "filled": true},
+    {"name": "zero is a score", "value": 0, "filled": true},
+    {"name": "a number", "value": 72.5, "filled": true},
+    {"name": "false is an answer", "value": false, "filled": true},
+    {"name": "an empty list", "value": [], "filled": false},
+    {"name": "a list with one choice", "value": ["Morning"], "filled": true},
+    {"name": "an empty object", "value": {}, "filled": false},
+    {"name": "a file reference", "value": {"uid": "f_1", "name": "letter.pdf"}, "filled": true}
+  ]
+}

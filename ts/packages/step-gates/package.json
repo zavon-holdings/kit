@@ -1,0 +1,13 @@
+{
+  "name": "@zavon/step-gates",
+  "version": "1.0.0",
+  "description": "Step requirements and snooze for any board: which required fields block a forward move, the words a screen shows, the snooze grammar and the snoozed filter. Held to the vectors in contract/stepgates.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  }
+}

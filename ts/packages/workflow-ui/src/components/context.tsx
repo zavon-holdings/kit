@@ -5,6 +5,7 @@ import type { Analysis } from "../analysis.js";
 import type { Graph, Inspectors, Sample, Selection, WorkflowApi } from "../types.js";
 import type { CatalogueEvent, Interrupt, Trigger } from "../trigger.js";
 import type { ConfirmDialogProps } from "./ConfirmDialog.js";
+import type { RequirementField } from "../requirements.js";
 
 /** What every part of the editor shares. One graph, one analysis, one selection. */
 export type Editor = {
@@ -67,6 +68,10 @@ export type Editor = {
    * for a whole branch).
    */
   removeNodes?: (ids: string[], how?: "nodes" | "branch") => void;
+  /** Fields a review step may require, from the host (the record's own fields, saved forms). */
+  requirementFields?: RequirementField[];
+  /** Docs for step requirements, linked from the info icon. */
+  requirementsDocsUrl?: string;
 };
 
 /** What a confirmation card asks: the dialog's words, and what happens on yes. */

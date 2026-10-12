@@ -1,0 +1,17 @@
+{
+  "about": "A board's snoozed filter. hide leaves snoozed items out of the list AND the column counts; only keeps nothing else; empty keeps all. snoozed_count is always the number snoozed now, so a toggle can say how many are hidden. A snooze in the past has lapsed: the item is awake. Counts add up to total.",
+  "now": "2026-09-08T10:00:00Z",
+  "items": [
+    {"id": "a", "stage": "new", "snoozed_until": null},
+    {"id": "b", "stage": "new", "snoozed_until": "2026-09-10T00:00:00Z"},
+    {"id": "c", "stage": "review", "snoozed_until": "2026-09-01T00:00:00Z"},
+    {"id": "d", "stage": "review", "snoozed_until": "2026-12-01T00:00:00Z"},
+    {"id": "e", "stage": "review", "snoozed_until": null}
+  ],
+  "cases": [
+    {"filter": "", "ids": ["a", "b", "c", "d", "e"], "total": 5, "counts": {"new": 2, "review": 3}, "snoozed_count": 2},
+    {"filter": "hide", "ids": ["a", "c", "e"], "total": 3, "counts": {"new": 1, "review": 2}, "snoozed_count": 2},
+    {"filter": "only", "ids": ["b", "d"], "total": 2, "counts": {"new": 1, "review": 1}, "snoozed_count": 2},
+    {"filter": "maybe", "error": "filter"}
+  ]
+}

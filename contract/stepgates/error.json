@@ -1,0 +1,11 @@
+{
+  "about": "A refused move: HTTP 422 with this body. code is stable for clients to branch on, fields are raw keys in the step's order, labels name them, message uses the labels.",
+  "status": 422,
+  "body": {
+    "code": "stage_fields_required",
+    "stage": "review",
+    "fields": ["score", "reviewer"],
+    "labels": {"score": "Score", "reviewer": "Reviewer"},
+    "message": "Fill in Score and Reviewer to move this item out of Review."
+  }
+}

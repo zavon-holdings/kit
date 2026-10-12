@@ -1,0 +1,29 @@
+{
+  "about": "Snooze until: a count and a unit from now (calendar days, weeks, months), or a date. Exactly one form. Ends in the future, at most two years ahead (730 days).",
+  "now": "2026-09-08T10:00:00Z",
+  "max_ahead_days": 730,
+  "presets": [
+    {"key": "tomorrow", "label": "Tomorrow", "count": 1, "unit": "days"},
+    {"key": "next_week", "label": "Next week", "count": 1, "unit": "weeks"},
+    {"key": "two_weeks", "label": "2 weeks", "count": 2, "unit": "weeks"}
+  ],
+  "cases": [
+    {"name": "days", "request": {"count": 3, "unit": "days"}, "until": "2026-09-11T10:00:00Z"},
+    {"name": "one week", "request": {"count": 1, "unit": "weeks"}, "until": "2026-09-15T10:00:00Z"},
+    {"name": "months are calendar months", "request": {"count": 2, "unit": "months"}, "until": "2026-11-08T10:00:00Z"},
+    {"name": "case and spacing do not matter", "request": {"count": 1, "unit": " Days "}, "until": "2026-09-09T10:00:00Z"},
+    {"name": "a date", "request": {"until": "2026-09-11T07:00:00Z"}, "until": "2026-09-11T07:00:00Z"},
+    {"name": "a date with an offset is kept as the same instant", "request": {"until": "2026-09-11T09:00:00+02:00"}, "until": "2026-09-11T07:00:00Z"},
+    {"name": "just inside the ceiling", "request": {"until": "2028-09-07T09:59:00Z"}, "until": "2028-09-07T09:59:00Z"},
+    {"name": "nothing", "request": {}, "error": "empty"},
+    {"name": "both forms", "request": {"until": "2026-09-11T07:00:00Z", "count": 1, "unit": "days"}, "error": "both_forms"},
+    {"name": "an unknown unit", "request": {"count": 1, "unit": "fortnights"}, "error": "unit"},
+    {"name": "zero", "request": {"count": 0, "unit": "days"}, "error": "count"},
+    {"name": "negative", "request": {"count": -3, "unit": "days"}, "error": "count"},
+    {"name": "an unreadable date", "request": {"until": "next tuesday"}, "error": "unreadable"},
+    {"name": "the past", "request": {"until": "2026-09-08T09:00:00Z"}, "error": "past"},
+    {"name": "now itself", "request": {"until": "2026-09-08T10:00:00Z"}, "error": "past"},
+    {"name": "too far by count", "request": {"count": 30, "unit": "months"}, "error": "too_far"},
+    {"name": "too far by date", "request": {"until": "2028-09-09T10:00:00Z"}, "error": "too_far"}
+  ]
+}

@@ -33,6 +33,8 @@ import { subtree } from "../clipboard.js";
 import { branchOf } from "../branch.js";
 import { categoryOf, CATEGORY_LABELS, summarize } from "../design.js";
 import { Icon } from "./icons.js";
+import { StepRequirements } from "./StepRequirements.js";
+import { catalogueFromGraph, itemFieldsOf, requiredOf, withRequirements } from "../requirements.js";
 
 /**
  * The selected node's settings and its ways out. Everything the canvas can
@@ -201,6 +203,23 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
           )}
           <AssigneePreview node={node} />
         </section>
+      )}
+
+      {node.type === "review" && (
+        <div className="zwf-card">
+          <StepRequirements
+            stageName={nameOf(ed.graph, node.id)}
+            required={requiredOf(node)}
+            itemFields={itemFieldsOf(node)}
+            catalogue={catalogueFromGraph(ed.graph, ed.requirementFields)}
+            readOnly={ro}
+            headingLevel={ed.headingLevel + 1}
+            docsUrl={ed.requirementsDocsUrl}
+            onChange={({ required, itemFields }) =>
+              ed.update((g) => setNodeConfig(g, node.id, withRequirements(nodeById(g, node.id)?.config, required, itemFields)))
+            }
+          />
+        </div>
       )}
 
       <WaysOut node={node} focusEdge={focusEdge} />

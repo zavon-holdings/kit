@@ -25,6 +25,8 @@ import { SimulatePanel } from "./SimulatePanel.js";
 import { StepsPanel } from "./StepsPanel.js";
 import { layoutAll, WorkflowCanvas } from "./WorkflowCanvas.js";
 
+import type { RequirementField } from "../requirements.js";
+
 export type WorkflowBuilderProps = {
   graph: Graph;
   /** Every edit, as the whole new graph. Absent or readOnly: nothing can change. */
@@ -72,6 +74,14 @@ export type WorkflowBuilderProps = {
    * brings it back. Removing a step with everything after it always asks.
    */
   confirmRemovals?: boolean;
+  /**
+   * Fields a review step may require before an item moves on, from the
+   * server's catalogue (the record's own fields, saved forms). The graph's
+   * own form questions and fields kept on the item are added to these.
+   */
+  requirementFields?: RequirementField[];
+  /** Docs for step requirements, linked from a small info icon. */
+  requirementsDocsUrl?: string;
 };
 
 const DEFAULT_SAMPLE: Sample = { subject: { type: "person", pid: "sample-1" }, vars: {} };
@@ -321,6 +331,8 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
     triggerEditor,
     confirm: setAsk,
     removeNodes: removeNodesFlow,
+    requirementFields: props.requirementFields,
+    requirementsDocsUrl: props.requirementsDocsUrl,
   };
 
   const check = async () => {

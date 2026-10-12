@@ -67,5 +67,16 @@ export {
 } from "./catalogue.js";
 export { toRows, fromRows, parseValue, valueText, type Row, type Rows } from "./conditionRows.js";
 export { fieldSuggestions } from "./fields.js";
+export { StepRequirements, type StepRequirementsProps } from "./components/StepRequirements.js";
+export {
+  catalogueFromGraph,
+  itemFieldsOf,
+  requiredOf,
+  keyFor,
+  withRequirements,
+  ITEM_FIELD_TYPES,
+  KEPT_ON_ITEM,
+  type RequirementField,
+} from "./requirements.js";
 export { nextFocus } from "./nav.js";
 export type * from "./types.js";
