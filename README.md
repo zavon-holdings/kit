@@ -33,7 +33,7 @@ are passed as strings.
 | `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. Draws decisions, forks, loops, approvals, sub-workflows, payment requests and invoices (each one node, compiled to a sequence), and carries canvas notes that never compile. |
 | `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
 | `@zavon/merge3`          | The three-way tree merge, for Node and the browser. Twin of `go/merge3`. |
-| `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; progress through a storage adapter — this browser, or a server with an offline queue (1.1) — and What's new. |
+| `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; progress through a storage adapter — this browser, or a server with an offline queue (1.1) — and What's new, which opens by itself for a returning person (1.2). |
 | `@zavon/assistant`       | AI assistance controls for React: the gateway's wire types, a status hook, a button that shows a tool's credit price or why it is not available, a side sheet for help answers and proposals, a before and after view, and feedback thumbs. Every word comes from the host. |
 
 ### `@zavon/workflow-ui`
@@ -251,6 +251,22 @@ const { start, restart } = useTours();   // Help menu: start("first-run"), "Rest
   `tourClosed` (records a "Show me" tour's last step), and `toast` — at most
   one big-ticket note a day across products (`toastCandidate`). Provide it
   once per page with `WhatsNewContext`. The drawing is the host's.
+- **Returning people** (1.2): the feed also answers `last_seen_at` (the
+  person's last visit to the app, null on a first visit and while acting as
+  a role) and `auto_open_days` (0 is never). `shouldAutoOpen(lastSeenAt, now,
+  minDays, items)` says whether the panel opens by itself: away at least
+  `minDays` days and something published meanwhile that has not opened by
+  itself before (`auto_shown_at`); `freshSince` lists those notes, which go
+  first, the rest below an "Earlier" divider. Both are held to
+  `contract/whatsnew/auto_open.json`. `useWhatsNew({ autoOpen: true })`
+  decides once per page (`autoOpenDue`) and holds the day's toast back;
+  `openAuto()` opens it, posts `auto_shown` for the new notes and remembers
+  the return in this browser per person, so it opens once per return;
+  `autoOpened`, `fresh` and `closeAuto()` are what the host draws.
+  `useAutoOpenWhatsNew({ mainTour })`, inside `TourProvider`, calls
+  `openAuto()` once no tour is on screen, and never on a page that began
+  with the first-run tour unfinished: the tour comes first. The host keeps
+  `autoOpen` off while acting as a role, in an editor and under automation.
 - No typography of its own; colours, radius and z-index are `--ztour-*` CSS
   variables. Every label is a prop (`labels`). Axe runs over the tooltip in
   the package's tests.
@@ -312,7 +328,7 @@ const { status, refresh } = useAiStatus({ load: () => api.aiStatus() });
 ## Contract vectors (`contract/`)
 
 JSON files every implementation's tests replay: `signature/`, `callback/`,
-`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`.
+`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`, `whatsnew/`.
 `forms/` holds form definitions (valid, or refused at a page and question),
 which pages and questions a respondent sees for given answers, and what a
 submit keeps. A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
@@ -324,13 +340,22 @@ the rest are written by the server implementation and only checked here.
 `stepgates/` is written by hand: the step-requirements rule, what counts as
 filled, the words a screen shows, the 422 body, the snooze grammar and the
 snoozed filter. Core, Reach and Pages replay it in their Go tests and
-`@zavon/step-gates` in its own.
+`@zavon/step-gates` in its own. `whatsnew/` is written by hand too: when
+What's new opens by itself for a returning person, and which notes are new;
+`@zavon/tour` replays it.
 
 ## Releases
 
 A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
+
+**1.14.0** (no Go change): `@zavon/tour` 1.2.0 — What's new opens by
+itself for a returning person: `shouldAutoOpen` and `freshSince` (held to
+`contract/whatsnew/`), `useWhatsNew({ autoOpen })` with `autoOpenDue`,
+`openAuto`, `autoOpened`, `fresh` and `closeAuto`, the `auto_shown` receipt,
+and `useAutoOpenWhatsNew` (no tour on screen, the first-run tour first).
+Unchanged packs keep their versions.
 
 **1.13.0** (Go: `go/aiclient`, new; tag `go/v1.13.0`): AI assistance.
 `contract/ai/` wire vectors (invoke, status, jobs, feedback, errors and one

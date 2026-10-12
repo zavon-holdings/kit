@@ -1,0 +1,31 @@
+{
+  "about": "Whether What's new opens by itself for a returning person: shouldAutoOpen(last_seen_at, now, min_days, items). It opens when the person was away at least min_days whole days (now - last_seen_at >= min_days x 24 h) AND at least one listed item was published after last_seen_at and has not opened by itself before (no auto_shown_at). Dismissed items are never listed. A first visit (last_seen_at null), an unreadable date and min_days 0 or less never open. fresh is the items new since the last visit, in the feed's order: they come first in the panel, the rest below an Earlier divider.",
+  "now": "2026-10-12T09:00:00Z",
+  "items": {
+    "new-a": {"key": "new-a", "published_at": "2026-10-10T08:00:00Z"},
+    "new-b": {"key": "new-b", "published_at": "2026-10-05T12:00:00Z"},
+    "old": {"key": "old", "published_at": "2026-09-20T08:00:00Z"},
+    "at-visit": {"key": "at-visit", "published_at": "2026-10-01T09:00:00Z"},
+    "auto-shown": {"key": "auto-shown", "published_at": "2026-10-11T08:00:00Z", "auto_shown_at": "2026-10-11T09:00:00Z"},
+    "no-date": {"key": "no-date", "published_at": "soon"}
+  },
+  "cases": [
+    {"name": "away eleven days, two notes published while away", "last_seen_at": "2026-10-01T09:00:00Z", "min_days": 7, "items": ["new-a", "new-b", "old"], "open": true, "fresh": ["new-a", "new-b"]},
+    {"name": "away exactly the minimum", "last_seen_at": "2026-10-05T09:00:00Z", "min_days": 7, "items": ["new-a", "old"], "open": true, "fresh": ["new-a"]},
+    {"name": "one second short of the minimum", "last_seen_at": "2026-10-05T09:00:01Z", "min_days": 7, "items": ["new-a", "old"], "open": false, "fresh": ["new-a"]},
+    {"name": "away long enough, nothing new", "last_seen_at": "2026-10-01T09:00:00Z", "min_days": 7, "items": ["old"], "open": false, "fresh": []},
+    {"name": "published at the moment of the last visit is not new", "last_seen_at": "2026-10-01T09:00:00Z", "min_days": 7, "items": ["at-visit", "old"], "open": false, "fresh": []},
+    {"name": "a note that already opened by itself does not open it again", "last_seen_at": "2026-10-01T09:00:00Z", "min_days": 7, "items": ["auto-shown", "old"], "open": false, "fresh": []},
+    {"name": "the auto-shown note is left out of fresh, a newer one is not", "last_seen_at": "2026-10-01T09:00:00Z", "min_days": 7, "items": ["auto-shown", "new-a"], "open": true, "fresh": ["new-a"]},
+    {"name": "a first visit is the tour's, not What's new's", "last_seen_at": null, "min_days": 7, "items": ["new-a"], "open": false, "fresh": []},
+    {"name": "an unreadable last visit", "last_seen_at": "yesterday", "min_days": 7, "items": ["new-a"], "open": false, "fresh": []},
+    {"name": "an unreadable publication date is not new", "last_seen_at": "2026-10-01T09:00:00Z", "min_days": 7, "items": ["no-date"], "open": false, "fresh": []},
+    {"name": "0 turns it off", "last_seen_at": "2025-10-01T09:00:00Z", "min_days": 0, "items": ["new-a"], "open": false, "fresh": ["new-a"]},
+    {"name": "a negative setting is off", "last_seen_at": "2025-10-01T09:00:00Z", "min_days": -3, "items": ["new-a"], "open": false, "fresh": ["new-a"]},
+    {"name": "one day away, nothing published since", "last_seen_at": "2026-10-11T08:00:00Z", "min_days": 1, "items": ["auto-shown", "new-a"], "open": false, "fresh": []},
+    {"name": "the only note published since already opened by itself", "last_seen_at": "2026-10-11T07:59:00Z", "min_days": 1, "items": ["new-a", "auto-shown"], "open": false, "fresh": []},
+    {"name": "a long absence", "last_seen_at": "2026-06-01T00:00:00Z", "min_days": 30, "items": ["new-a", "new-b", "old", "at-visit"], "open": true, "fresh": ["new-a", "new-b", "old", "at-visit"]},
+    {"name": "an empty feed", "last_seen_at": "2026-06-01T00:00:00Z", "min_days": 7, "items": [], "open": false, "fresh": []},
+    {"name": "a last visit in the future (a clock ahead) never opens", "last_seen_at": "2026-10-20T09:00:00Z", "min_days": 7, "items": ["new-a"], "open": false, "fresh": []}
+  ]
+}
