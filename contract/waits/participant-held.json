@@ -1,0 +1,10 @@
+{
+  "name": "participant-held",
+  "status": 409,
+  "code": "held",
+  "error": "The team must do one more thing first. We have told them.",
+  "keys": [
+    "error",
+    "code"
+  ]
+}

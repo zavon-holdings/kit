@@ -1,0 +1,9 @@
+{
+  "name": "link-expired",
+  "status": 410,
+  "code": "expired",
+  "keys": [
+    "error",
+    "code"
+  ]
+}

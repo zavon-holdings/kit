@@ -1,0 +1,13 @@
+{
+  "name": "link-withdrawn",
+  "status": 410,
+  "code": "withdrawn",
+  "detail": {
+    "reason": "Offer closed"
+  },
+  "keys": [
+    "error",
+    "code",
+    "detail"
+  ]
+}

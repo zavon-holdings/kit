@@ -1,0 +1,18 @@
+{
+  "name": "run-locked-scheduled-move",
+  "status": 423,
+  "code": "run_locked",
+  "reason": "scheduled_move",
+  "escape": {
+    "label": "Cancel the move",
+    "method": "DELETE",
+    "path": "/api/workflows/runs/{run}/scheduled-move"
+  },
+  "keys": [
+    "code",
+    "reason",
+    "message",
+    "escape",
+    "scheduled_move"
+  ]
+}

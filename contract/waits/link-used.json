@@ -1,0 +1,9 @@
+{
+  "name": "link-used",
+  "status": 410,
+  "code": "used",
+  "keys": [
+    "error",
+    "code"
+  ]
+}

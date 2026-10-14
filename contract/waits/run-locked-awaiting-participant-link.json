@@ -1,0 +1,18 @@
+{
+  "name": "run-locked-awaiting-participant-link",
+  "status": 423,
+  "code": "run_locked",
+  "reason": "awaiting_participant",
+  "escape": {
+    "label": "Withdraw the request",
+    "method": "POST",
+    "path": "/api/workflows/runs/{run}/participant-links/{link}/withdraw"
+  },
+  "keys": [
+    "code",
+    "reason",
+    "message",
+    "escape",
+    "wait"
+  ]
+}
