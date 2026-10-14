@@ -1,0 +1,7 @@
+{
+  "body": "\u003cP class=\"x\"\u003e\n  \u003ca class=\"y\" href=\"https://example.test/z\"\u003eSign \u003cem\u003ethe\u003c/em\u003e\n form\u003c/a\u003e\n\u003c/P\u003e",
+  "button": "\u003ctable role=\"presentation\" data-cta=\"button\"\u003e\u003ctr\u003e\u003ctd\u003e\u003ca href=\"{href}\" style=\"display:inline-block;padding:12px 24px\"\u003e{label}\u003c/a\u003e\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
+  "expect": "\u003ctable role=\"presentation\" data-cta=\"button\"\u003e\u003ctr\u003e\u003ctd\u003e\u003ca href=\"https://example.test/z\" style=\"display:inline-block;padding:12px 24px\"\u003eSign the form\u003c/a\u003e\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
+  "link": "\u003cp\u003e\u003ca href=\"{href}\" style=\"font-weight:600;text-decoration:underline\"\u003e{label}\u003c/a\u003e\u003c/p\u003e",
+  "name": "tags-in-a-label-are-dropped"
+}

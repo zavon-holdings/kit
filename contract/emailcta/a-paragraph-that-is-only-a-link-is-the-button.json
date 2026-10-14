@@ -1,0 +1,7 @@
+{
+  "body": "\u003cp\u003eHello.\u003c/p\u003e\u003cp\u003e\u003ca href=\"https://example.test/go\"\u003eOpen your record\u003c/a\u003e\u003c/p\u003e",
+  "button": "\u003ctable role=\"presentation\" data-cta=\"button\"\u003e\u003ctr\u003e\u003ctd\u003e\u003ca href=\"{href}\" style=\"display:inline-block;padding:12px 24px\"\u003e{label}\u003c/a\u003e\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
+  "expect": "\u003cp\u003eHello.\u003c/p\u003e\u003ctable role=\"presentation\" data-cta=\"button\"\u003e\u003ctr\u003e\u003ctd\u003e\u003ca href=\"https://example.test/go\" style=\"display:inline-block;padding:12px 24px\"\u003eOpen your record\u003c/a\u003e\u003c/td\u003e\u003c/tr\u003e\u003c/table\u003e",
+  "link": "\u003cp\u003e\u003ca href=\"{href}\" style=\"font-weight:600;text-decoration:underline\"\u003e{label}\u003c/a\u003e\u003c/p\u003e",
+  "name": "a-paragraph-that-is-only-a-link-is-the-button"
+}

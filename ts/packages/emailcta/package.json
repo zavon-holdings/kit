@@ -1,0 +1,13 @@
+{
+  "name": "@zavon/emailcta",
+  "version": "1.0.0",
+  "description": "One button per email: the first call to action is the button, later ones are accent links, addresses never are. Held to the vectors in contract/emailcta.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  }
+}
