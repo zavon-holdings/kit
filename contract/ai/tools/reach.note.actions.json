@@ -1,0 +1,38 @@
+{
+  "tool_key": "reach.note.actions",
+  "mode": "inline",
+  "input": {
+    "kind": "call",
+    "note": "Spoke with Alex about the welcome team. Jordan will send the rota by Friday. Alex wants to bring a friend to the training.",
+    "happened_on": "2026-10-13",
+    "today": "2026-10-14",
+    "assignees": [
+      {
+        "ref": "u_1",
+        "name": "Jordan Staff"
+      },
+      {
+        "ref": "u_2",
+        "name": "Riley Staff"
+      }
+    ],
+    "locale": "en-GB"
+  },
+  "result": {
+    "summary": "A call about the welcome team. Jordan Staff will send the rota by Friday, and the person would like to bring a friend to the training.",
+    "actions": [
+      {
+        "title": "Send the welcome team rota",
+        "due_on": "2026-10-17",
+        "assignee_ref": "u_1",
+        "excerpt": "Jordan will send the rota by Friday"
+      },
+      {
+        "title": "Add a place for a friend at the training",
+        "due_on": "",
+        "assignee_ref": "",
+        "excerpt": "Alex wants to bring a friend to the training"
+      }
+    ]
+  }
+}

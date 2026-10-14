@@ -1,0 +1,43 @@
+{
+  "tool_key": "reach.insights.week",
+  "mode": "inline",
+  "input": {
+    "week": "2026-W41",
+    "scope": "Whole organisation",
+    "metrics": [
+      {
+        "key": "new_people",
+        "label": "New people",
+        "value": 14,
+        "previous": 9
+      },
+      {
+        "key": "checkins",
+        "label": "Check-ins",
+        "value": 312,
+        "previous": 298
+      },
+      {
+        "key": "lapsing",
+        "label": "People lapsing",
+        "value": 6,
+        "previous": 11
+      },
+      {
+        "key": "open_rate",
+        "label": "Newsletter open rate",
+        "value": 0.462,
+        "unit": "fraction"
+      }
+    ],
+    "locale": "en-GB"
+  },
+  "result": {
+    "headline": "14 new people this week, more than last week's 9.",
+    "points": [
+      "Check-ins rose to 312, from 298.",
+      "Fewer people are lapsing: 6, down from 11.",
+      "The newsletter open rate was 46.2%."
+    ]
+  }
+}

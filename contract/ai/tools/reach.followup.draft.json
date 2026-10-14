@@ -1,0 +1,23 @@
+{
+  "tool_key": "reach.followup.draft",
+  "mode": "inline",
+  "input": {
+    "channel": "email",
+    "reason": "Thank them for signing up for the welcome team and invite them to the training on Saturday 18 October at 10:00.",
+    "context": [
+      "First time serving",
+      "Training is in the main hall"
+    ],
+    "voice_sample": "Hi friends, what a week it has been! Thank you to everyone who came out on Saturday.",
+    "merge_tags": [
+      "{{first_name}}"
+    ],
+    "person_name": "Alex Example",
+    "sender_name": "Sam Sender",
+    "locale": "en-GB"
+  },
+  "result": {
+    "subject": "Welcome to the welcome team!",
+    "body": "Hi {{first_name}},\n\nThank you for signing up for the welcome team. We would love to see you at the training on Saturday 18 October at 10:00 in the main hall.\n\nSee you there,\nSam Sender"
+  }
+}

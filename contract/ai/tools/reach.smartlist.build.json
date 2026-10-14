@@ -1,0 +1,63 @@
+{
+  "tool_key": "reach.smartlist.build",
+  "mode": "inline",
+  "input": {
+    "question": "People who checked in at least twice in September and are not in a group",
+    "fields": [
+      {
+        "key": "checkins_september",
+        "label": "Check-ins in September",
+        "type": "number"
+      },
+      {
+        "key": "lists",
+        "label": "Lists",
+        "type": "list"
+      },
+      {
+        "key": "tags",
+        "label": "Tags",
+        "type": "tag"
+      },
+      {
+        "key": "stage",
+        "label": "Stage",
+        "type": "enum"
+      }
+    ],
+    "tags": [
+      {
+        "name": "newcomer",
+        "count": 42
+      }
+    ],
+    "lists": [
+      {
+        "key": "small-groups",
+        "name": "Small groups",
+        "count": 120
+      }
+    ],
+    "catalogue_version": "2026-10-01",
+    "locale": "en-GB"
+  },
+  "result": {
+    "cond": {
+      "all": [
+        {
+          "field": "checkins_september",
+          "op": "gte",
+          "value": 2
+        },
+        {
+          "not": {
+            "field": "lists",
+            "op": "contains",
+            "value": "small-groups"
+          }
+        }
+      ]
+    },
+    "explanation": "People with two or more check-ins in September who are not on the Small groups list."
+  }
+}

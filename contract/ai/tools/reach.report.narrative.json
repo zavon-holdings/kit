@@ -1,0 +1,81 @@
+{
+  "tool_key": "reach.report.narrative",
+  "mode": "inline",
+  "input": {
+    "report": {
+      "name": "Monthly performance",
+      "from": "2026-09-01",
+      "to": "2026-09-30"
+    },
+    "kpis": [
+      {
+        "key": "leads",
+        "label": "Leads",
+        "value": 128,
+        "previous": 96
+      },
+      {
+        "key": "cost_per_lead",
+        "label": "Cost per lead",
+        "value": 84.5,
+        "previous": 102.25,
+        "unit": "ZAR"
+      }
+    ],
+    "campaigns": [
+      {
+        "name": "Spring open day",
+        "metrics": {
+          "leads": 71,
+          "spend": 5200
+        }
+      },
+      {
+        "name": "Search: courses",
+        "metrics": {
+          "leads": 57,
+          "spend": 5616
+        }
+      }
+    ],
+    "findings": [
+      {
+        "id": "f1",
+        "title": "Open day ads brought the most leads",
+        "detail": "71 leads"
+      },
+      {
+        "id": "f2",
+        "title": "Search leads cost more than social leads"
+      }
+    ],
+    "locale": "en-GB"
+  },
+  "result": {
+    "headline": "128 leads in September, up from 96, at a lower cost per lead.",
+    "points": [
+      {
+        "text": "Leads rose to 128 from 96.",
+        "cites": [
+          "leads"
+        ]
+      },
+      {
+        "text": "Cost per lead fell to R84.50 from R102.25.",
+        "cites": [
+          "cost_per_lead"
+        ]
+      },
+      {
+        "text": "The Spring open day ads brought the most leads: 71.",
+        "cites": [
+          "f1"
+        ]
+      }
+    ],
+    "next_tests": [
+      "Try the open day creative on search.",
+      "Move some search budget to social for a month."
+    ]
+  }
+}

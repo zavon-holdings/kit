@@ -1,0 +1,91 @@
+{
+  "tool_key": "reach.import.map",
+  "mode": "inline",
+  "input": {
+    "headers": [
+      "First",
+      "Surname",
+      "E-mail address",
+      "Cell",
+      "Favourite colour"
+    ],
+    "samples": [
+      [
+        "Alex",
+        "Example",
+        "alex@example.org",
+        "082 555 0101",
+        "Blue"
+      ],
+      [
+        "Riley",
+        "Sample",
+        "riley@example.org",
+        "082 555 0102",
+        "Green"
+      ]
+    ],
+    "fields": [
+      {
+        "key": "first_name",
+        "label": "First name",
+        "type": "text"
+      },
+      {
+        "key": "last_name",
+        "label": "Last name",
+        "type": "text"
+      },
+      {
+        "key": "email",
+        "label": "Email",
+        "type": "text"
+      },
+      {
+        "key": "phone",
+        "label": "Mobile number",
+        "type": "text"
+      },
+      {
+        "key": "tags",
+        "label": "Tags",
+        "type": "tag"
+      }
+    ],
+    "locale": "en-GB"
+  },
+  "result": {
+    "mappings": [
+      {
+        "column": "First",
+        "field": "first_name",
+        "confidence": "high",
+        "note": ""
+      },
+      {
+        "column": "Surname",
+        "field": "last_name",
+        "confidence": "high",
+        "note": ""
+      },
+      {
+        "column": "E-mail address",
+        "field": "email",
+        "confidence": "high",
+        "note": ""
+      },
+      {
+        "column": "Cell",
+        "field": "phone",
+        "confidence": "medium",
+        "note": "Cell is a mobile number."
+      },
+      {
+        "column": "Favourite colour",
+        "field": "",
+        "confidence": "low",
+        "note": "No field holds this."
+      }
+    ]
+  }
+}

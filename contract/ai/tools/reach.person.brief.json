@@ -1,0 +1,61 @@
+{
+  "tool_key": "reach.person.brief",
+  "mode": "inline",
+  "input": {
+    "person": {
+      "name": "Alex Example",
+      "facts": [
+        {
+          "label": "Stage",
+          "value": "Regular"
+        },
+        {
+          "label": "Location",
+          "value": "North campus"
+        },
+        {
+          "label": "Member since",
+          "value": "2024-03-10"
+        },
+        {
+          "label": "Groups",
+          "value": "Tuesday small group"
+        }
+      ]
+    },
+    "activity": [
+      {
+        "at": "2026-10-05",
+        "kind": "checked_in",
+        "title": "Checked in at Sunday gathering"
+      },
+      {
+        "at": "2026-09-28",
+        "kind": "form",
+        "title": "Signed up for the welcome team"
+      },
+      {
+        "at": "2026-09-21",
+        "kind": "opened",
+        "title": "Opened the September newsletter"
+      }
+    ],
+    "notes": [
+      {
+        "at": "2026-09-29",
+        "kind": "call",
+        "text": "Asked about serving on the welcome team. Free on Sunday mornings."
+      }
+    ],
+    "changes": [
+      "Signed up for the welcome team",
+      "Stage changed from Visitor to Regular"
+    ],
+    "since": "2026-09-15",
+    "locale": "en-GB"
+  },
+  "result": {
+    "summary": "Alex Example is a regular at the North campus and part of the Tuesday small group. They checked in at the Sunday gathering on 5 October and asked on a call about serving on the welcome team; they are free on Sunday mornings.",
+    "changed": "Since 15 September Alex Example signed up for the welcome team and moved from Visitor to Regular."
+  }
+}
