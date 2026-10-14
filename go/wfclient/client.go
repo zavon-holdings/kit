@@ -354,6 +354,44 @@ func (c *Client) StartRun(ctx context.Context, in StartRun, idempotencyKey strin
 	return out, res, err
 }
 
+// RunAssignees reads who is responsible for a run.
+func (c *Client) RunAssignees(ctx context.Context, uid string) ([]RunAssignee, error) {
+	var out struct {
+		Assignees []RunAssignee `json:"assignees"`
+	}
+	_, err := c.call(ctx, http.MethodGet, "/api/workflows/runs/"+url.PathEscape(uid)+"/assignees", nil, nil, nil, &out)
+	return out.Assignees, err
+}
+
+// SetRunAssignees makes people the run's assignees (an empty list unassigns
+// everybody); open to-dos on the run's people follow.
+func (c *Client) SetRunAssignees(ctx context.Context, uid string, people []TaskPerson, actor *Actor) (AssigneeChange, error) {
+	if people == nil {
+		people = []TaskPerson{}
+	}
+	body := map[string]any{"assignees": people}
+	if actor != nil {
+		body["actor"] = actor
+	}
+	var out AssigneeChange
+	_, err := c.call(ctx, http.MethodPut, "/api/workflows/runs/"+url.PathEscape(uid)+"/assignees", nil, nil, body, &out)
+	return out, err
+}
+
+// InstallTemplate installs a template (a property's own, or one of the
+// service's built-ins such as follow-up) into an organisation. A built-in
+// CRM template installed already answers the definition the organisation
+// has (Result.Status 200, never rewritten); the first install is 201.
+func (c *Client) InstallTemplate(ctx context.Context, code, tenant, idempotencyKey string, actor *Actor) (Definition, Result, error) {
+	body := map[string]any{"tenant": tenant}
+	if actor != nil {
+		body["actor"] = actor
+	}
+	var out Definition
+	res, err := c.call(ctx, http.MethodPost, "/api/workflows/templates/"+url.PathEscape(code)+"/install", nil, idem(idempotencyKey), body, &out)
+	return out, res, err
+}
+
 // ListRuns lists runs, a page at a time.
 func (c *Client) ListRuns(ctx context.Context, f RunFilter) ([]RunSummary, Page, error) {
 	q := url.Values{"tenant": {f.Tenant}}

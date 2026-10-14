@@ -212,6 +212,26 @@ type StartRun struct {
 	Subject    SubjectRef     `json:"subject"`
 	Vars       map[string]any `json:"vars,omitempty"`
 	Actor      *Actor         `json:"actor,omitempty"`
+	// Assignees are who is responsible for the record from the start; a
+	// to-do naming {"run": {}} waits on them.
+	Assignees []TaskPerson `json:"assignees,omitempty"`
+}
+
+// RunAssignee is one person responsible for a run.
+type RunAssignee struct {
+	Email      string    `json:"email"`
+	Sub        string    `json:"sub,omitempty"`
+	Name       string    `json:"name,omitempty"`
+	Source     string    `json:"source"`
+	AssignedBy Actor     `json:"assigned_by"`
+	AssignedAt time.Time `json:"assigned_at"`
+}
+
+// AssigneeChange is what a reassignment did.
+type AssigneeChange struct {
+	Assignees []RunAssignee `json:"assignees"`
+	Added     []string      `json:"added"`
+	Removed   []string      `json:"removed"`
 }
 
 // RunSummary is one run in a listing.
@@ -261,6 +281,10 @@ type Run struct {
 	Steps       []RunStep      `json:"steps"`
 	PendingJobs []PendingJob   `json:"pending_jobs"`
 	Tasks       []any          `json:"tasks"`
+	// Assignees are who is responsible for the record now; IsTest marks a
+	// test record. Both absent from a service that predates them.
+	Assignees []RunAssignee `json:"assignees,omitempty"`
+	IsTest    bool          `json:"is_test,omitempty"`
 }
 
 // RunFilter narrows GET /runs.

@@ -1,0 +1,23 @@
+{
+  "tool_key": "reach.followup.draft",
+  "mode": "inline",
+  "input": {
+    "channel": "sms",
+    "reason": "Remind them about the welcome team training on Saturday at 10:00.",
+    "context": [
+      "Training is in the main hall"
+    ],
+    "voice_sample": "Hi friends, what a week it has been!",
+    "merge_tags": [
+      "{{first_name}}"
+    ],
+    "person_name": "Alex Example",
+    "sender_name": "Sam Sender",
+    "max_segments": 1,
+    "locale": "en-GB"
+  },
+  "result": {
+    "subject": "",
+    "body": "Hi {{first_name}}, a reminder: welcome team training is on Saturday at 10:00 in the main hall. See you there!"
+  }
+}
