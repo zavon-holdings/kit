@@ -11,7 +11,7 @@
         },
         {
           "label": "Location",
-          "value": "North campus"
+          "value": "North location"
         },
         {
           "label": "Member since",
@@ -55,7 +55,7 @@
     "locale": "en-GB"
   },
   "result": {
-    "summary": "Alex Example is a regular at the North campus and part of the Tuesday small group. They checked in at the Sunday gathering on 5 October and asked on a call about serving on the welcome team; they are free on Sunday mornings.",
+    "summary": "Alex Example is a regular at the North location and part of the Tuesday small group. They checked in at the Sunday gathering on 5 October and asked on a call about serving on the welcome team; they are free on Sunday mornings.",
     "changed": "Since 15 September Alex Example signed up for the welcome team and moved from Visitor to Regular."
   }
 }
