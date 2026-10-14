@@ -1,0 +1,9 @@
+{
+  "name": "tests-and-final",
+  "query": "tests=1&final=1",
+  "ok": true,
+  "normalised": {
+    "final": "1",
+    "tests": "1"
+  }
+}

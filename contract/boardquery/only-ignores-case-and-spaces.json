@@ -1,0 +1,11 @@
+{
+  "name": "only-ignores-case-and-spaces",
+  "query": "only=%20Due_Soon%20,AWAITING",
+  "ok": true,
+  "normalised": {
+    "only": [
+      "awaiting",
+      "due_soon"
+    ]
+  }
+}

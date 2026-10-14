@@ -1,0 +1,8 @@
+{
+  "name": "sort-by-a-scale",
+  "query": "sort=score:aptitude",
+  "ok": true,
+  "normalised": {
+    "sort": "score:aptitude"
+  }
+}

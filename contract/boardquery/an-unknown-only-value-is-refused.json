@@ -1,0 +1,6 @@
+{
+  "name": "an-unknown-only-value-is-refused",
+  "query": "only=overdue,late",
+  "ok": false,
+  "error": "only"
+}

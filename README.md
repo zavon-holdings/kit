@@ -332,7 +332,7 @@ const { status, refresh } = useAiStatus({ load: () => api.aiStatus() });
 ## Contract vectors (`contract/`)
 
 JSON files every implementation's tests replay: `signature/`, `callback/`,
-`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`, `whatsnew/`, `bands/`, `emailcta/`, `deadlines/`.
+`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`, `whatsnew/`, `bands/`, `emailcta/`, `deadlines/`, `boardquery/`.
 `forms/` holds form definitions (valid, or refused at a page and question),
 which pages and questions a respondent sees for given answers, and what a
 submit keeps. A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
@@ -350,7 +350,11 @@ What's new opens by itself for a returning person, and which notes are new;
 settings a stage's drawer accepts (`resolve`: due_after, warn_before,
 grace_after, daily, then move or check with then_to) and the words of each
 refusal; a vector with `steps` is checked as a whole definition, because
-where a lapsed record goes is a fact about the other steps.
+where a lapsed record goes is a fact about the other steps. `boardquery/` is
+written by hand: a board's query string (`only`, `assignee`, `me`, `sort`,
+`tests`, `final` and the live `snoozed`, `stage`, `owner`, `q`) accepted with
+its normalised form — defaults left out, `only` sorted and de-duplicated — or
+refused naming the key; console-ui's `useUrlState` and core's board replay it.
 
 ## Releases
 

@@ -1,0 +1,8 @@
+{
+  "name": "assignee-an-address",
+  "query": "assignee=Ben@Example.test",
+  "ok": true,
+  "normalised": {
+    "assignee": "ben@example.test"
+  }
+}

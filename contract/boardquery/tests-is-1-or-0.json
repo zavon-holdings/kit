@@ -1,0 +1,6 @@
+{
+  "name": "tests-is-1-or-0",
+  "query": "tests=yes",
+  "ok": false,
+  "error": "tests"
+}

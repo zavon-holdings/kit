@@ -1,0 +1,6 @@
+{
+  "name": "snoozed-is-hide-or-only",
+  "query": "snoozed=all",
+  "ok": false,
+  "error": "snoozed"
+}

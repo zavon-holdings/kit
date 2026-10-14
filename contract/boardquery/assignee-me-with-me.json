@@ -1,0 +1,9 @@
+{
+  "name": "assignee-me-with-me",
+  "query": "assignee=me&me=Ana@Example.test",
+  "ok": true,
+  "normalised": {
+    "assignee": "me",
+    "me": "ana@example.test"
+  }
+}

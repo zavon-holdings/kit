@@ -1,0 +1,6 @@
+{
+  "name": "assignee-not-an-address-is-refused",
+  "query": "assignee=ben",
+  "ok": false,
+  "error": "assignee"
+}

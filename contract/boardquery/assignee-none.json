@@ -1,0 +1,8 @@
+{
+  "name": "assignee-none",
+  "query": "assignee=none",
+  "ok": true,
+  "normalised": {
+    "assignee": "none"
+  }
+}

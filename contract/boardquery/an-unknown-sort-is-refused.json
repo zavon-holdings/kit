@@ -1,0 +1,6 @@
+{
+  "name": "an-unknown-sort-is-refused",
+  "query": "sort=random",
+  "ok": false,
+  "error": "sort"
+}

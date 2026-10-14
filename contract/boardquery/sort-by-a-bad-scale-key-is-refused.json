@@ -1,0 +1,6 @@
+{
+  "name": "sort-by-a-bad-scale-key-is-refused",
+  "query": "sort=score:Apt-itude",
+  "ok": false,
+  "error": "sort"
+}

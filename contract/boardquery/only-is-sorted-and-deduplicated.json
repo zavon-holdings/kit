@@ -1,0 +1,11 @@
+{
+  "name": "only-is-sorted-and-deduplicated",
+  "query": "only=overdue,linked&only=overdue",
+  "ok": true,
+  "normalised": {
+    "only": [
+      "linked",
+      "overdue"
+    ]
+  }
+}
