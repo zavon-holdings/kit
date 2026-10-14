@@ -1,0 +1,11 @@
+{
+  "name": "a-scale-with-no-bands-is-none",
+  "scale": {
+    "key": "fit",
+    "label": "Fit",
+    "unit": "points",
+    "bands": []
+  },
+  "value": 50,
+  "expect": null
+}

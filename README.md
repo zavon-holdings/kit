@@ -18,6 +18,7 @@ byte.
 | `outbox`     | An at-least-once outbox: rows added in the caller's transaction, drained later with backoff. |
 | `permits`    | A versioned cache of who holds what in an organisation, with an HTTP refresher and a `Decide` over `policy`. |
 | `merge3`     | A three-way merge of ordered trees of keyed units (a document's blocks, an outline's sections): fields, deletions, moves and order, with conflicts and `Resolve`. Twin of `@zavon/merge3`. |
+| `bands`      | Which band of a scale a score is in: the label, tone and recommendation it earns. Bands in any order; a value at a band's minimum is in that band; below every band is none. Twin of `@zavon/bands`. |
 | `aiclient`   | A client for an AI gateway's property routes: invoke a tool, start and read a job, the status a screen renders, feedback, and an organisation's AI settings. The credential is read on every request. |
 
 Database access goes through a small `Querier` interface (`Exec`, `QueryRow`)
@@ -32,6 +33,7 @@ are passed as strings.
 | `@zavon/conditions`      | The workflow condition language: parse, evaluate, describe, fields. |
 | `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. Draws decisions, forks, loops, approvals, sub-workflows, payment requests and invoices (each one node, compiled to a sequence), and carries canvas notes that never compile. |
 | `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
+| `@zavon/bands`           | Which band of a scale a score is in. Twin of `go/bands`. |
 | `@zavon/merge3`          | The three-way tree merge, for Node and the browser. Twin of `go/merge3`. |
 | `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; progress through a storage adapter — this browser, or a server with an offline queue (1.1) — and What's new, which opens by itself for a returning person (1.2). |
 | `@zavon/assistant`       | AI assistance controls for React: the gateway's wire types, a status hook, a button that shows a tool's credit price or why it is not available, a side sheet for help answers and proposals, a before and after view, and feedback thumbs. Every word comes from the host. |

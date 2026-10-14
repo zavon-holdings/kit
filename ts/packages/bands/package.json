@@ -1,0 +1,13 @@
+{
+  "name": "@zavon/bands",
+  "version": "1.0.0",
+  "description": "Which band of a scale a score is in: the label, tone and recommendation it earns. Held to the vectors in contract/bands.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": ["index.js", "index.d.ts"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  }
+}

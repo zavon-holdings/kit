@@ -1,0 +1,42 @@
+{
+  "name": "two-bands-at-one-value-is-an-error",
+  "scale": {
+    "key": "aptitude",
+    "label": "Aptitude",
+    "unit": "percent",
+    "bands": [
+      {
+        "min_value": 80,
+        "label": "Strong",
+        "tone": "good",
+        "recommendation": "Invite to interview"
+      },
+      {
+        "min_value": 75,
+        "label": "Good",
+        "tone": "ok",
+        "recommendation": ""
+      },
+      {
+        "min_value": 70,
+        "label": "Borderline",
+        "tone": "warning",
+        "recommendation": "Review by hand"
+      },
+      {
+        "min_value": 0,
+        "label": "Below the mark",
+        "tone": "critical",
+        "recommendation": ""
+      },
+      {
+        "min_value": 70,
+        "label": "Again",
+        "tone": "ok",
+        "recommendation": ""
+      }
+    ]
+  },
+  "value": 71,
+  "error": "duplicate_min_value"
+}
