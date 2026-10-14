@@ -1,0 +1,7 @@
+{
+  "name": "a-deadline-alone",
+  "resolve": {
+    "due_after": 5
+  },
+  "ok": true
+}

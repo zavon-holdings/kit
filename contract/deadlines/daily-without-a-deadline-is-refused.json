@@ -1,0 +1,8 @@
+{
+  "name": "daily-without-a-deadline-is-refused",
+  "resolve": {
+    "daily": true
+  },
+  "ok": false,
+  "error_contains": "needs a deadline"
+}

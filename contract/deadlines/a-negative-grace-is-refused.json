@@ -1,0 +1,9 @@
+{
+  "name": "a-negative-grace-is-refused",
+  "resolve": {
+    "due_after": 2,
+    "grace_after": -1
+  },
+  "ok": false,
+  "error_contains": "number of"
+}

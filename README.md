@@ -332,7 +332,7 @@ const { status, refresh } = useAiStatus({ load: () => api.aiStatus() });
 ## Contract vectors (`contract/`)
 
 JSON files every implementation's tests replay: `signature/`, `callback/`,
-`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`, `whatsnew/`.
+`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`, `whatsnew/`, `bands/`, `emailcta/`, `deadlines/`.
 `forms/` holds form definitions (valid, or refused at a page and question),
 which pages and questions a respondent sees for given answers, and what a
 submit keeps. A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
@@ -346,7 +346,11 @@ filled, the words a screen shows, the 422 body, the snooze grammar and the
 snoozed filter. Core, Reach and Pages replay it in their Go tests and
 `@zavon/step-gates` in its own. `whatsnew/` is written by hand too: when
 What's new opens by itself for a returning person, and which notes are new;
-`@zavon/tour` replays it.
+`@zavon/tour` replays it. `deadlines/` is written by hand: which deadline
+settings a stage's drawer accepts (`resolve`: due_after, warn_before,
+grace_after, daily, then move or check with then_to) and the words of each
+refusal; a vector with `steps` is checked as a whole definition, because
+where a lapsed record goes is a fact about the other steps.
 
 ## Releases
 

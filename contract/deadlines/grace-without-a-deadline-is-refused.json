@@ -1,0 +1,8 @@
+{
+  "name": "grace-without-a-deadline-is-refused",
+  "resolve": {
+    "grace_after": 2
+  },
+  "ok": false,
+  "error_contains": "needs a deadline"
+}

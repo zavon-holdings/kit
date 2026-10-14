@@ -1,0 +1,19 @@
+{
+  "name": "a-check-at-the-deadline",
+  "resolve": {
+    "due_after": 7,
+    "then": "check",
+    "then_to": "forfeited"
+  },
+  "steps": [
+    {
+      "code": "middle",
+      "kind": "review"
+    },
+    {
+      "code": "forfeited",
+      "kind": "end"
+    }
+  ],
+  "ok": true
+}

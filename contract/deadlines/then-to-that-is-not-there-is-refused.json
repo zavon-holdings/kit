@@ -1,0 +1,20 @@
+{
+  "name": "then-to-that-is-not-there-is-refused",
+  "resolve": {
+    "due_after": 5,
+    "then": "move",
+    "then_to": "nowhere"
+  },
+  "steps": [
+    {
+      "code": "middle",
+      "kind": "review"
+    },
+    {
+      "code": "forfeited",
+      "kind": "end"
+    }
+  ],
+  "ok": false,
+  "error_contains": "not a top-level step"
+}

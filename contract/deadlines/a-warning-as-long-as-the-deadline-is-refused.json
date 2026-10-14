@@ -1,0 +1,9 @@
+{
+  "name": "a-warning-as-long-as-the-deadline-is-refused",
+  "resolve": {
+    "due_after": 3,
+    "warn_before": 3
+  },
+  "ok": false,
+  "error_contains": "before the deadline"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "hours-count-too",
+  "resolve": {
+    "unit": "hours",
+    "due_after": 8,
+    "then": "wait"
+  },
+  "ok": true
+}

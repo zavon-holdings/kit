@@ -1,0 +1,8 @@
+{
+  "name": "a-negative-deadline-is-refused",
+  "resolve": {
+    "due_after": -1
+  },
+  "ok": false,
+  "error_contains": "number of"
+}

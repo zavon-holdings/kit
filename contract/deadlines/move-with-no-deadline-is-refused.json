@@ -1,0 +1,9 @@
+{
+  "name": "move-with-no-deadline-is-refused",
+  "resolve": {
+    "then": "move",
+    "then_to": "forfeited"
+  },
+  "ok": false,
+  "error_contains": "due_after"
+}

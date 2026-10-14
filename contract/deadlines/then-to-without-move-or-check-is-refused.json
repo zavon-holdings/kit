@@ -1,0 +1,10 @@
+{
+  "name": "then-to-without-move-or-check-is-refused",
+  "resolve": {
+    "due_after": 2,
+    "then": "wait",
+    "then_to": "forfeited"
+  },
+  "ok": false,
+  "error_contains": "then_to"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "warn-grace-daily-and-a-move",
+  "resolve": {
+    "count": "business",
+    "due_after": 7,
+    "warn_before": 2,
+    "grace_after": 3,
+    "daily": true,
+    "then": "move",
+    "then_to": "forfeited"
+  },
+  "steps": [
+    {
+      "code": "middle",
+      "kind": "review"
+    },
+    {
+      "code": "forfeited",
+      "kind": "end"
+    }
+  ],
+  "ok": true
+}

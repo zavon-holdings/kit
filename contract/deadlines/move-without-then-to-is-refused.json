@@ -1,0 +1,9 @@
+{
+  "name": "move-without-then-to-is-refused",
+  "resolve": {
+    "due_after": 5,
+    "then": "move"
+  },
+  "ok": false,
+  "error_contains": "then_to"
+}
