@@ -568,7 +568,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
         </div>
 
         <div className="zwf-panels">
-          <div role="tablist" aria-label="Panels" className="zwf-tabs">
+          <div role="tablist" aria-label="Panels" className="zwf-tabs zwf-tabs-underline">
             {panels.map((p) => (
               <button
                 key={p}

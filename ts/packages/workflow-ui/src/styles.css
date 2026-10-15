@@ -145,6 +145,31 @@
   box-shadow: var(--zwf-shadow-sm), 0 0 0 1px var(--zwf-line);
 }
 
+/* Sections of a screen are an underline tab bar; the segmented look above is
+   kept for switching between views of the same thing (Canvas / List). */
+.zwf-tabs-underline {
+  display: flex;
+  gap: 18px;
+  padding: 0 4px;
+  border: 0;
+  border-bottom: 1px solid var(--zwf-line);
+  border-radius: 0;
+  background: transparent;
+}
+
+.zwf-tabs-underline .zwf-tab {
+  border-radius: 0;
+  padding: 8px 0;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+}
+
+.zwf-tabs-underline .zwf-tab[aria-selected="true"] {
+  background: transparent;
+  box-shadow: none;
+  border-bottom-color: var(--zwf-accent);
+}
+
 .zwf-button {
   font: inherit;
   display: inline-flex;
