@@ -23,7 +23,9 @@
         "description": "A plain white ceramic mug.",
         "tags": [
           "mug"
-        ]
+        ],
+        "google_category_id": 2169,
+        "google_category": "Home & Garden > Kitchen & Dining > Tableware > Drinkware > Mugs"
       },
       {
         "ref": "sku-2",
@@ -31,7 +33,9 @@
         "description": "A cotton tote bag.",
         "tags": [
           "bag"
-        ]
+        ],
+        "google_category_id": 5608,
+        "google_category": "Luggage & Bags > Shopping Totes"
       }
     ]
   }
