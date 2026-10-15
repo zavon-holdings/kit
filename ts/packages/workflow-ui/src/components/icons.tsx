@@ -185,6 +185,8 @@ const SHAPES: Record<string, ReactNode> = {
     </>
   ),
   minus: P("M5 12h14"),
+  up: P("m6 15 6-6 6 6"),
+  down: P("m6 9 6 6 6-6"),
   fit: (
     <>
       {P("M4 9V5a1 1 0 0 1 1-1h4")}

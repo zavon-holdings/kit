@@ -3,13 +3,16 @@ import { compile } from "@zavon/workflow-graph";
 import * as conditions from "@zavon/conditions";
 import {
   addNode,
+  canMoveStep,
   connect,
   disconnect,
   EditError,
   emptyGraph,
   freshId,
+  insertOnEdge,
   isLastDefault,
   moveEdge,
+  moveStep,
   outEdges,
   removeNode,
   renameNode,
@@ -183,5 +186,82 @@ describe("node settings", () => {
     const moved = setPosition(g, "tier", { x: 400.4, y: 12.6 });
     expect(moved.layout).toEqual({ tier: { x: 400, y: 13 } });
     expect(compile(moved, opts).steps).toEqual(compile(g, opts).steps);
+  });
+});
+
+describe("the path: adding on a connection and moving a step", () => {
+  // start → a → b → c → done, all plain.
+  const chain = () => {
+    let g = emptyGraph();
+    g = { ...g, edges: [] };
+    let from = "start";
+    for (const id of ["a", "b", "c"]) {
+      const out = addNode(g, "email", { id, from });
+      g = out.graph;
+      from = out.id;
+    }
+    return connect(g, from, "done").graph;
+  };
+  const order = (g: ReturnType<typeof chain>) => {
+    const out: string[] = [];
+    let at = "start";
+    while (at && out.length < 20) {
+      out.push(at);
+      at = outEdges(g, at)[0]?.edge.to ?? "";
+    }
+    return out;
+  };
+
+  test("a step added on a connection sits between its two ends; the connection keeps its label", () => {
+    const g = chain();
+    const i = g.edges.findIndex((e) => e.from === "a" && e.to === "b");
+    const { graph, id } = insertOnEdge(g, i, "delay");
+    expect(order(graph)).toEqual(["start", "a", id, "b", "c", "done"]);
+    const labelled = { ...g, edges: g.edges.map((e, k) => (k === i ? { ...e, label: "kept" } : e)) };
+    const again = insertOnEdge(labelled, i, "delay");
+    expect(again.graph.edges[i]).toEqual({ from: "a", to: again.id, label: "kept" });
+    expect(insertOnEdge(g, i, "end").graph).toBe(g);
+    expect(insertOnEdge(g, 99, "delay").graph).toBe(g);
+  });
+
+  test("a step moves earlier and later on a straight run, and back", () => {
+    const g = chain();
+    const later = moveStep(g, "a", 1);
+    expect(order(later)).toEqual(["start", "b", "a", "c", "done"]);
+    expect(order(moveStep(later, "a", -1))).toEqual(order(g));
+    expect(order(moveStep(g, "c", -1))).toEqual(["start", "a", "c", "b", "done"]);
+  });
+
+  test("the first step cannot go before the start, nor the last past an end", () => {
+    const g = chain();
+    expect(canMoveStep(g, "a", -1)).toBe(false);
+    expect(moveStep(g, "a", -1)).toBe(g);
+    expect(canMoveStep(g, "c", 1)).toBe(false);
+    expect(moveStep(g, "c", 1)).toBe(g);
+  });
+
+  test("a step beside a branch or a merge stays where it is", () => {
+    let g = chain();
+    // b now also leads to done: a chooser-free fork out of b is two ways out.
+    g = { ...g, edges: [...g.edges, { from: "b", to: "done" }] };
+    expect(canMoveStep(g, "a", 1)).toBe(false);
+    expect(canMoveStep(g, "c", -1)).toBe(false);
+    expect(moveStep(g, "b", 1)).toBe(g);
+    // c is merged into from a as well: two ways in.
+    let m = chain();
+    m = { ...m, edges: [...m.edges, { from: "a", to: "c" }] };
+    expect(canMoveStep(m, "c", -1)).toBe(false);
+    expect(canMoveStep(m, "b", 1)).toBe(false);
+  });
+
+  test("a sample decision tree compiles the same after a refused move", () => {
+    const g = sampleTree();
+    for (const n of g.nodes) {
+      for (const d of [-1, 1] as const) {
+        const moved = moveStep(g, n.id, d);
+        if (moved === g) continue;
+        expect(compile(moved, opts).problems ?? []).toEqual(compile(g, opts).problems ?? []);
+      }
+    }
   });
 });

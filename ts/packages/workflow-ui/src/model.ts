@@ -358,6 +358,63 @@ export function setLayout(g: Graph, layout: Record<string, Point>): Graph {
   return withLayout(g, layout);
 }
 
+/**
+ * Adds a node of a type ON an edge: the edge now leads to the new node, and
+ * the new node leads on to where the edge went. The edge keeps its label,
+ * condition and default, because those belong to the node it leaves.
+ */
+export function insertOnEdge(g: Graph, index: number, type: string): { graph: Graph; id: string } {
+  const e = g.edges[index];
+  if (!e || type === "start" || type === "end") return { graph: g, id: "" };
+  const added = addNode(g, type);
+  if (!added.id) return { graph: g, id: "" };
+  const graph = setEdge(added.graph, index, { to: added.id });
+  return { graph: connect(graph, added.id, e.to).graph, id: added.id };
+}
+
+/** A step on a straight run: one way in, one plain way out, and neither the start nor an end. */
+function straight(g: Graph, id: string): boolean {
+  const n = nodeById(g, id);
+  if (!n || n.type === "start" || n.type === "end") return false;
+  const outs = outEdges(g, id);
+  return inEdges(g, id).length === 1 && outs.length === 1 && roleOf(g, id) === "sequence" && !outs[0].edge.label && outs[0].edge.when === undefined;
+}
+
+/** The step a straight-run move would swap places with, or "" when it cannot move that way. */
+function swapPartner(g: Graph, id: string, delta: -1 | 1): string {
+  if (!straight(g, id)) return "";
+  const other = delta === 1 ? outEdges(g, id)[0].edge.to : inEdges(g, id)[0].edge.from;
+  if (!straight(g, other)) return "";
+  // A two-step loop has no "earlier" to swap with.
+  const [a, b] = delta === 1 ? [id, other] : [other, id];
+  if (outEdges(g, b)[0].edge.to === a || inEdges(g, a)[0].edge.from === b) return "";
+  return other;
+}
+
+/** Whether moveStep can move this step earlier (-1) or later (+1). */
+export const canMoveStep = (g: Graph, id: string, delta: -1 | 1): boolean => swapPartner(g, id, delta) !== "";
+
+/**
+ * Moves a step earlier or later on a straight run, swapping it with its
+ * neighbour: P → A → B → N becomes P → B → A → N. Only where both steps have
+ * one way in and one plain way out; a branch, a merge, a chooser or an end is
+ * left where it is, and the graph comes back unchanged.
+ */
+export function moveStep(g: Graph, id: string, delta: -1 | 1): Graph {
+  const other = swapPartner(g, id, delta);
+  if (!other) return g;
+  const [a, b] = delta === 1 ? [id, other] : [other, id];
+  const into = inEdges(g, a)[0].index;
+  const between = outEdges(g, a)[0].index;
+  const onward = outEdges(g, b)[0].index;
+  return {
+    ...g,
+    edges: g.edges.map((e, i) =>
+      i === into ? { ...e, to: b } : i === between ? { ...e, from: b, to: a } : i === onward ? { ...e, from: a } : e,
+    ),
+  };
+}
+
 /** Whether removing this edge would leave a chooser without its default. */
 export function isLastDefault(g: Graph, index: number): boolean {
   const e = g.edges[index];

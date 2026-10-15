@@ -36,6 +36,9 @@ import { Icon } from "./icons.js";
 import { StepRequirements } from "./StepRequirements.js";
 import { catalogueFromGraph, draftsFor, itemFieldsOf, requiredOf, suggestInput, withRequirements } from "../requirements.js";
 
+/** A node whose settings are empty: there is nothing for a Settings card to show. */
+const emptyConfig = (node: GraphNode) => !node.config || Object.keys(node.config).length === 0;
+
 /**
  * The selected node's settings and its ways out. Everything the canvas can
  * do to a node can be done here with ordinary controls, which is what makes
@@ -113,9 +116,21 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
             <span className="zwf-visually-hidden"> · </span>
             <span className="zwf-kicker-group">{CATEGORY_LABELS[category]}</span>
           </p>
-          <Heading level={ed.headingLevel} ref={headingRef} className="zwf-heading" tabIndex={-1}>
+          <Heading level={ed.headingLevel} ref={headingRef} className={node.type === "start" ? "zwf-heading" : "zwf-heading zwf-visually-hidden"} tabIndex={-1}>
             {nameOf(ed.graph, node.id)}
           </Heading>
+          {node.type !== "start" && (
+            <label className="zwf-title-field">
+              <span className="zwf-visually-hidden">Name</span>
+              <input
+                className="zwf-title-input"
+                value={node.name ?? ""}
+                placeholder={node.id}
+                readOnly={ro}
+                onChange={(e) => ed.update((g) => setNodeName(g, node.id, e.target.value), { coalesce: `name:${node.id}` })}
+              />
+            </label>
+          )}
           {summary && <p className="zwf-muted zwf-inspector-summary">{summary}</p>}
         </div>
       </div>
@@ -151,41 +166,9 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
         ) : (
           <p className="zwf-muted zwf-card">{ed.triggerSummary || "Every run begins here. The trigger is set on the workflow, not on this node."}</p>
         )
-      ) : (
-        <div className="zwf-card zwf-fields">
-          <label className="zwf-field">
-            <span>Name</span>
-            <input value={node.name ?? ""} placeholder={node.id} readOnly={ro} onChange={(e) => ed.update((g) => setNodeName(g, node.id, e.target.value), { coalesce: `name:${node.id}` })} />
-          </label>
-          <div className="zwf-field">
-            <label className="zwf-field">
-              <span>Id (the step's code)</span>
-              <input
-                value={idDraft}
-                readOnly={ro}
-                spellCheck={false}
-                onChange={(e) => setIdDraft(e.target.value)}
-                onBlur={commitId}
-                onKeyDown={(e) => e.key === "Enter" && commitId()}
-                aria-invalid={idError ? true : undefined}
-                aria-describedby={`${uid}-id-help`}
-                className="zwf-mono"
-              />
-            </label>
-            {idError ? (
-              <span id={`${uid}-id-help`} className="zwf-field-error" role="alert">
-                {idError}
-              </span>
-            ) : (
-              <span id={`${uid}-id-help`} className="zwf-help">
-                Runs, reports and other steps refer to this step by its code.
-              </span>
-            )}
-          </div>
-        </div>
-      )}
+      ) : null}
 
-      {!structural && (
+      {!structural && (HostInspector || !emptyConfig(node)) && (
         <section className="zwf-section zwf-card" aria-label="Settings">
           <Heading level={ed.headingLevel + 1} className="zwf-subheading zwf-card-title">
             Settings
@@ -194,12 +177,6 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
             <HostInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
           ) : (
             <JsonInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
-          )}
-          {HostInspector && (
-            <details className="zwf-advanced">
-              <summary>Advanced: the settings as JSON</summary>
-              <JsonInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
-            </details>
           )}
           <AssigneePreview node={node} />
         </section>
@@ -233,22 +210,58 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
 
       <WaysOut node={node} focusEdge={focusEdge} />
 
-      {node.type !== "start" && node.type !== "end" && (
-        <div className="zwf-card">
-          <label className="zwf-field">
-            <span>Times a loop may come back here (1–100; empty is 25)</span>
-            <input
-              type="number"
-              min={1}
-              max={100}
-              readOnly={ro}
-              value={node.max_passes ?? ""}
-              aria-invalid={node.max_passes !== undefined && (node.max_passes < 1 || node.max_passes > 100) ? true : undefined}
-              onChange={(e) => ed.update((g) => setMaxPasses(g, node.id, e.target.value ? Number(e.target.value) : undefined), { coalesce: `passes:${node.id}` })}
-            />
-            {node.max_passes !== undefined && (node.max_passes < 1 || node.max_passes > 100) && <span className="zwf-field-error">Use a number from 1 to 100.</span>}
-          </label>
-        </div>
+      {node.type !== "start" && (
+        <details className="zwf-advanced zwf-card" open={Boolean(idError)}>
+          <summary>Advanced</summary>
+          <div className="zwf-fields">
+            <div className="zwf-field">
+              <label className="zwf-field">
+                <span>Id (the step's code)</span>
+                <input
+                  value={idDraft}
+                  readOnly={ro}
+                  spellCheck={false}
+                  onChange={(e) => setIdDraft(e.target.value)}
+                  onBlur={commitId}
+                  onKeyDown={(e) => e.key === "Enter" && commitId()}
+                  aria-invalid={idError ? true : undefined}
+                  aria-describedby={`${uid}-id-help`}
+                  className="zwf-mono"
+                />
+              </label>
+              {idError ? (
+                <span id={`${uid}-id-help`} className="zwf-field-error" role="alert">
+                  {idError}
+                </span>
+              ) : (
+                <span id={`${uid}-id-help`} className="zwf-help">
+                  Runs, reports and other steps refer to this step by its code.
+                </span>
+              )}
+            </div>
+            {node.type !== "end" && (
+              <label className="zwf-field">
+                <span>Times a loop may come back here (1–100; empty is 25)</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  readOnly={ro}
+                  value={node.max_passes ?? ""}
+                  aria-invalid={node.max_passes !== undefined && (node.max_passes < 1 || node.max_passes > 100) ? true : undefined}
+                  onChange={(e) => ed.update((g) => setMaxPasses(g, node.id, e.target.value ? Number(e.target.value) : undefined), { coalesce: `passes:${node.id}` })}
+                />
+                {node.max_passes !== undefined && (node.max_passes < 1 || node.max_passes > 100) && <span className="zwf-field-error">Use a number from 1 to 100.</span>}
+              </label>
+            )}
+            {HostInspector && !structural && (
+              <div className="zwf-field">
+                <span className="zwf-help">The settings as JSON</span>
+                <JsonInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
+              </div>
+            )}
+          </div>
+        </details>
       )}
 
       {node.type !== "start" && (

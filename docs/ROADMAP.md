@@ -85,7 +85,7 @@ Needs shipped:
 | contract/runs actor kind participant | Core (66) | 66-kit |
 | contract/deadlines, contract/waits | Core (67, 69), Pages (73 replay), the Silvertree portal (76) | 67-kit, 69-kit |
 | band_of with vectors | Core (70), Reach (29-CRM8, 49-L3) | 70-kit |
-| @zavon/workflow-ui 1.12 | Core portal, Reach, Pages | 70-kit, 73-kit |
+| @zavon/workflow-ui 1.12 | Core portal, Reach, Pages | 70-kit, 73-kit, the step editor as a path (List tab numbered, move earlier/later, add between and at the end, name as heading, code under Advanced; on bands-and-crm 15 Oct) |
 | contract/esign | Core (75) | 75-kit |
 | Bot node kinds in workflow-ui | Reach (9-B1, 10) | 9-B1-kit, 14-P7-kit |
 
