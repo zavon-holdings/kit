@@ -1,0 +1,10 @@
+{
+  "name": "report-by-week-split",
+  "query": "group=WEEK&split=1",
+  "report": true,
+  "ok": true,
+  "normalised": {
+    "group": "week",
+    "split": "1"
+  }
+}

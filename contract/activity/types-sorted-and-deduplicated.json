@@ -1,0 +1,12 @@
+{
+  "name": "types-sorted-and-deduplicated",
+  "query": "types=Reminder,%20email,reminder",
+  "report": false,
+  "ok": true,
+  "normalised": {
+    "types": [
+      "email",
+      "reminder"
+    ]
+  }
+}

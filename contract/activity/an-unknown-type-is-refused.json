@@ -1,0 +1,7 @@
+{
+  "name": "an-unknown-type-is-refused",
+  "query": "types=gossip",
+  "report": false,
+  "ok": false,
+  "error": "types"
+}

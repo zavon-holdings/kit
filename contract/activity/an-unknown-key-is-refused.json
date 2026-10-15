@@ -1,0 +1,7 @@
+{
+  "name": "an-unknown-key-is-refused",
+  "query": "colour=red",
+  "report": false,
+  "ok": false,
+  "error": "colour"
+}

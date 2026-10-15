@@ -1,0 +1,7 @@
+{
+  "name": "sort-newest-is-the-default",
+  "query": "sort=newest",
+  "report": false,
+  "ok": true,
+  "normalised": {}
+}

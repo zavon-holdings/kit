@@ -1,0 +1,140 @@
+{
+  "name": "types",
+  "description": "Every activity type in display order with its label; each typed entry code's type; the fallback by kind for an entry with no known code; anything else is system.",
+  "types": [
+    {
+      "type": "stage_move",
+      "label": "Stage moves"
+    },
+    {
+      "type": "email",
+      "label": "Emails and messages"
+    },
+    {
+      "type": "comment",
+      "label": "Comments"
+    },
+    {
+      "type": "assignment",
+      "label": "Assignments"
+    },
+    {
+      "type": "task",
+      "label": "Tasks"
+    },
+    {
+      "type": "request",
+      "label": "Requests to the participant"
+    },
+    {
+      "type": "reminder",
+      "label": "Reminders"
+    },
+    {
+      "type": "warning",
+      "label": "Warnings (overdue, at risk)"
+    },
+    {
+      "type": "expiry",
+      "label": "Expiries"
+    },
+    {
+      "type": "withdrawal",
+      "label": "Withdrawals"
+    },
+    {
+      "type": "schedule",
+      "label": "Schedules and deadlines"
+    },
+    {
+      "type": "response",
+      "label": "Answers received"
+    },
+    {
+      "type": "review",
+      "label": "Reviews and decisions"
+    },
+    {
+      "type": "transfer",
+      "label": "Transfers, merges and links"
+    },
+    {
+      "type": "error",
+      "label": "Errors"
+    },
+    {
+      "type": "system",
+      "label": "Other system events"
+    }
+  ],
+  "codes": {
+    "assignee.changed": "assignment",
+    "band.flagged": "warning",
+    "deadline.checked": "schedule",
+    "deadline.extended": "schedule",
+    "deadline.lapsed": "expiry",
+    "deadline.reminded": "reminder",
+    "deadline.warned": "warning",
+    "email.not_sent": "warning",
+    "email.received": "email",
+    "field.changed": "system",
+    "form.answered": "response",
+    "form.deadline_passed": "expiry",
+    "form.invited": "request",
+    "form.reminded": "reminder",
+    "form.undeliverable": "warning",
+    "link.added": "transfer",
+    "link.removed": "transfer",
+    "merge.closed": "transfer",
+    "merge.received": "transfer",
+    "notify.failed": "warning",
+    "notify.held": "schedule",
+    "notify.sent": "email",
+    "nudge.held": "warning",
+    "nudge.moved_on": "stage_move",
+    "request.lapse_unmoved": "warning",
+    "review.quorum": "review",
+    "review.scored": "review",
+    "run.cancelled": "system",
+    "run.paused": "system",
+    "run.resumed": "system",
+    "run.snoozed": "schedule",
+    "run.test_marked": "system",
+    "run.woke": "schedule",
+    "schedule.cancelled": "schedule",
+    "schedule.dropped": "schedule",
+    "schedule.failed": "error",
+    "schedule.moved": "stage_move",
+    "schedule.pending": "schedule",
+    "schedule.retrying": "warning",
+    "stage_fields_required": "warning",
+    "task.assignees_changed": "assignment",
+    "task.claimed": "task",
+    "task.decided": "review",
+    "task.escalated": "warning",
+    "task.opened": "task",
+    "task.released": "task",
+    "task.reminded": "reminder",
+    "task.rule_unusable": "task",
+    "task.unassignable": "warning",
+    "wait.answered": "response",
+    "wait.at_risk": "warning",
+    "wait.expired": "expiry",
+    "wait.extended": "schedule",
+    "wait.held": "response",
+    "wait.participant_link": "request",
+    "wait.reminded": "reminder",
+    "wait.requested": "request",
+    "wait.withdrawn": "withdrawal"
+  },
+  "kinds": {
+    "decision": "review",
+    "email": "email",
+    "error": "error",
+    "move": "stage_move",
+    "note": "comment",
+    "task": "task",
+    "transfer": "transfer"
+  },
+  "otherwise": "system"
+}

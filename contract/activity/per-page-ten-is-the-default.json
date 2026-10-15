@@ -1,0 +1,7 @@
+{
+  "name": "per-page-ten-is-the-default",
+  "query": "per_page=10&page=1",
+  "report": false,
+  "ok": true,
+  "normalised": {}
+}

@@ -1,0 +1,7 @@
+{
+  "name": "report-an-unknown-grouping-is-refused",
+  "query": "group=colour",
+  "report": true,
+  "ok": false,
+  "error": "group"
+}

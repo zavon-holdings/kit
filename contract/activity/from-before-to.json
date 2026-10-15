@@ -1,0 +1,7 @@
+{
+  "name": "from-before-to",
+  "query": "from=2026-10-02&to=2026-10-01",
+  "report": false,
+  "ok": false,
+  "error": "from"
+}

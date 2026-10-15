@@ -1,0 +1,7 @@
+{
+  "name": "an-unknown-kind-is-refused",
+  "query": "kinds=whisper",
+  "report": false,
+  "ok": false,
+  "error": "kinds"
+}

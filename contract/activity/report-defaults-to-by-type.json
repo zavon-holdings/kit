@@ -1,0 +1,7 @@
+{
+  "name": "report-defaults-to-by-type",
+  "query": "group=type",
+  "report": true,
+  "ok": true,
+  "normalised": {}
+}

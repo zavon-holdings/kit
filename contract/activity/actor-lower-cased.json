@@ -1,0 +1,9 @@
+{
+  "name": "actor-lower-cased",
+  "query": "actor=%20Ana@Example.test",
+  "report": false,
+  "ok": true,
+  "normalised": {
+    "actor": "ana@example.test"
+  }
+}

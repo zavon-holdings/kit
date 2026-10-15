@@ -1,0 +1,7 @@
+{
+  "name": "the-feed-has-no-grouping",
+  "query": "group=type",
+  "report": false,
+  "ok": false,
+  "error": "group"
+}

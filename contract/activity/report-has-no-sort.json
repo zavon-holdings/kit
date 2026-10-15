@@ -1,0 +1,7 @@
+{
+  "name": "report-has-no-sort",
+  "query": "sort=oldest",
+  "report": true,
+  "ok": false,
+  "error": "sort"
+}

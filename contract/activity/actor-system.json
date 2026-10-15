@@ -1,0 +1,9 @@
+{
+  "name": "actor-system",
+  "query": "actor=system",
+  "report": false,
+  "ok": true,
+  "normalised": {
+    "actor": "system"
+  }
+}

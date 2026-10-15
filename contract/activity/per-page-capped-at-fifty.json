@@ -1,0 +1,10 @@
+{
+  "name": "per-page-capped-at-fifty",
+  "query": "per_page=500&page=2",
+  "report": false,
+  "ok": true,
+  "normalised": {
+    "per_page": "50",
+    "page": "2"
+  }
+}

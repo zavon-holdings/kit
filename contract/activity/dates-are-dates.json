@@ -1,0 +1,7 @@
+{
+  "name": "dates-are-dates",
+  "query": "from=yesterday",
+  "report": false,
+  "ok": false,
+  "error": "from"
+}

@@ -332,7 +332,7 @@ const { status, refresh } = useAiStatus({ load: () => api.aiStatus() });
 ## Contract vectors (`contract/`)
 
 JSON files every implementation's tests replay: `signature/`, `callback/`,
-`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`, `whatsnew/`, `bands/`, `emailcta/`, `deadlines/`, `boardquery/`.
+`events/`, `runs/`, `errors/`, `tasks/`, `permits/`, `conditions/`, `graph/`, `forms/`, `merge3/`, `stepgates/`, `ai/`, `whatsnew/`, `bands/`, `emailcta/`, `deadlines/`, `boardquery/`, `activity/`.
 `forms/` holds form definitions (valid, or refused at a page and question),
 which pages and questions a respondent sees for given answers, and what a
 submit keeps. A vector changing is a wire change. The `signature/`, `callback/`, `events/`,
@@ -355,6 +355,13 @@ written by hand: a board's query string (`only`, `assignee`, `me`, `sort`,
 `tests`, `final` and the live `snoozed`, `stage`, `owner`, `q`) accepted with
 its normalised form — defaults left out, `only` sorted and de-duplicated — or
 refused naming the key; console-ui's `useUrlState` and core's board replay it.
+`activity/` is the Activity screen's: its query string (`types`, `kinds`,
+`codes`, `actor`, `q`, `from`, `to`, `sort`, `tests`, `page`, `per_page`, and
+for the report `group` and `split`) accepted with its normalised form or
+refused naming the key, and `types.json` — every activity type in display
+order with its label, each typed entry code's type, and the fallback by kind.
+It is generated from core's table (`app/workflow/activity_types.go`) and core
+checks the two agree; a screen draws its labels and icons from it.
 
 ## Releases
 

@@ -1,0 +1,7 @@
+{
+  "name": "page-from-one",
+  "query": "page=0",
+  "report": false,
+  "ok": false,
+  "error": "page"
+}
