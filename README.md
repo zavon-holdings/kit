@@ -369,6 +369,21 @@ A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
 
+**1.15.0** (Go: `go/bands` and `go/emailcta`, new, and `go/wfclient`; tag
+`go/v1.15.0`): `go/wfclient` gains `StartRun.Assignees`, `RunAssignees`,
+`SetRunAssignees` and `InstallTemplate` (the CRM's follow-up tasks and data
+requests); `band_of` in Go and `@zavon/bands` 1.0.0, held to
+`contract/bands`; one button per email in Go and `@zavon/emailcta` 1.0.0,
+held to `contract/emailcta`; `@zavon/workflow-ui` 1.12.0 — the step editor
+as a path (the List tab numbers each step with its kind's icon and a line on
+what it does; a step moves earlier or later on a straight run, and a "+"
+between two steps or "Add a step" at the end opens one menu of the kinds;
+the inspector's name is its heading and the code sits under Advanced; the
+panels are an underline tab bar). New contract vectors: `deadlines`,
+`waits`, `boardquery`, `activity`, the runs actor kind `participant`, and AI
+tool vectors for the CRM tools, `shop.catalogue.enrich` v2 and
+`reach.fields.suggest`. Unchanged packs keep their versions.
+
 **1.14.0** (no Go change): `@zavon/tour` 1.2.0 — What's new opens by
 itself for a returning person: `shouldAutoOpen` and `freshSince` (held to
 `contract/whatsnew/`), `useWhatsNew({ autoOpen })` with `autoOpenDue`,
