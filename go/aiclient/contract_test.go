@@ -181,7 +181,7 @@ func TestToolVectorsAreComplete(t *testing.T) {
 		"reach.audience.suggest", "reach.comms.check",
 		"shop.product.details", "shop.catalogue.enrich", "platform.docs.answer",
 		"reach.person.brief", "reach.followup.draft", "reach.note.actions", "reach.smartlist.build",
-		"reach.import.map", "reach.insights.week", "reach.report.narrative",
+		"reach.import.map", "reach.insights.week", "reach.report.narrative", "reach.fields.suggest",
 	}
 	dir := filepath.Join("..", "..", "contract", "ai", "tools")
 	for _, key := range want {

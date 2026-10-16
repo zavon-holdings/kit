@@ -1,0 +1,90 @@
+{
+  "tool_key": "reach.fields.suggest",
+  "mode": "inline",
+  "input": {
+    "description": "We keep T-shirt sizes for camps, the date somebody was baptised, how they heard about us, and whether they can drive for the youth team.",
+    "existing": [
+      {
+        "key": "shirt",
+        "label": "Shirt size",
+        "type": "select",
+        "group": "Events"
+      }
+    ],
+    "types": [
+      "text",
+      "number",
+      "date",
+      "select",
+      "multiselect",
+      "bool",
+      "url",
+      "phone"
+    ],
+    "reserved": [
+      "email",
+      "lists",
+      "location",
+      "name",
+      "phone",
+      "stage",
+      "tags"
+    ],
+    "max_fields": 15,
+    "locale": "en-GB"
+  },
+  "result": {
+    "fields": [
+      {
+        "key": "shirt",
+        "label": "T-shirt size",
+        "type": "select",
+        "options": [
+          "S",
+          "M",
+          "L"
+        ],
+        "group": "Events",
+        "why": "Already exists"
+      },
+      {
+        "key": "baptism_date",
+        "label": "Baptism date",
+        "type": "date",
+        "group": "Milestones",
+        "why": "The date somebody was baptised"
+      },
+      {
+        "key": "heard_about_us",
+        "label": "How they heard about us",
+        "type": "select",
+        "options": [
+          "Friend",
+          "Website",
+          "Social media",
+          "Event",
+          "Other"
+        ],
+        "group": "About",
+        "why": "Where new people come from"
+      },
+      {
+        "key": "can_drive",
+        "label": "Can drive for youth events",
+        "type": "bool",
+        "group": "Volunteering",
+        "why": "Who can help with transport"
+      },
+      {
+        "key": "Email",
+        "label": "Email",
+        "type": "text"
+      },
+      {
+        "key": "notes_blob",
+        "label": "Notes",
+        "type": "richtext"
+      }
+    ]
+  }
+}
