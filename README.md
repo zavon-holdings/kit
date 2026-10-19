@@ -369,6 +369,15 @@ A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
 
+**1.16.0** (Go unchanged; tag `go/v1.16.0` for the matching pair):
+`@zavon/workflow-ui` 1.13.0 — `ScoreBandsEditor`, the band editor: a score
+scale's name, key and unit, its bands highest first (a starting score, a
+label, a tone, a recommendation that flags the record), each range said in
+words, the rules core applies said beside the field they are about, and
+"Try a score" previewing the band it lands in through `@zavon/bands` (now a
+peer dependency); the pure helpers `scaleProblems`, `sortedBands`,
+`bandRanges`, `previewBand` and `nextBand`.
+
 **1.15.0** (Go: `go/bands` and `go/emailcta`, new, and `go/wfclient`; tag
 `go/v1.15.0`): `go/wfclient` gains `StartRun.Assignees`, `RunAssignees`,
 `SetRunAssignees` and `InstallTemplate` (the CRM's follow-up tasks and data
