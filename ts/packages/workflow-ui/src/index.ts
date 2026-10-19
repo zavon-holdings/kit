@@ -29,6 +29,8 @@ export { TriggerPanel, InterruptsPanel, type TriggerPanelProps, type InterruptsP
 export { AssigneePreview, ASKS_PEOPLE } from "./components/AssigneePreview.js";
 export { VersionDiff, GraphView, type GraphViewProps, type VersionSide } from "./components/VersionDiff.js";
 export { ScenariosPanel } from "./components/ScenariosPanel.js";
+export { ScoreBandsEditor, type ScoreBandsEditorProps } from "./components/ScoreBandsEditor.js";
+export { scaleProblems, sortedBands, previewBand, bandRanges, nextBand, TONES, MAX_BANDS, type ScaleProblem } from "./scoreScale.js";
 export { ShortcutsSheet } from "./components/ShortcutsSheet.js";
 export { ExportMenu } from "./components/ExportMenu.js";
 export { FindNode } from "./components/FindNode.js";

@@ -2250,3 +2250,74 @@
 .zwf-chip-draft {
   border-style: dashed;
 }
+
+/* ── The band editor (ScoreBandsEditor, item 70) ── */
+.zwf-bands {
+  display: grid;
+  gap: 14px;
+}
+.zwf-bands-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.zwf-bands-table th {
+  text-align: left;
+  font-size: 0.82em;
+  font-weight: 600;
+  color: var(--zwf-muted);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--zwf-line);
+}
+.zwf-bands-table td {
+  vertical-align: top;
+  padding: 8px;
+  border-bottom: 1px solid var(--zwf-line);
+}
+.zwf-bands-table td > input,
+.zwf-bands-table td > select {
+  font: inherit;
+  width: 100%;
+  min-height: 32px;
+  border: 1px solid var(--zwf-line);
+  border-radius: var(--zwf-radius);
+  padding: 4px 8px;
+  background: var(--zwf-surface);
+  color: var(--zwf-ink);
+}
+.zwf-bands-table td > input[type="number"] {
+  max-width: 7em;
+}
+.zwf-bands-table td > .zwf-help,
+.zwf-bands-table td > .zwf-field-error {
+  display: block;
+  margin-top: 4px;
+}
+.zwf-bands-try {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+.zwf-bands-try p {
+  margin: 0 0 6px;
+}
+.zwf-bands-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .zwf-bands-table thead {
+    display: none;
+  }
+  .zwf-bands-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--zwf-line);
+  }
+  .zwf-bands-table td {
+    border-bottom: 0;
+  }
+}
