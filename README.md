@@ -20,6 +20,7 @@ byte.
 | `merge3`     | A three-way merge of ordered trees of keyed units (a document's blocks, an outline's sections): fields, deletions, moves and order, with conflicts and `Resolve`. Twin of `@zavon/merge3`. |
 | `bands`      | Which band of a scale a score is in: the label, tone and recommendation it earns. Bands in any order; a value at a band's minimum is in that band; below every band is none. Twin of `@zavon/bands`. |
 | `emailcta`   | One button per email: the first call to action (a built button marked `data-cta="button"`, or a paragraph that is only a link) is the button, later ones become accent links, and `mailto:`, `tel:` and address-text links never are. Each shell applies it last with its own markup. Twin of `@zavon/emailcta`. |
+| `whatsapp`   | Meta's WhatsApp Cloud API: send a template (body, image header, URL buttons, an authentication code) or a reply, upload media, read a number and its templates, submit a template, subscribe an account's callbacks to a URL of its own; verify a callback's `X-Hub-Signature-256`, answer the handshake, flatten statuses, template reviews and incoming messages, and read STOP, START and HELP. Holds no credential. |
 | `aiclient`   | A client for an AI gateway's property routes: invoke a tool, start and read a job, the status a screen renders, feedback, and an organisation's AI settings. The credential is read on every request. |
 
 Database access goes through a small `Querier` interface (`Exec`, `QueryRow`)
@@ -368,6 +369,16 @@ checks the two agree; a screen draws its labels and icons from it.
 A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
+
+**1.17.0** (Go: `go/whatsapp`, new; TypeScript unchanged; tag
+`go/v1.17.0`): the WhatsApp Cloud API client core's shared Zavon number
+sends with (`Send`, `SendText`, `UploadMedia`, `Templates`, `Submit`,
+`Subscribe` with a per-account callback, `Number`), Meta's errors as
+`*Error` with Meta's code, and the callback side (`VerifySignature`,
+`Challenge`, `Parse` with incoming messages and button replies, `Keyword`
+for STOP/START/HELP). `Param` makes text fit to be a template parameter;
+`Digits` is a number as Meta names a person. Started from Reach's
+`app/channels/meta_whatsapp`, which keeps its copy until next touched.
 
 **1.16.0** (Go unchanged; tag `go/v1.16.0` for the matching pair):
 `@zavon/workflow-ui` 1.13.0 — `ScoreBandsEditor`, the band editor: a score
