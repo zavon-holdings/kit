@@ -1,6 +1,7 @@
 // Package whatsapp speaks Meta's WhatsApp Cloud API: send a template or a
 // reply, upload media, read a number and its templates, submit a template,
-// subscribe an account's callbacks; and, on the way in, verify a callback's
+// subscribe an account's callbacks, finish Embedded Signup, upload a
+// template's example picture; and, on the way in, verify a callback's
 // signature, answer the handshake and flatten what a callback says.
 //
 // It holds no credential of its own. A client is built from whichever token
@@ -368,6 +369,12 @@ func (c *Client) send(ctx context.Context, method, path string, query url.Values
 	if strings.TrimSpace(c.token) == "" {
 		return errors.New("whatsapp: no access token")
 	}
+	return c.request(ctx, method, path, query, body, contentType, "Bearer "+c.token, out)
+}
+
+// request is send with the Authorization header given ("" for none): the
+// resumable upload wants "OAuth <token>", and the code exchange none.
+func (c *Client) request(ctx context.Context, method, path string, query url.Values, body io.Reader, contentType, auth string, out any) error {
 	u := c.baseURL + path
 	if len(query) > 0 {
 		u += "?" + query.Encode()
@@ -376,7 +383,12 @@ func (c *Client) send(ctx context.Context, method, path string, query url.Values
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Authorization", "Bearer "+c.token)
+	if auth != "" {
+		req.Header.Set("Authorization", auth)
+	}
+	for k, v := range extraHeaders(ctx) {
+		req.Header.Set(k, v)
+	}
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
@@ -448,4 +460,23 @@ func Param(s string) string {
 		return "-"
 	}
 	return s
+}
+
+// Extra request headers ride on the context: one call (the resumable upload's
+// file_offset) needs one, and a parameter on every request for it would be
+// noise.
+type headersKey struct{}
+
+func withHeader(ctx context.Context, k, v string) context.Context {
+	h := map[string]string{}
+	for a, b := range extraHeaders(ctx) {
+		h[a] = b
+	}
+	h[k] = v
+	return context.WithValue(ctx, headersKey{}, h)
+}
+
+func extraHeaders(ctx context.Context) map[string]string {
+	h, _ := ctx.Value(headersKey{}).(map[string]string)
+	return h
 }
