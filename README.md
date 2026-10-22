@@ -21,6 +21,7 @@ byte.
 | `bands`      | Which band of a scale a score is in: the label, tone and recommendation it earns. Bands in any order; a value at a band's minimum is in that band; below every band is none. Twin of `@zavon/bands`. |
 | `emailcta`   | One button per email: the first call to action (a built button marked `data-cta="button"`, or a paragraph that is only a link) is the button, later ones become accent links, and `mailto:`, `tel:` and address-text links never are. Each shell applies it last with its own markup. Twin of `@zavon/emailcta`. |
 | `whatsapp`   | Meta's WhatsApp Cloud API: send a template (body, image header, URL buttons, an authentication code) or a reply, upload media, read a number and its templates, submit a template, subscribe an account's callbacks to a URL of its own, finish Embedded Signup (exchange the code, register the number), upload a template's example picture; verify a callback's `X-Hub-Signature-256`, answer the handshake, flatten statuses, template reviews and incoming messages, and read STOP, START and HELP. Holds no credential. |
+| `sharedwa`   | A product's door onto Zavon's shared WhatsApp number in core: booking messages (ticket, reminder, update, cancellation) by template name and named parameters, with the email core sends once if Meta reports a failure; the number's state and template reviews. `ErrStopped`, `ErrUnconfigured`. |
 | `aiclient`   | A client for an AI gateway's property routes: invoke a tool, start and read a job, the status a screen renders, feedback, and an organisation's AI settings. The credential is read on every request. |
 
 Database access goes through a small `Querier` interface (`Exec`, `QueryRow`)
@@ -376,7 +377,9 @@ versions are additive.
 no bearer) and `Register` (the number, with its six-digit PIN) — beside the
 existing `Subscribe`; and `UploadHandle`, the Resumable Upload API's handle a
 template's picture header names as its example (`UploadMedia`'s media id is
-refused there).
+refused there). New `go/sharedwa`: a product's client for core's
+`POST /api/whatsapp/messages` and `GET /api/whatsapp/shared` — booking
+messages on the shared Zavon number for an organisation without its own.
 
 **1.17.0** (Go: `go/whatsapp`, new; TypeScript unchanged; tag
 `go/v1.17.0`): the WhatsApp Cloud API client core's shared Zavon number
