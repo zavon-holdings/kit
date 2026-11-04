@@ -1,0 +1,39 @@
+{
+  "tool_key": "reach.issue.proofread",
+  "mode": "inline",
+  "input": {
+    "locale": "en-ZA",
+    "segments": [
+      {
+        "ref": "s1",
+        "text": "Join us on **Sunday** for the welcom braai. Their will be food for everone."
+      },
+      {
+        "ref": "s2",
+        "text": "Sign up at [our website](https://example.org/signup) by Friday, {{recipient.first_name|friend}}."
+      }
+    ]
+  },
+  "result": {
+    "corrections": [
+      {
+        "ref": "s1",
+        "before": "the welcom braai",
+        "after": "the welcome braai",
+        "kind": "spelling"
+      },
+      {
+        "ref": "s1",
+        "before": "Their will be",
+        "after": "There will be",
+        "kind": "grammar"
+      },
+      {
+        "ref": "s1",
+        "before": "for everone.",
+        "after": "for everyone.",
+        "kind": "spelling"
+      }
+    ]
+  }
+}
