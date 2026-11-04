@@ -1,0 +1,55 @@
+{
+  "tool_key": "reach.issue.translate",
+  "mode": "inline",
+  "input": {
+    "language": "af",
+    "language_name": "Afrikaans",
+    "source_language": "en",
+    "source_language_name": "English",
+    "units": [
+      {
+        "key": "section.title",
+        "text": "This week"
+      },
+      {
+        "key": "h1.text",
+        "text": "Hello {{recipient.first_name|there}}"
+      },
+      {
+        "key": "t1.text",
+        "text": "Join us on **Sunday** at 09:00. Read [the details](https://example.org/sunday).\n- Bring a friend\n- Arrive early"
+      },
+      {
+        "key": "b1.label",
+        "text": "Register"
+      }
+    ],
+    "merge_tags": [
+      "{{recipient.first_name}}",
+      "{{recipient.last_name}}",
+      "{{recipient.name}}",
+      "{{org.name}}"
+    ],
+    "locale": "af"
+  },
+  "result": {
+    "units": [
+      {
+        "key": "section.title",
+        "text": "Hierdie week"
+      },
+      {
+        "key": "h1.text",
+        "text": "Hallo {{recipient.first_name|there}}"
+      },
+      {
+        "key": "t1.text",
+        "text": "Sluit by ons aan op **Sondag** om 09:00. Lees [die besonderhede](https://example.org/sunday).\n- Bring 'n vriend\n- Kom vroeg"
+      },
+      {
+        "key": "b1.label",
+        "text": "Registreer"
+      }
+    ]
+  }
+}
