@@ -1,0 +1,72 @@
+{
+  "name": "text-identical-change",
+  "description": "Text: both make the same change to a word, and A changes another: no conflict.",
+  "base": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick brown fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick red fox jumps over the sleepy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick red fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "options": {
+    "text": [
+      "text"
+    ]
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "The quick red fox jumps over the sleepy dog."
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

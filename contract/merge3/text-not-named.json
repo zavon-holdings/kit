@@ -1,0 +1,99 @@
+{
+  "name": "text-not-named",
+  "description": "Text merging applies only to the paths named and only to strings: an unnamed string field and a number field still conflict whole.",
+  "base": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "size": 14,
+            "text": "The quick brown fox jumps over the lazy dog.",
+            "title": "Morning"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "size": 16,
+            "text": "The quick red fox jumps over the lazy dog.",
+            "title": "Good morning"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "size": 18,
+            "text": "The quick brown fox jumps over the sleepy dog.",
+            "title": "Morning all"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "options": {
+    "text": [
+      "text"
+    ]
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": 16,
+        "b": 18,
+        "base": 14,
+        "id": "field:p1:size",
+        "key": "p1",
+        "kind": "field",
+        "path": "size"
+      },
+      {
+        "a": "Good morning",
+        "b": "Morning all",
+        "base": "Morning",
+        "id": "field:p1:title",
+        "key": "p1",
+        "kind": "field",
+        "path": "title"
+      }
+    ],
+    "tree": {
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "size": 16,
+              "text": "The quick red fox jumps over the sleepy dog.",
+              "title": "Good morning"
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

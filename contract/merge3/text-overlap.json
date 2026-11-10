@@ -1,0 +1,218 @@
+{
+  "name": "text-overlap",
+  "description": "Text: both change the same word differently: one conflict, narrowed to that word; the rest merges. a, b and both act on the clash only; manual is the whole value.",
+  "base": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick brown fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick red fox jumps over the sleepy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick grey fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "options": {
+    "text": [
+      "text"
+    ]
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": "The quick red fox jumps over the sleepy dog.",
+        "b": "The quick grey fox jumps over the lazy dog.",
+        "base": "The quick brown fox jumps over the lazy dog.",
+        "chunks": [
+          {
+            "op": "same",
+            "text": "The quick "
+          },
+          {
+            "a": "red",
+            "b": "grey",
+            "base": "brown",
+            "op": "conflict"
+          },
+          {
+            "op": "same",
+            "text": " fox jumps over the "
+          },
+          {
+            "a": "sleepy",
+            "base": "lazy",
+            "op": "a"
+          },
+          {
+            "op": "same",
+            "text": " dog."
+          }
+        ],
+        "id": "field:p1:text",
+        "key": "p1",
+        "kind": "field",
+        "path": "text"
+      }
+    ],
+    "tree": {
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "The quick red fox jumps over the sleepy dog."
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take A in the clash",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "a"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "The quick red fox jumps over the sleepy dog."
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "take B in the clash",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "The quick grey fox jumps over the sleepy dog."
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "both: A's words then B's, no copy",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "both"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "The quick redgrey fox jumps over the sleepy dog."
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "manual is the whole value",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "manual",
+          "value": "Written by hand"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "Written by hand"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

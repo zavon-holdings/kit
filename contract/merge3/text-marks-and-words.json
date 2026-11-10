@@ -1,0 +1,72 @@
+{
+  "name": "text-marks-and-words",
+  "description": "Text: A wraps every line in marks, B changes words inside one line: no conflict.",
+  "base": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "03/12/2026 Team day (in the office)\n10/12/2026 Planning (working from home)\n17/12/2026 Year end (in the office)"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "_**03/12/2026 Team day (in the office)**_\n_**10/12/2026 Planning (working from home)**_\n_**17/12/2026 Year end (in the office)**_"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "03/12/2026 Team day (in the office)\n10/12/2026 Planning (stuff is working from home)\n17/12/2026 Year end (in the office)"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "options": {
+    "text": [
+      "text"
+    ]
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "_**03/12/2026 Team day (in the office)**_\n_**10/12/2026 Planning (stuff is working from home)**_\n_**17/12/2026 Year end (in the office)**_"
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

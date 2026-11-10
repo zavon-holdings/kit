@@ -1,0 +1,72 @@
+{
+  "name": "text-clean-words",
+  "description": "Text: A and B change different words of one paragraph: no conflict, both changes kept.",
+  "base": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick brown fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The slow brown fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick brown fox jumps over the sleepy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "options": {
+    "text": [
+      "text"
+    ]
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "The slow brown fox jumps over the sleepy dog."
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

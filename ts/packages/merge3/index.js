@@ -2,11 +2,14 @@
 // both replay the vectors in contract/merge3. See index.d.ts and the
 // package comment in go/merge3/merge3.go for the rules.
 
+import { lcs, mergeText, joinText } from "./text.js";
+
 export const ROOT = "~";
 export const KIND_FIELD = "field";
 export const KIND_DELETE = "delete";
 export const KIND_MOVE = "move";
 export const KIND_ORDER = "order";
+export { mergeText, joinText, tokens, MAX_TEXT_CELLS } from "./text.js";
 
 const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 const sortedKeys = (o) => (o ? Object.keys(o).sort(cmp) : []);
@@ -260,25 +263,6 @@ function assign(parent, slot, kids, base) {
   return keys;
 }
 
-function lcs(n, m, eq) {
-  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
-  for (let i = n - 1; i >= 0; i--)
-    for (let j = m - 1; j >= 0; j--)
-      dp[i][j] = eq(i, j) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
-  const out = [];
-  let i = 0;
-  let j = 0;
-  while (i < n && j < m) {
-    if (eq(i, j) && dp[i][j] === dp[i + 1][j + 1] + 1) {
-      out.push([i, j]);
-      i++;
-      j++;
-    } else if (dp[i + 1][j] >= dp[i][j + 1]) i++;
-    else j++;
-  }
-  return out;
-}
-
 function sig(s, k) {
   const memo = s.sigs.get(k);
   if (memo !== undefined) return memo;
@@ -333,7 +317,8 @@ function toPlace(v) {
 }
 
 class Merger {
-  constructor(base, a, b, dec, opts) {
+  constructor(base, a, b, dec, opts, mopts) {
+    this.text = new Set((mopts?.text ?? []).filter((p) => typeof p === "string" && !p.startsWith("@")));
     this.o = index(base, null);
     this.a = index(a, this.o);
     this.b = index(b, this.o);
@@ -409,6 +394,8 @@ class Merger {
     const [v, clash] = three(o, a, b);
     if (!clash) return v;
     const id = `${KIND_FIELD}:${k}:${path}`;
+    if (this.text.has(path) && o.ok && a.ok && b.ok && typeof o.v === "string" && typeof a.v === "string" && typeof b.v === "string")
+      return this.mergeText(id, k, path, o.v, a.v, b.v);
     this.conflict(withSides({ id, kind: KIND_FIELD, key: k, path }, o, a, b));
     const d = this.decision(id);
     if (!d) return a;
@@ -426,6 +413,17 @@ class Merger {
         this.dups.push({ id, kind: KIND_FIELD, key: k, path, value: b.v, has: b.ok });
     }
     return a;
+  }
+
+  /** A text field merged token by token (text.js), a decision applied to its clashes. */
+  mergeText(id, k, path, o, a, b) {
+    const t = mergeText(o, a, b);
+    if (!t.conflict) return val(joinText(t.chunks, "a"));
+    this.conflict({ id, kind: KIND_FIELD, key: k, path, base: o, a, b, chunks: t.chunks });
+    const d = this.decision(id);
+    if (!d) return val(joinText(t.chunks, "a"));
+    if (d.choice === "manual") return val(clone(d.value));
+    return val(joinText(t.chunks, d.choice));
   }
 
   moveConflict(k) {
@@ -756,16 +754,18 @@ function withSides(c, o, a, b) {
  * Merge a and b, two edits of base. Returns the merged tree (each conflict
  * tentatively settled), the conflicts sorted by id, and resolve().
  */
-export function merge3(base, a, b) {
+export function merge3(base, a, b, options = {}) {
   for (const t of [base, a, b]) validate(t);
   const snap = [clone(base), clone(a), clone(b)];
-  const out = new Merger(...snap, null, null).run();
+  const mopts = { text: [...(options?.text ?? [])] };
+  const out = new Merger(...snap, null, null, mopts).run();
   const result = { tree: out.tree, conflicts: out.conflicts };
   Object.defineProperty(result, "resolve", {
     enumerable: false,
     value: (decisions, options) => resolve(result, decisions, options),
   });
   Object.defineProperty(result, "inputs", { enumerable: false, value: snap });
+  Object.defineProperty(result, "mergeOptions", { enumerable: false, value: mopts });
   return result;
 }
 
@@ -785,7 +785,7 @@ export function resolve(result, decisions = {}, options = {}) {
         break;
       case "both":
         if (c.kind === KIND_ORDER) throw new Error(`merge3: ${id}: an order has no "both"`);
-        if (c.kind === KIND_FIELD) {
+        if (c.kind === KIND_FIELD && !c.chunks) {
           if (!options.duplicateAsUnits)
             throw new Error(`merge3: ${id}: a field has no "both"; duplicate the unit or decide by hand`);
           if (c.key === ROOT) throw new Error(`merge3: ${id}: the root cannot be duplicated`);
@@ -795,6 +795,6 @@ export function resolve(result, decisions = {}, options = {}) {
         throw new Error(`merge3: ${id}: unknown choice "${d?.choice}"`);
     }
   }
-  const out = new Merger(...result.inputs, decisions, options).run();
+  const out = new Merger(...result.inputs, decisions, options, result.mergeOptions).run();
   return { tree: out.tree, ids: out.ids, conflicts: out.conflicts.filter((c) => !own(decisions, c.id)) };
 }

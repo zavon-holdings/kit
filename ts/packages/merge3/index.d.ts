@@ -33,6 +33,17 @@ interface ConflictBase {
   key: string;
 }
 
+/**
+ * One stretch of a text merge: nobody changed it, one side did, both did the
+ * same, or both did differently.
+ */
+export type TextChunk =
+  | { op: "same"; text: string }
+  | { op: "a"; base: string; a: string }
+  | { op: "b"; base: string; b: string }
+  | { op: "both"; base: string; text: string }
+  | { op: "conflict"; base: string; a: string; b: string };
+
 /** Both sides changed one field (or "@kind") differently. A side's value is absent when it removed the field. */
 export interface FieldConflict extends ConflictBase {
   kind: "field";
@@ -40,6 +51,13 @@ export interface FieldConflict extends ConflictBase {
   base?: Json;
   a?: Json;
   b?: Json;
+  /**
+   * A text field's merge (MergeOptions.text): the merged chunks with the
+   * clashing ones among them. On such a conflict "a"/"b" take that side in
+   * every clash (the merged words elsewhere), "both" A's then B's, and
+   * "manual" the whole value.
+   */
+  chunks?: TextChunk[];
 }
 
 /** One side deleted the unit; the other changed it, beneath it, or its place. Tentatively kept. */
@@ -79,6 +97,7 @@ export type Conflict = FieldConflict | DeleteConflict | MoveConflict | OrderConf
  * "both".
  */
 export interface Decision {
+  /** On a text conflict "both" needs no duplicateAsUnits: it is A's words then B's in each clash. */
   choice: "a" | "b" | "both" | "manual";
   value?: Json | Place;
 }
@@ -106,8 +125,21 @@ export interface MergeResult {
   resolve(decisions: Record<string, Decision>, options?: ResolveOptions): Resolution;
 }
 
+export interface MergeOptions {
+  /** Field paths merged as text, token by token, when all three values are strings. Only words: never an address or a colour. */
+  text?: string[];
+}
+
 /** Three-way merge of a and b, two edits of base. Throws on an invalid tree. */
-export function merge3(base: Unit, a: Unit, b: Unit): MergeResult;
+export function merge3(base: Unit, a: Unit, b: Unit, options?: MergeOptions): MergeResult;
+
+/** The text merge on its own: the chunks, and whether any clashed. */
+export function mergeText(base: string, a: string, b: string): { chunks: TextChunk[]; conflict: boolean };
+/** The chunks written out, each clash chosen with pick ("a" by default; "both" is A's then B's). */
+export function joinText(chunks: TextChunk[], pick?: "a" | "b" | "both"): string;
+/** A string split as the text merge splits it. */
+export function tokens(s: string): string[];
+export const MAX_TEXT_CELLS: number;
 
 /** Settle the named conflicts. Throws on an unknown id, a refused "both" or a manual without a value. */
 export function resolve(result: MergeResult, decisions: Record<string, Decision>, options?: ResolveOptions): Resolution;

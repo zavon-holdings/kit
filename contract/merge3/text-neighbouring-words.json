@@ -1,0 +1,72 @@
+{
+  "name": "text-neighbouring-words",
+  "description": "Text: A changes one word and B the very next word, with only a space between: both changes stand, no conflict (spaces between two changes by DIFFERENT sides keep them apart).",
+  "base": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick brown fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The slow brown fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "The quick red fox jumps over the lazy dog."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "options": {
+    "text": [
+      "text"
+    ]
+  },
+  "expect": {
+    "conflicts": [],
+    "tree": {
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "The slow red fox jumps over the lazy dog."
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  }
+}

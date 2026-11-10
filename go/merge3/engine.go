@@ -210,6 +210,7 @@ type merger struct {
 	o, a, b   *side
 	dec       map[string]Decision
 	opts      Options
+	text      map[string]bool
 	conflicts map[string]*Conflict
 	keep      map[string]int8
 	units     map[string]*merged
@@ -223,10 +224,15 @@ type output struct {
 	ids       map[string]string
 }
 
-func run(base, a, b Unit, dec map[string]Decision, opts Options) (*output, error) {
+func run(base, a, b Unit, dec map[string]Decision, opts Options, mopts MergeOptions) (*output, error) {
 	o := index(base, nil)
-	m := &merger{o: o, a: index(a, o), b: index(b, o), dec: dec, opts: opts,
+	m := &merger{o: o, a: index(a, o), b: index(b, o), dec: dec, opts: opts, text: map[string]bool{},
 		conflicts: map[string]*Conflict{}, keep: map[string]int8{}, units: map[string]*merged{}}
+	for _, p := range mopts.Text {
+		if !strings.HasPrefix(p, "@") {
+			m.text[p] = true
+		}
+	}
 	return m.run()
 }
 
@@ -364,6 +370,14 @@ func (m *merger) mergeValue(k, path string, on, an, bn *node) val {
 		return v
 	}
 	id := KindField + ":" + k + ":" + path
+	if m.text[path] {
+		os, oIs := o.v.(string)
+		as, aIs := a.v.(string)
+		bs, bIs := b.v.(string)
+		if o.ok && a.ok && b.ok && oIs && aIs && bIs {
+			return m.mergeText(id, k, path, os, as, bs)
+		}
+	}
 	m.conflict(Conflict{ID: id, Kind: KindField, Key: k, Path: path,
 		Base: o.v, HasBase: o.ok, A: a.v, HasA: a.ok, B: b.v, HasB: b.ok})
 	d, ok := m.decision(id)
@@ -386,6 +400,25 @@ func (m *merger) mergeValue(k, path string, on, an, bn *node) val {
 		m.dups = append(m.dups, dup{id: id, kind: KindField, key: k, path: path, value: b.v, has: b.ok})
 	}
 	return a
+}
+
+// mergeText merges a text field token by token (text.go) and applies a
+// decision to its clashes.
+func (m *merger) mergeText(id, k, path, o, a, b string) val {
+	t := MergeText(o, a, b)
+	if !t.Conflict {
+		return val{t.Join(ChooseA), true}
+	}
+	m.conflict(Conflict{ID: id, Kind: KindField, Key: k, Path: path,
+		Base: o, HasBase: true, A: a, HasA: true, B: b, HasB: true, Chunks: t.Chunks})
+	d, ok := m.decision(id)
+	if !ok {
+		return val{t.Join(ChooseA), true}
+	}
+	if d.Choice == ChooseManual {
+		return val{normalize(d.Value), true}
+	}
+	return val{t.Join(d.Choice), true}
 }
 
 func placeVal(n *node) val {

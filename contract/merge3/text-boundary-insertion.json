@@ -1,0 +1,127 @@
+{
+  "name": "text-boundary-insertion",
+  "description": "Text: an insertion at the very edge of the other side's change is a conflict, as in diff3: 'not ' before 'go' and 'go' changed to 'stay' would merge to a sentence neither wrote.",
+  "base": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "We will go today."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "We will not go today."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "We will stay today."
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "options": {
+    "text": [
+      "text"
+    ]
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": "We will not go today.",
+        "b": "We will stay today.",
+        "base": "We will go today.",
+        "chunks": [
+          {
+            "op": "same",
+            "text": "We will "
+          },
+          {
+            "a": "not go",
+            "b": "stay",
+            "base": "go",
+            "op": "conflict"
+          },
+          {
+            "op": "same",
+            "text": " today."
+          }
+        ],
+        "id": "field:p1:text",
+        "key": "p1",
+        "kind": "field",
+        "path": "text"
+      }
+    ],
+    "tree": {
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "We will not go today."
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take B",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "We will stay today."
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

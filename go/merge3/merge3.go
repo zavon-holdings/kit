@@ -16,7 +16,10 @@
 //     of kinds. Keys beginning with "~" are reserved.
 //   - Fields merge one path at a time: one side unchanged takes the other,
 //     both the same takes it, otherwise a "field" conflict (tentatively A).
-//     The kind is merged as the field "@kind".
+//     The kind is merged as the field "@kind". A path named in
+//     MergeOptions.Text whose three values are strings is merged as text,
+//     token by token (text.go): edits to different words are no conflict,
+//     and a clash is narrowed to its chunks.
 //   - A unit deleted on one side and changed on the other (its fields, its
 //     place or anything beneath it) is a "delete" conflict and is
 //     tentatively kept. A unit deleted on one side and untouched on the
@@ -111,6 +114,9 @@ type Conflict struct {
 	HasBase bool
 	HasA    bool
 	HasB    bool
+	// Chunks is a text conflict's merge (MergeOptions.Text), the clashing
+	// chunks among the merged ones; nil for every other conflict.
+	Chunks []TextChunk
 }
 
 // Value is the conflict as plain JSON values.
@@ -130,6 +136,13 @@ func (c Conflict) Value() map[string]any {
 	}
 	if c.HasB {
 		m["b"] = c.B
+	}
+	if c.Chunks != nil {
+		chunks := make([]any, len(c.Chunks))
+		for i, ch := range c.Chunks {
+			chunks[i] = ch.Value()
+		}
+		m["chunks"] = chunks
 	}
 	return m
 }
@@ -194,12 +207,22 @@ type Options struct {
 	MintKey func(old string, taken func(string) bool) string
 }
 
+// MergeOptions shape Merge.
+type MergeOptions struct {
+	// Text names the field paths merged as text, token by token, when the
+	// ancestor and both edits are strings (text.go). Only words belong
+	// here: an address, a colour or a name merged that way can come out as
+	// a value neither side wrote.
+	Text []string `json:"text,omitempty"`
+}
+
 // Result is a merge: the tree with every conflict tentatively settled, and
 // the conflicts, sorted by ID.
 type Result struct {
 	Tree       Unit
 	Conflicts  []Conflict
 	base, a, b Unit
+	mopts      MergeOptions
 }
 
 // Resolution is a resolved merge. IDs maps the key of every unit "both"
@@ -242,17 +265,20 @@ func Validate(root Unit) error {
 }
 
 // Merge merges a and b, two edits of base.
-func Merge(base, a, b Unit) (*Result, error) {
+func Merge(base, a, b Unit) (*Result, error) { return MergeWith(base, a, b, MergeOptions{}) }
+
+// MergeWith merges a and b, two edits of base, with options.
+func MergeWith(base, a, b Unit, mopts MergeOptions) (*Result, error) {
 	for _, t := range []Unit{base, a, b} {
 		if err := Validate(t); err != nil {
 			return nil, err
 		}
 	}
-	out, err := run(base, a, b, nil, Options{})
+	out, err := run(base, a, b, nil, Options{}, mopts)
 	if err != nil {
 		return nil, err
 	}
-	return &Result{Tree: out.tree, Conflicts: out.conflicts, base: base, a: a, b: b}, nil
+	return &Result{Tree: out.tree, Conflicts: out.conflicts, base: base, a: a, b: b, mopts: mopts}, nil
 }
 
 // Resolve settles the conflicts named in decisions and rebuilds the tree.
@@ -280,6 +306,9 @@ func (r *Result) Resolve(decisions map[string]Decision, opts Options) (*Resoluti
 			case KindOrder:
 				return nil, fmt.Errorf("merge3: %s: an order has no \"both\"", id)
 			case KindField:
+				if c.Chunks != nil {
+					break // A's words then B's, in each clash
+				}
 				if !opts.DuplicateAsUnits {
 					return nil, fmt.Errorf("merge3: %s: a field has no \"both\"; duplicate the unit or decide by hand", id)
 				}
@@ -291,7 +320,7 @@ func (r *Result) Resolve(decisions map[string]Decision, opts Options) (*Resoluti
 			return nil, fmt.Errorf("merge3: %s: unknown choice %q", id, d.Choice)
 		}
 	}
-	out, err := run(r.base, r.a, r.b, decisions, opts)
+	out, err := run(r.base, r.a, r.b, decisions, opts, r.mopts)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,191 @@
+{
+  "name": "text-marks-at-the-edge",
+  "description": "Text: A wraps every line in marks; B rewrites the end of one line, so A's closing mark sits at the edge of B's change: the clash is that line's end alone, and the other lines merge.",
+  "base": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "03/12/2026 Team day (in the office)\n10/12/2026 Planning (working from home)\n17/12/2026 Year end (in the office)"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "a": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "_**03/12/2026 Team day (in the office)**_\n_**10/12/2026 Planning (working from home)**_\n_**17/12/2026 Year end (in the office)**_"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "b": {
+    "key": "doc",
+    "kind": "document",
+    "slots": {
+      "body": [
+        {
+          "fields": {
+            "text": "03/12/2026 Team day (in the office)\n10/12/2026 Planning (stuff is worki\n17/12/2026 Year end (in the office)"
+          },
+          "key": "p1",
+          "kind": "text"
+        }
+      ]
+    }
+  },
+  "options": {
+    "text": [
+      "text"
+    ]
+  },
+  "expect": {
+    "conflicts": [
+      {
+        "a": "_**03/12/2026 Team day (in the office)**_\n_**10/12/2026 Planning (working from home)**_\n_**17/12/2026 Year end (in the office)**_",
+        "b": "03/12/2026 Team day (in the office)\n10/12/2026 Planning (stuff is worki\n17/12/2026 Year end (in the office)",
+        "base": "03/12/2026 Team day (in the office)\n10/12/2026 Planning (working from home)\n17/12/2026 Year end (in the office)",
+        "chunks": [
+          {
+            "a": "_**",
+            "base": "",
+            "op": "a"
+          },
+          {
+            "op": "same",
+            "text": "03/12/2026 Team day (in the office)"
+          },
+          {
+            "a": "**_",
+            "base": "",
+            "op": "a"
+          },
+          {
+            "op": "same",
+            "text": "\n"
+          },
+          {
+            "a": "_**",
+            "base": "",
+            "op": "a"
+          },
+          {
+            "op": "same",
+            "text": "10/12/2026 Planning ("
+          },
+          {
+            "a": "working from home)**_",
+            "b": "stuff is worki",
+            "base": "working from home)",
+            "op": "conflict"
+          },
+          {
+            "op": "same",
+            "text": "\n"
+          },
+          {
+            "a": "_**",
+            "base": "",
+            "op": "a"
+          },
+          {
+            "op": "same",
+            "text": "17/12/2026 Year end (in the office)"
+          },
+          {
+            "a": "**_",
+            "base": "",
+            "op": "a"
+          }
+        ],
+        "id": "field:p1:text",
+        "key": "p1",
+        "kind": "field",
+        "path": "text"
+      }
+    ],
+    "tree": {
+      "key": "doc",
+      "kind": "document",
+      "slots": {
+        "body": [
+          {
+            "fields": {
+              "text": "_**03/12/2026 Team day (in the office)**_\n_**10/12/2026 Planning (working from home)**_\n_**17/12/2026 Year end (in the office)**_"
+            },
+            "key": "p1",
+            "kind": "text"
+          }
+        ]
+      }
+    }
+  },
+  "resolutions": [
+    {
+      "description": "take B in the clash",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "b"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "_**03/12/2026 Team day (in the office)**_\n_**10/12/2026 Planning (stuff is worki\n_**17/12/2026 Year end (in the office)**_"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "description": "both",
+      "decisions": {
+        "field:p1:text": {
+          "choice": "both"
+        }
+      },
+      "expect": {
+        "conflicts": [],
+        "ids": {},
+        "tree": {
+          "key": "doc",
+          "kind": "document",
+          "slots": {
+            "body": [
+              {
+                "fields": {
+                  "text": "_**03/12/2026 Team day (in the office)**_\n_**10/12/2026 Planning (working from home)**_stuff is worki\n_**17/12/2026 Year end (in the office)**_"
+                },
+                "key": "p1",
+                "kind": "text"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

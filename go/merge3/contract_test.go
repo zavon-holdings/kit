@@ -24,6 +24,7 @@ type vector struct {
 	Base        Unit               `json:"base"`
 	A           Unit               `json:"a"`
 	B           Unit               `json:"b"`
+	Options     *MergeOptions      `json:"options,omitempty"`
 	Expect      json.RawMessage    `json:"expect,omitempty"`
 	Resolutions []vectorResolution `json:"resolutions,omitempty"`
 }
@@ -78,7 +79,11 @@ func TestContractVectors(t *testing.T) {
 		if err := json.Unmarshal(raw, &v); err != nil {
 			t.Fatalf("%s: %v", f, err)
 		}
-		r, err := Merge(v.Base, v.A, v.B)
+		mopts := MergeOptions{}
+		if v.Options != nil {
+			mopts = *v.Options
+		}
+		r, err := MergeWith(v.Base, v.A, v.B, mopts)
 		if err != nil {
 			t.Fatalf("%s: %v", v.Name, err)
 		}
@@ -236,6 +241,46 @@ func TestParityCases(t *testing.T) {
 	if write {
 		raw, _ := json.Marshal(cases)
 		if err := os.WriteFile(file, append(raw, '\n'), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+// The tokens vector: how the text merge splits a string. Written with
+// KIT_WRITE_VECTORS=1; the TypeScript twin checks the same file.
+func TestTextTokens(t *testing.T) {
+	file := filepath.Join("..", "..", "contract", "merge3", "text", "tokens.json")
+	raw, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var v struct {
+		Description string `json:"description"`
+		Cases       []struct {
+			In     string   `json:"in"`
+			Tokens []string `json:"tokens"`
+		} `json:"cases"`
+	}
+	if err := json.Unmarshal(raw, &v); err != nil {
+		t.Fatal(err)
+	}
+	write := os.Getenv("KIT_WRITE_VECTORS") == "1"
+	for i, c := range v.Cases {
+		got := Tokens(c.In)
+		if got == nil {
+			got = []string{}
+		}
+		if write {
+			v.Cases[i].Tokens = got
+			continue
+		}
+		if strings.Join(got, "|") != strings.Join(c.Tokens, "|") || len(got) != len(c.Tokens) {
+			t.Errorf("Tokens(%q) = %q, want %q", c.In, got, c.Tokens)
+		}
+	}
+	if write {
+		out, _ := json.MarshalIndent(v, "", "  ")
+		if err := os.WriteFile(file, append(out, '\n'), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}

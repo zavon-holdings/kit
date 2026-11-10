@@ -156,6 +156,20 @@ res, err := r.Resolve(map[string]merge3.Decision{"field:p1:text": {Choice: "b"}}
 - **Fields** merge one path at a time (one side unchanged takes the other;
   both the same takes it); otherwise a `field` conflict, tentatively A. The
   kind merges as the field `@kind`.
+- **Text** (1.19.0): the paths named in `text` (`merge3(base, a, b, { text:
+  ["data.text"] })`, Go `MergeWith(…, MergeOptions{Text: …})`) are merged
+  token by token when all three values are strings — tokens are runs of
+  letters/digits/combining marks, runs of spaces, and every other character
+  alone. Changes to different words merge clean; a clash is a `field`
+  conflict that also carries `chunks` (`{op: same|a|b|both|conflict, text,
+  base, a, b}`), narrowed to the clashing words. On it, `a`/`b` take that
+  side in every clash and the merged words elsewhere, `both` A's then B's
+  (never a copy), `manual` the whole value. An insertion at the edge of the
+  other side's change is a conflict, as in diff3 (`text-boundary-insertion`);
+  two changes by one side with only spaces between are one change
+  (`text-marks-at-the-edge`). `mergeText`/`MergeText` and `tokens`/`Tokens`
+  are exported for a screen that draws the difference. Name only words: an
+  address merged that way can come out as one neither side wrote.
 - **Deletion**: a unit deleted on one side and untouched on the other goes.
   Deleted on one side and changed on the other — its fields, its place, or
   anything beneath it — is a `delete` conflict, tentatively kept; its
@@ -341,7 +355,7 @@ submit keeps. A vector changing is a wire change. The `signature/`, `callback/`,
 `runs/` and `errors/` vectors are written by kit's own Go tests
 (`KIT_WRITE_VECTORS=1 go test ./webhooksig ./wfclient ./wfhandler -run
 TestContractVectors`), and so are `merge3/` and its random `merge3/parity/`
-cases (`KIT_WRITE_VECTORS=1 go test ./merge3 -run 'TestContractVectors|TestParityCases'`);
+and `merge3/text/` cases (`KIT_WRITE_VECTORS=1 go test ./merge3 -run 'TestContractVectors|TestParityCases|TestTextTokens|TestTextParity'`);
 the rest are written by the server implementation and only checked here.
 `stepgates/` is written by hand: the step-requirements rule, what counts as
 filled, the words a screen shows, the 422 body, the snooze grammar and the
@@ -370,6 +384,16 @@ checks the two agree; a screen draws its labels and icons from it.
 A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
+
+**1.19.0** (Go and TypeScript: `merge3` text merging, additive; tag
+`go/v1.19.0`; `@zavon/merge3` 1.1.0): `MergeOptions.Text` / `merge3(…, {
+text })` merges named string fields token by token (diff3 over tokens), so
+two people editing different words of one paragraph no longer conflict, and
+a clash is narrowed to its words as the conflict's `chunks`. `MergeText`,
+`Tokens`, `MaxTextCells` (Go); `mergeText`, `joinText`, `tokens`,
+`MAX_TEXT_CELLS` (TypeScript). New vectors `contract/merge3/text-*.json`,
+`text/tokens.json` and `text/random.json`. Without the option every merge is
+byte for byte as before.
 
 **1.18.0** (Go: `go/whatsapp`, additive; TypeScript unchanged; tag
 `go/v1.18.0`): Embedded Signup's server half — `ExchangeCode` (the

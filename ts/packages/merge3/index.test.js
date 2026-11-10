@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { merge3, resolve, canonical, sha256, validate, isValid } from "./index.js";
+import { merge3, resolve, canonical, sha256, validate, isValid, tokens, mergeText, joinText } from "./index.js";
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "contract", "merge3");
 const vectors = readdirSync(dir)
@@ -27,7 +27,7 @@ test("every conflict kind and every choice appears in the vectors", () => {
 
 for (const v of vectors) {
   test(`vector ${v.name}`, () => {
-    const r = merge3(v.base, v.a, v.b);
+    const r = merge3(v.base, v.a, v.b, v.options ?? {});
     assert.equal(canonical({ tree: r.tree, conflicts: r.conflicts }), canonical(v.expect));
     for (const res of v.resolutions ?? []) {
       let got;
@@ -103,4 +103,26 @@ test("random parity cases written by the Go twin", () => {
       assert.equal(canonical(got), canonical(c.resolved), `seed ${c.seed} resolved`);
     }
   }
+});
+
+test("the text merge splits strings as the Go twin does", () => {
+  const v = JSON.parse(readFileSync(join(dir, "text", "tokens.json"), "utf8"));
+  assert.ok(v.cases.length >= 8);
+  for (const c of v.cases) assert.deepEqual(tokens(c.in), c.tokens, JSON.stringify(c.in));
+});
+
+test("mergeText on its own: a clean merge and a narrowed clash", () => {
+  const clean = mergeText("The quick brown fox", "The slow brown fox", "The quick brown cat");
+  assert.equal(clean.conflict, false);
+  assert.equal(joinText(clean.chunks), "The slow brown cat");
+  const clash = mergeText("a brown fox", "a red fox", "a grey fox");
+  assert.equal(clash.conflict, true);
+  assert.deepEqual(clash.chunks.filter((c) => c.op === "conflict"), [{ op: "conflict", base: "brown", a: "red", b: "grey" }]);
+  assert.equal(joinText(clash.chunks, "both"), "a redgrey fox");
+});
+
+test("random text merges agree with the Go twin", () => {
+  const cases = JSON.parse(readFileSync(join(dir, "text", "random.json"), "utf8"));
+  assert.ok(cases.length >= 100);
+  for (const c of cases) assert.equal(canonical(mergeText(c.base, c.a, c.b)), canonical(c.expect), JSON.stringify([c.base, c.a, c.b]));
 });

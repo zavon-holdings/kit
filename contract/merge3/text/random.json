@@ -1,0 +1,4688 @@
+[
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  *\ntwo4twoé\nthreeone)",
+  "a": "  *\n\nthreeone)",
+  "b": "  *\ntwo4twoé\nthreeone)",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  *\n"
+    },
+    {
+     "a": "",
+     "base": "two4twoé",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\nthreeone)"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "one)two)one4",
+  "a": "one )   (  two\nthreeone(threeone4  one4",
+  "b": "one)two)one4",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one"
+    },
+    {
+     "a": " ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "   (  ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "two"
+    },
+    {
+     "a": "\nthreeone(threeone4  ",
+     "base": ")",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "one4"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "é_   **",
+  "a": "é_\n",
+  "b": "é_   *threeé4three*\n*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "é_"
+    },
+    {
+     "a": "\n",
+     "b": "   *threeé4three*\n*",
+     "base": "   **",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "éé  \none_one",
+  "a": "éé  \none4\ntwo*one_    )\ntwo_one",
+  "b": "  one_one",
+  "expect": {
+   "chunks": [
+    {
+     "a": "éé  \none4\ntwo*",
+     "b": "  ",
+     "base": "éé  \n",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "one"
+    },
+    {
+     "a": "_    )\ntwo",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_one"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": " é4  __ )",
+  "a": " é4  _*(é__",
+  "b": " é4  __ )",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": " é4  _"
+    },
+    {
+     "a": "*(é",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "a": "_",
+     "base": " )",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": " twotwo4one4\n  ",
+  "expect": {
+   "chunks": [
+    {
+     "b": " twotwo4one4\n  ",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\n threeone\n4twothreeé",
+  "a": "   threeoneé three  )(one  44twothreeé",
+  "b": "\n threeone\n4twothreeé",
+  "expect": {
+   "chunks": [
+    {
+     "a": "   threeoneé three  )(one  44twothreeé",
+     "base": "\n threeone\n4twothreeé",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "__*three)onethree\none\n(",
+  "b": "(* 4)** *4)é two4*  *",
+  "expect": {
+   "chunks": [
+    {
+     "a": "__*three)onethree\none\n(",
+     "b": "(* 4)** *4)é two4*  *",
+     "base": "",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "éthree)étwo",
+  "a": "oneéé)two étwo",
+  "b": "éthree)\n4two4three)étwo",
+  "expect": {
+   "chunks": [
+    {
+     "a": "oneéé",
+     "base": "éthree",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "two ",
+     "b": "\n4two4three)",
+     "base": "",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "étwo"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": " \n(",
+  "a": " *é)4   *(",
+  "b": "\n(",
+  "expect": {
+   "chunks": [
+    {
+     "a": " *é)4   *",
+     "b": "\n",
+     "base": " \n",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "("
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "4)*",
+  "a": "one*4\n",
+  "b": "4*)(",
+  "expect": {
+   "chunks": [
+    {
+     "a": "one",
+     "b": "4",
+     "base": "4)",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "a": "4\n",
+     "b": ")(",
+     "base": "",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "threethree(4two",
+  "a": "threethree(",
+  "b": "threethree(4two",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "threethree("
+    },
+    {
+     "a": "",
+     "base": "4two",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(three\n",
+  "a": "(one\né4three)three\n",
+  "b": "*(twoéone**one(two(three\n",
+  "expect": {
+   "chunks": [
+    {
+     "b": "*(twoéone**one(two",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "one\né4three)",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "three\n"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*4   two  _",
+  "a": "*oneone  )(étwo*  éone   two  ",
+  "b": "* (two*_(4   two  _",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "a": "oneone  )(étwo*  éone",
+     "b": " (two*_(4",
+     "base": "4",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "   two  "
+    },
+    {
+     "a": "",
+     "base": "_",
+     "op": "a"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": " *  é*  two*",
+  "a": "*  é*  two",
+  "b": " *  é*   **",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": " ",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "*  é*"
+    },
+    {
+     "a": "  two",
+     "b": "   **",
+     "base": "  two*",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "two*é",
+  "a": "twoé",
+  "b": "é",
+  "expect": {
+   "chunks": [
+    {
+     "a": "twoé",
+     "b": "é",
+     "base": "two*é",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "",
+  "a": "\ntwothree*one é)one",
+  "b": "(threetwothreetwo",
+  "expect": {
+   "chunks": [
+    {
+     "a": "\ntwothree*one é)one",
+     "b": "(threetwothreetwo",
+     "base": "",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "_)one(_   \n(\n",
+  "a": "_)one(_   \n(\n\n_",
+  "b": "_)one(\n  4é()\nthree)__   \né_é)threeone(\n",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_)one("
+    },
+    {
+     "b": "\n  4é()\nthree)",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": "_",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "   \n"
+    },
+    {
+     "b": "é_é)threeone",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "(\n"
+    },
+    {
+     "a": "\n_",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "twoé4oneone  )",
+  "a": "oneéone*(_(_(éétwoé4oneone  )    \ntwo)",
+  "b": "twoé4oneone  )",
+  "expect": {
+   "chunks": [
+    {
+     "a": "oneéone*(_(_(éétwoé4oneone  )    \ntwo",
+     "base": "twoé4oneone  ",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(  4\n* (  éthree",
+  "a": "(  4\n* (  éthree",
+  "b": "(  \none*three4\n*three  *three\ntwothreetwo  (  éthree",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "(  "
+    },
+    {
+     "b": "",
+     "base": "4",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "b": "one",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "b": "three4\n*three  *three\ntwothreetwo  ",
+     "base": " ",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "(  éthree"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "é44))  é_threetwo*",
+  "a": "é44))  é_threetwo*",
+  "b": "é44))  é_threetwo*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "é44))  é_threetwo*"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\n_twoone  ",
+  "a": "\n_twoone  ",
+  "b": "\n_  () three  é_",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "\n_"
+    },
+    {
+     "b": "  () three  é_",
+     "base": "twoone  ",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "threetwo  two(_twoone",
+  "a": "threetwo  é   )two  oneonetwo(_twoone",
+  "b": "threetwo  two(twoone",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "threetwo  "
+    },
+    {
+     "a": "é   )",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "two"
+    },
+    {
+     "a": "  oneonetwo",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "b": "",
+     "base": "_",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "twoone"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  \n",
+  "a": "  __()three\n  one(three\n",
+  "b": "  ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "a": "__()three\n  one(three\n",
+     "b": "",
+     "base": "\n",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "*4 three_*",
+  "a": "*4 three_*",
+  "b": "_  two 4 three_",
+  "expect": {
+   "chunks": [
+    {
+     "b": "_  two ",
+     "base": "*",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "4 three_"
+    },
+    {
+     "b": "",
+     "base": "*",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": "_\none\n*",
+  "a": "_\n)",
+  "b": "_*   4one  (_\none*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": "*   4one  (_",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "a": ")",
+     "b": "one*",
+     "base": "one\n*",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "_)",
+  "a": "4threethree )éthree   ___*)twoone)two   ",
+  "b": "_",
+  "expect": {
+   "chunks": [
+    {
+     "a": "4threethree )éthree   ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "a": "__*)twoone)two   ",
+     "b": "",
+     "base": ")",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "\n_",
+  "a": "    4*(   two4*éthreeone_( *  (_",
+  "b": "\n_",
+  "expect": {
+   "chunks": [
+    {
+     "a": "    4*(   two4*éthreeone_( *  (",
+     "base": "\n",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "one  éone*4two  one",
+  "a": "one  one4é_\néone*4  one",
+  "b": "one  éone*4two  three()oneé**)",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one  "
+    },
+    {
+     "a": "one4é_\n",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "éone*"
+    },
+    {
+     "a": "4",
+     "base": "4two",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "b": "three()oneé**)",
+     "base": "one",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "()(é_",
+  "a": "two(é   two  (one  )é_",
+  "b": "((é",
+  "expect": {
+   "chunks": [
+    {
+     "a": "two",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "é   two  ",
+     "b": "",
+     "base": ")",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "one  )",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "é"
+    },
+    {
+     "b": "",
+     "base": "_",
+     "op": "b"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": ")\n( \none",
+  "a": ")\n( \none",
+  "b": ")\n( \none",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ")\n( \none"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ") 4two   _*two)",
+  "a": ") 4two_*two)",
+  "b": ") 4two   _*two)",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ") 4two"
+    },
+    {
+     "a": "",
+     "base": "   ",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_*two)"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "threeé  ",
+  "a": "  é)4_4",
+  "b": "threeé",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  é)4_4",
+     "b": "threeé",
+     "base": "threeé  ",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "three\n*4threethree",
+  "a": "\n*4threethree",
+  "b": "\n*\none\n_two4threethree",
+  "expect": {
+   "chunks": [
+    {
+     "base": "three",
+     "op": "both",
+     "text": ""
+    },
+    {
+     "op": "same",
+     "text": "\n*"
+    },
+    {
+     "b": "\none\n_two4threethree",
+     "base": "4threethree",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "three  étwo4\n*\né",
+  "a": "three  étwo4\n*\n",
+  "b": "three  onetwo) threethreeone 4*_oneonethree\n*\né",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "three  "
+    },
+    {
+     "b": "onetwo) threethreeone 4*_oneonethree",
+     "base": "étwo4",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "\n*\n"
+    },
+    {
+     "a": "",
+     "base": "é",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "three)))*(",
+  "a": "three)three4 twotwo44  )*)*(",
+  "b": "three)))*(",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "three)"
+    },
+    {
+     "a": "three4 twotwo44  ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "*",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")*("
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "   *\n)*é",
+  "a": "   *\n)*é",
+  "b": "   *\n( two  ((4()*é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "   *\n"
+    },
+    {
+     "b": "( two  ((4(",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": ")*é"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two",
+  "a": "*",
+  "b": "_* _one  *_  )twooneé)(étwo_",
+  "expect": {
+   "chunks": [
+    {
+     "a": "*",
+     "b": "_* _one  *_  )twooneé)(étwo_",
+     "base": "two",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "é  _ *",
+  "a": "é  _ *",
+  "b": "é  _ *\n  one**threeone\n)  ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "é  _ *"
+    },
+    {
+     "b": "\n  one**threeone\n)  ",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "onetwo",
+  "a": "onetwo",
+  "b": "",
+  "expect": {
+   "chunks": [
+    {
+     "b": "",
+     "base": "onetwo",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "é",
+  "a": "é",
+  "b": "**(two\né",
+  "expect": {
+   "chunks": [
+    {
+     "b": "**(two\n",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "é"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "three*_two\n ",
+  "a": "*_two\n ",
+  "b": "three*_two\n ",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "three",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "*_two\n "
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  ",
+  "a": "",
+  "b": "  ",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "  ",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")**one  one",
+  "a": ")**one  one",
+  "b": ")* threethree_(  one",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ")*"
+    },
+    {
+     "b": " threethree_(",
+     "base": "*one",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "  one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(\n4)é*4one)é",
+  "a": "(\n4)é*4one)é",
+  "b": "(éthree\n)é*4one)é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "b": "éthree",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "b": "",
+     "base": "4",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": ")é*4one)é"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "4  one4( two  ",
+  "expect": {
+   "chunks": [
+    {
+     "b": "4  one4( two  ",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\n\né*one*4 \n",
+  "a": "\n\né*one*4 \n",
+  "b": "\n\né**4 \n",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "\n\né*"
+    },
+    {
+     "b": "",
+     "base": "one",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*4 \n"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")oneé",
+  "a": " *  three)",
+  "b": "oneé",
+  "expect": {
+   "chunks": [
+    {
+     "a": " *  three)",
+     "b": "oneé",
+     "base": ")oneé",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "4*\n ",
+  "a": "4*two  threeé(one4*_*\n *one((",
+  "b": "4*\n *\n\none(\n)\n)()",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "4*"
+    },
+    {
+     "a": "two  threeé(one4*_*",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\n "
+    },
+    {
+     "a": "*one((",
+     "b": "*\n\none(\n)\n)()",
+     "base": "",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "4éé((       three",
+  "a": "4éé(two4)threeone\n  (* threeé)(       ((twothree",
+  "b": "4éé((       three",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "4éé("
+    },
+    {
+     "a": "two4)threeone\n  ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "* threeé)(       ((twothree",
+     "base": "       three",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  oneé",
+  "a": "  oneé",
+  "b": "  oneéthreethree  _threethreetwo",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "b": "oneéthreethree  _threethreetwo",
+     "base": "oneé",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")three4 \none4",
+  "a": ")three4 \none4",
+  "b": ")(one_twotwo \none4",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "b": "(one_twotwo",
+     "base": "three4",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " \none4"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\ntwothreethreeé_4threeoneé_",
+  "a": "\ntwothreethreeé_  *threetwo_",
+  "b": "\ntwothreethreeé_4threeoneé_   *two",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "\ntwothreethreeé_"
+    },
+    {
+     "a": "  *threetwo",
+     "base": "4threeoneé",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": "   *two",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two",
+  "a": "one(__\n)_one\n(one4one",
+  "b": "twoone\nthree_",
+  "expect": {
+   "chunks": [
+    {
+     "a": "one(__\n)_one\n(one4one",
+     "b": "twoone\nthree_",
+     "base": "two",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "()  \n4twoone",
+  "a": "()  \n4twoone",
+  "b": "  \n4 two(éthree4_three*one  *)two\n4)  \ntwo\n(oneé",
+  "expect": {
+   "chunks": [
+    {
+     "b": "  \n4 two",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "b": "éthree4_three*one  *",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "b": "two\n4)",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "  \n"
+    },
+    {
+     "b": "two\n(oneé",
+     "base": "4twoone",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two)twoé _)(two_",
+  "a": "two)twoé _)(two_",
+  "b": "two)twoé_*(three_)(two_",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "two)twoé"
+    },
+    {
+     "b": "_*(three",
+     "base": " ",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "_)(two_"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": "éé(é  ",
+  "a": "twothree  two  éétwo  _)4\ntwoé  ",
+  "b": " éone )* _4*) *two(é  ",
+  "expect": {
+   "chunks": [
+    {
+     "a": "twothree  two  éétwo  _)4\ntwoé",
+     "b": " éone )* _4*) *two(é",
+     "base": "éé(é",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "  "
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "4two)  (4é",
+  "a": "4two)  é(_4é",
+  "b": "4two)  (4é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "4two)  "
+    },
+    {
+     "a": "é",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "_",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "4é"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two)  )twoone  ",
+  "a": "two)  ()(éthreetwo_ 4\n  ",
+  "b": "two)  )twoone  ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "two)  "
+    },
+    {
+     "a": "(",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "(éthreetwo_ 4\n",
+     "base": "twoone",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "  "
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " one",
+  "a": " one",
+  "b": " one",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": " one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  )é* ",
+  "a": "  )threeé))threeétwoone ",
+  "b": ")é* (two",
+  "expect": {
+   "chunks": [
+    {
+     "b": "",
+     "base": "  ",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "threeé))threeétwoone",
+     "base": "é*",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": " "
+    },
+    {
+     "b": "(two",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(  onetwo*  éthreetwoé",
+  "a": "  *  éthreetwoé",
+  "b": "(_()\n_   one_oneonetwo*  ",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  ",
+     "b": "(_()\n_   one_oneonetwo",
+     "base": "(  onetwo",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "*  "
+    },
+    {
+     "b": "",
+     "base": "éthreetwoé",
+     "op": "b"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "_",
+  "a": "",
+  "b": "_",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "_",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*\n three",
+  "a": "* three",
+  "b": "é \néthree 4* three",
+  "expect": {
+   "chunks": [
+    {
+     "a": "*",
+     "b": "é \néthree 4*",
+     "base": "*\n",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": " three"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": ")(one",
+  "a": ")one",
+  "b": ")(one",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "",
+     "base": "(",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")",
+  "a": "three*)",
+  "b": "44*4)",
+  "expect": {
+   "chunks": [
+    {
+     "a": "three*",
+     "b": "44*4",
+     "base": "",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "two",
+  "a": "  one)two",
+  "b": ")  (\né",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  one)two",
+     "b": ")  (\né",
+     "base": "two",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "one)4(\n\n_(*é(",
+  "a": "one)4(\n\n_(*é(",
+  "b": "one)4(\n\n_(*é(",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one)4(\n\n_(*é("
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\nthree  ",
+  "a": "\nthree  two)threeé4",
+  "b": "_)) *three(\ntwoone)  ",
+  "expect": {
+   "chunks": [
+    {
+     "b": "_)) *",
+     "base": "\n",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "three"
+    },
+    {
+     "b": "(\ntwoone)",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "a": "two)threeé4",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*three one",
+  "a": "*three onethreetwothreeéthreeone",
+  "b": "*three(4three4)\nthreeoneé  ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "*three"
+    },
+    {
+     "a": " onethreetwothreeéthreeone",
+     "b": "(4three4)\nthreeoneé  ",
+     "base": " one",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "\nthree4 ",
+  "a": "\n **three(\n    two\n)4  threeone__))",
+  "b": "\nthree4 ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "a": " **three(\n    two\n)4  threeone__))",
+     "base": "three4 ",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(4é4 ",
+  "a": "  \n(  (twoone*(44é4 ",
+  "b": "(two)three ",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  \n",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "  (twoone*(44é4",
+     "b": "two)three",
+     "base": "4é4",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": " "
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "three\n_one",
+  "a": "  )  three\n_\n\n* \n  é 4(\none",
+  "b": "three\n_one",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  )  ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "three\n_"
+    },
+    {
+     "a": "\n\n* \n  é 4(\n",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "    three  éé",
+  "a": "    three  _ oneé__\none)éé",
+  "b": "    three  éé",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "    three  "
+    },
+    {
+     "a": "_ oneé__\none)",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "éé"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "é44\n_",
+  "a": "é44*44\n_ _",
+  "b": "  \n  4(two)threeone\n_",
+  "expect": {
+   "chunks": [
+    {
+     "a": "é44*44",
+     "b": "  \n  4(two)threeone",
+     "base": "é44",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "a": "_ ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": " ",
+  "a": " é_é    one\ntwo  ",
+  "b": "**two*4\n()",
+  "expect": {
+   "chunks": [
+    {
+     "a": " é_é    one\ntwo  ",
+     "b": "**two*4\n()",
+     "base": " ",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": ")_* é one_ ",
+  "a": ")_* é one_ ",
+  "b": ")_* é one_ ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ")_* é one_ "
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "threeone\ntwo  (*) one",
+  "a": "threeone\ntwo  (*) one",
+  "b": "threeone\ntwo  (*) one",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "threeone\ntwo  (*) one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "é  three** ((\nthree",
+  "a": "é  three** ( _((\nthree",
+  "b": "é  three** threethree)_( \n __4_*é* éthreetwo(\n(twoé4é  three",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "é  three** "
+    },
+    {
+     "b": "threethree)_",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": " _(",
+     "b": " \n __4_*é* éthreetwo",
+     "base": "",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "(\n"
+    },
+    {
+     "b": "(twoé4é  ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "three"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "\n",
+  "a": "",
+  "b": "\n",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "\n",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "threeoneonethree _oneone",
+  "a": "  _oneone",
+  "b": "threeoneonethreeé4three\n_4)  *)",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  ",
+     "b": "threeoneonethreeé4three\n",
+     "base": "threeoneonethree ",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": "4)  *)",
+     "base": "oneone",
+     "op": "b"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": ")two _threeétwo",
+  "a": "two _threeétwo",
+  "b": ")two _threeétwo",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": ")",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "two _threeétwo"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*4   _two\ntwo\n",
+  "a": "*4   _two\ntwoé  étwoéé) ",
+  "b": "*4   _two\ntwo*\n  *one  é(\n",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "*4   _two\n"
+    },
+    {
+     "a": "twoé  étwoéé) ",
+     "b": "two*\n  *one  é(\n",
+     "base": "two\n",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "twooneoneonetwoonetwo",
+  "a": "twooneoneonetwoonetwo",
+  "b": "  threethree _one4twoé*4é_ three",
+  "expect": {
+   "chunks": [
+    {
+     "b": "  threethree _one4twoé*4é_ three",
+     "base": "twooneoneonetwoonetwo",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "one)\n  threeé )é4",
+  "a": "one)\n  threeé )é4",
+  "b": "one)\n  ( )",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one)\n  "
+    },
+    {
+     "b": "(",
+     "base": "threeé",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " )"
+    },
+    {
+     "b": "",
+     "base": "é4",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "4  two\n_4))",
+  "a": "4two\n_4))",
+  "b": "4  two\n_4)",
+  "expect": {
+   "chunks": [
+    {
+     "a": "4two",
+     "base": "4  two",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\n_4)"
+    },
+    {
+     "b": "",
+     "base": ")",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "one)  ",
+  "a": "one)   )é*two4\n \n4)",
+  "b": "one) (threeone()  ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one)"
+    },
+    {
+     "a": "   )é*two4\n \n4)",
+     "b": " (threeone()  ",
+     "base": "  ",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "  threethree* ",
+  "a": "  threethree* ",
+  "b": "  threethreethree*4three  ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "b": "threethreethree",
+     "base": "threethree",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "b": "4three  ",
+     "base": " ",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "one*_)(éonethree",
+  "a": "*_)4\n*(three)threeéétwoéone  éonethree",
+  "b": "one*(_twothree* _)(éonethree",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "one",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "b": "(_twothree* ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "_)"
+    },
+    {
+     "a": "4\n*",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "three)threeéétwoéone  ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "éonethree"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  two(threeé4_4   ",
+  "a": "  two*é)\n44\n  (threeé4_4   ",
+  "b": "  two(threeé4_4   ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  two"
+    },
+    {
+     "a": "*é)\n44\n  ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "(threeé4_4   "
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "44",
+  "a": "44 \n(_é",
+  "b": "44",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "44"
+    },
+    {
+     "a": " \n(_é",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two(4\n\n*\n)  \ntwo",
+  "a": "_*three4three \n (4\n\n*\n)  \ntwo",
+  "b": "two(4\n\n*\n)  \ntwo",
+  "expect": {
+   "chunks": [
+    {
+     "a": "_*three4three \n ",
+     "base": "two",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "(4\n\n*\n)  \ntwo"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "_two4threethree",
+  "a": "_4_é ",
+  "b": "_two4threethree",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "a": "4_é ",
+     "base": "two4threethree",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*(*\n4é",
+  "a": "*two two*       *\n4é",
+  "b": "*two_twothree  **\n4é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "a": "two two*       ",
+     "b": "two_twothree  *",
+     "base": "(",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "*\n4é"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "\n\ntwo )three_   )*",
+  "a": "\none((three(two*threeone_\n\n) two two\n(two_) é\n(three_   )*",
+  "b": "\n\ntwo )three_   )*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "a": "one((three(two*threeone_",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "a": "\n) ",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "two "
+    },
+    {
+     "a": "two\n(two_",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": " é\n(",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "three_   )*"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "éone  4*_é\n",
+  "a": "éone  4*_\n",
+  "b": "éone  4*_é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "éone  4*_"
+    },
+    {
+     "a": "\n",
+     "b": "é",
+     "base": "é\n",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "*three\n)oneoneone))",
+  "a": "*threeé\n  \n)  twoone())",
+  "b": "*three4*one)\n_two)oneoneone)))three   ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "a": "threeé",
+     "b": "three4*one)",
+     "base": "three",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "a": "  \n",
+     "b": "_two",
+     "base": "",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "  twoone(",
+     "base": "oneoneone",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "))"
+    },
+    {
+     "b": ")three   ",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "é  é()",
+  "a": "é  é()",
+  "b": "é  three)é()threeé é  é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "é  "
+    },
+    {
+     "b": "three)",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "é()"
+    },
+    {
+     "b": "threeé é  é",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(two  (two",
+  "a": "(two  (two",
+  "b": "(_two(twoone*two",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "b": "_",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "two"
+    },
+    {
+     "b": "",
+     "base": "  ",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "b": "twoone*",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "two"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " (one*4\n",
+  "a": "(one*4\n",
+  "b": " (one*4\n",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": " ",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "(one*4\n"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " one*  \n_three",
+  "a": " one*  \nthree_three",
+  "b": " one*  \n_three",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": " one*  \n"
+    },
+    {
+     "a": "three",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_three"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")_one)_éthree",
+  "a": ")_one_\n  ",
+  "b": ")_one)_",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ")_one"
+    },
+    {
+     "a": "",
+     "base": ")",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "a": "\n  ",
+     "b": "",
+     "base": "éthree",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "_three*\n* ",
+  "a": "_three*\n* ",
+  "b": "_three*\n*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_three*\n*"
+    },
+    {
+     "b": "",
+     "base": " ",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "threeone*(",
+  "a": "*_two (",
+  "b": "threeone* 44two_(",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "threeone",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "a": "_two ",
+     "b": " 44two_",
+     "base": "",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "("
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "( twoé4two4 three__",
+  "a": "( twoé4two4 three_é  (*( *twoé4three_",
+  "b": "( twoé4two4 three__",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "( twoé4two4 three_"
+    },
+    {
+     "a": "é  (*( *twoé4three",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*three_two",
+  "a": "_   one___two__two",
+  "b": "*three_two",
+  "expect": {
+   "chunks": [
+    {
+     "a": "_   one___two_",
+     "base": "*three",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_two"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two",
+  "a": "two",
+  "b": "_4  onetwo",
+  "expect": {
+   "chunks": [
+    {
+     "b": "_4  onetwo",
+     "base": "two",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "threeoneé*  *twooneéone",
+  "a": "threeoneé*  *é  éone(twoone*twooneéone",
+  "b": "threeoneé*one(  4   *twooneéone",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "threeoneé*"
+    },
+    {
+     "b": "one(  4   ",
+     "base": "  ",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "a": "é  éone(twoone*",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "twooneéone"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " one\n\n",
+  "a": " one\n",
+  "b": " one\n\nthree*é_",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": " one\n"
+    },
+    {
+     "a": "",
+     "b": "\nthree*é_",
+     "base": "\n",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "one *two  ",
+  "a": "one *two  ",
+  "b": "one *  ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one *"
+    },
+    {
+     "b": "",
+     "base": "two",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "  "
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "é  one)44one   *",
+  "a": "  one)44one   *",
+  "b": "__4  )44one   *",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  one",
+     "b": "__4  ",
+     "base": "é  one",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": ")44one   *"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "*three(two4one*two*two",
+  "a": "*three(two4one*two*two",
+  "b": "two*4onetwo ( three(two4one*)*\n(oneé twotwoone *)(é   )*two",
+  "expect": {
+   "chunks": [
+    {
+     "b": "two",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "b": "4onetwo ( ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "three(two4one*"
+    },
+    {
+     "b": ")*\n(oneé twotwoone *)(é   )",
+     "base": "two",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*two"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "oneé)one_ )two",
+  "a": "two4**\n*one)one_ )two",
+  "b": ")one_ )two  é(()",
+  "expect": {
+   "chunks": [
+    {
+     "a": "two4**\n*one",
+     "b": "",
+     "base": "oneé",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": ")one_ )two"
+    },
+    {
+     "b": "  é(()",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "  threeé)é\n)",
+  "a": "  threeé)é\n)",
+  "b": "  threeé)é\n)",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  threeé)é\n)"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "_4__",
+  "a": "_4(*éé*  two  )_",
+  "b": "_ \n4_é\nthree\nthreethree44__*\n_three *4  4",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": " \n",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "4"
+    },
+    {
+     "a": "(*éé*  two  )",
+     "b": "_é\nthree\nthreethree44",
+     "base": "_",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": "_*\n_three *4  4",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "__é",
+  "a": "__é",
+  "b": "_é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": "",
+     "base": "_",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "é"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "4one  ",
+  "a": "4one  ",
+  "b": "* )  ",
+  "expect": {
+   "chunks": [
+    {
+     "b": "* )",
+     "base": "4one",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "  "
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two)",
+  "a": "two)",
+  "b": "étwo4one(one4 *two)",
+  "expect": {
+   "chunks": [
+    {
+     "b": "étwo4one(one4 *",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "two)"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": " *)threethreeé(étwo_three",
+  "a": " *)threethreeé(étwothree",
+  "b": " *)threethreeé(étwo_three",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": " *)threethreeé("
+    },
+    {
+     "a": "étwothree",
+     "base": "étwo_three",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "one)_étwo*\n  é",
+  "a": "one)_étwo*\n  é",
+  "b": ")_*(*\nthree*\n  é",
+  "expect": {
+   "chunks": [
+    {
+     "b": "",
+     "base": "one",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": ")_"
+    },
+    {
+     "b": "*(*\nthree",
+     "base": "étwo",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*\n  é"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "4twoonetwo",
+  "a": "threeone4twoonetwo  three",
+  "b": "4twoonetwo",
+  "expect": {
+   "chunks": [
+    {
+     "a": "threeone4twoonetwo  three",
+     "base": "4twoonetwo",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\n*  _é*( *(",
+  "a": "\n*_  threeé(\né\n(_é*  ) *(",
+  "b": "\n*  _é*( *(",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "\n*"
+    },
+    {
+     "a": "_  threeé(\né\n(",
+     "base": "  ",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_é*"
+    },
+    {
+     "a": "  )",
+     "base": "(",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": " *("
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "   *   _4",
+  "b": "two(\n(one\n   )(  three_three",
+  "expect": {
+   "chunks": [
+    {
+     "a": "   *   _4",
+     "b": "two(\n(one\n   )(  three_three",
+     "base": "",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "_4\n*4\n\nthree4one",
+  "a": "_4\n*4\n\nthree4one",
+  "b": "_4\nthree( *4\n\nthree4one",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_4\n"
+    },
+    {
+     "b": "three( ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*4\n\nthree4one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": "))threetwo \nthreetwoone",
+  "a": "))threetwo \nthreetwoone",
+  "b": "))\none \nthreetwoone",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "))"
+    },
+    {
+     "b": "\none",
+     "base": "threetwo",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " \nthreetwoone"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(three  threeé",
+  "a": "(three)threetwo      threeé",
+  "b": "(threethreeé",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "three)threetwo      threeé",
+     "b": "threethreeé",
+     "base": "three  threeé",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "\n",
+  "a": ")4one",
+  "b": "4  4)_\n",
+  "expect": {
+   "chunks": [
+    {
+     "a": ")4one",
+     "b": "4  4)_\n",
+     "base": "\n",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\n*   one)_",
+  "a": "\n4one_",
+  "b": "*   one)_",
+  "expect": {
+   "chunks": [
+    {
+     "a": "\n4one",
+     "b": "*   one)",
+     "base": "\n*   one)",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": " \n",
+  "a": " \n",
+  "b": "    4**threeé",
+  "expect": {
+   "chunks": [
+    {
+     "b": "    4**threeé",
+     "base": " \n",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  4)*  _)étwoone",
+  "a": "  4two))\n\none)oneé4_)étwoone",
+  "b": "_(\nthree  three4)*  éthree\n\n(__)étwoone",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  4two",
+     "b": "_(\nthree  three4",
+     "base": "  4",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": ")\n\none)oneé4",
+     "b": "*  éthree\n\n(_",
+     "base": "*  ",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "_)étwoone"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "4",
+  "a": "two4*\n4",
+  "b": "",
+  "expect": {
+   "chunks": [
+    {
+     "a": "two4*\n4",
+     "b": "",
+     "base": "4",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "\n\néé\nthree(éé  one",
+  "a": "\n\néé\nthree(éé  one",
+  "b": "  4)twothree4two4three*\néé\n4\nthree éé  one",
+  "expect": {
+   "chunks": [
+    {
+     "b": "  4)twothree4two4three*",
+     "base": "\n",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "\néé\n"
+    },
+    {
+     "b": "4\n",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "three"
+    },
+    {
+     "b": " ",
+     "base": "(",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "éé  one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  one_ _*(",
+  "a": "  one_ _*(",
+  "b": "  one_ _  three)(two(",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  one_ _"
+    },
+    {
+     "b": "  three)(two",
+     "base": "*",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "("
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " (_*one  \nétwo",
+  "a": "(_*one  \n",
+  "b": " (_*one\n    \nétwo",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": " ",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "(_*one"
+    },
+    {
+     "b": "\n    ",
+     "base": "  ",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "a": "",
+     "base": "étwo",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "threeé)two \n(",
+  "a": ")two \n",
+  "b": "threeé)two \n(",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "threeé",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")two \n"
+    },
+    {
+     "a": "",
+     "base": "(",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "",
+  "expect": {
+   "chunks": [],
+   "conflict": false
+  }
+ },
+ {
+  "base": "three\n\nthreetwo_ )(twotwo",
+  "a": "three\n\nthreetwo_ )twotwo",
+  "b": "three\nthreetwo_é )(twotwo",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "three\n"
+    },
+    {
+     "b": "",
+     "base": "\n",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "threetwo_"
+    },
+    {
+     "b": "é",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " )"
+    },
+    {
+     "a": "",
+     "base": "(",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "twotwo"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(",
+  "a": "()étwo\n",
+  "b": "_ \n(one4(",
+  "expect": {
+   "chunks": [
+    {
+     "b": "_ \n(one4",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": ")étwo\n",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "* one4\n     4",
+  "a": "* \n     4",
+  "b": "  three\none one4\n     4",
+  "expect": {
+   "chunks": [
+    {
+     "b": "  three\none",
+     "base": "*",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " "
+    },
+    {
+     "a": "",
+     "base": "one4",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\n     4"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  one",
+  "a": "  one",
+  "b": "  )",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "b": ")",
+     "base": "one",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": ")",
+  "b": "éone4é4 three_",
+  "expect": {
+   "chunks": [
+    {
+     "a": ")",
+     "b": "éone4é4 three_",
+     "base": "",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "threeétwo\n*",
+  "a": "threeétwo)\n**4one)\n4*\n    *two",
+  "b": ") threeétwo\n*",
+  "expect": {
+   "chunks": [
+    {
+     "b": ") ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "threeétwo"
+    },
+    {
+     "a": ")",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\n*"
+    },
+    {
+     "a": "*4one)\n4*\n    *two",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "_()  ",
+  "a": "_()",
+  "b": "_()  (é )one",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_()"
+    },
+    {
+     "a": "",
+     "b": "  (é )one",
+     "base": "  ",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "__*_)é",
+  "a": "_*_)é",
+  "b": "__*_* *  (three  )é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "a": "",
+     "base": "_",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "*_"
+    },
+    {
+     "b": "* *  (three  ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": ")é"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(*  one4 é\nthreethree",
+  "a": "(*  two_\nthree*\n  one é\nthreethree",
+  "b": "(* one4\n 4threeé\nthreethree",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "(*"
+    },
+    {
+     "a": "  two_\nthree*\n  one é",
+     "b": " one4\n 4threeé",
+     "base": "  one4 é",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "\nthreethree"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "4twoonethreeéthree",
+  "a": "4twoonethreeéthree",
+  "b": "4twoonethreeéthree",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "4twoonethreeéthree"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "4threetwoone_",
+  "b": "",
+  "expect": {
+   "chunks": [
+    {
+     "a": "4threetwoone_",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  ))twoé  one*three",
+  "a": "  *\ntwoé  one*three",
+  "b": "  ))twoé  one*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "a": "*\n",
+     "base": "))",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "twoé  one*"
+    },
+    {
+     "b": "",
+     "base": "three",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two_*onethree",
+  "a": "two_*onethree",
+  "b": "two_*onethree",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "two_*onethree"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "twothreeone  _three*4",
+  "a": "twothreeone  three4",
+  "b": "threethreetwothreeone  _one_   one  three*one\n  three*",
+  "expect": {
+   "chunks": [
+    {
+     "a": "twothreeone  three4",
+     "b": "threethreetwothreeone  _one_   one  three*one\n  three*",
+     "base": "twothreeone  _three*4",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "\n  é\n)    ",
+  "a": "  é\n)    ",
+  "b": "two_  *oneone(\ntwo)__\n( é\n)    one4one_",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  ",
+     "b": "two_  *oneone(\ntwo)__\n( ",
+     "base": "\n  ",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "é\n)    "
+    },
+    {
+     "b": "one4one_",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "three *\n (*  _three",
+  "a": "three *\n ((two  _three",
+  "b": "three *\n (*  _three",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "three *\n ("
+    },
+    {
+     "a": "(two",
+     "base": "*",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "  _three"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")",
+  "a": ")",
+  "b": "_\nthree*é  )one)(4",
+  "expect": {
+   "chunks": [
+    {
+     "b": "_\nthree*é  ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "b": "one)(4",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "4onetwoone__\ntwoone*",
+  "a": "4onetwoone__\ntwoone",
+  "b": "4onetwoone__\ntwoone\n  *oneone*one*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "4onetwoone__\ntwoone"
+    },
+    {
+     "a": "",
+     "b": "\n  *oneone*one*",
+     "base": "*",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": ")_) \n_three\nthree",
+  "a": ")_ \none)__éone \n_three\nthree",
+  "b": ")_) \n_three)é \n  _\nthree",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ")_"
+    },
+    {
+     "a": " \none",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "__éone",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": " \n_three"
+    },
+    {
+     "b": ")é \n  _",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "\nthree"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  _\nthreeone _\né ",
+  "a": "  \nthreeone two\n4two_\né",
+  "b": "  _\nthreeone\n*  two4 4_\né ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "a": "",
+     "base": "_",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\nthreeone"
+    },
+    {
+     "a": " two\n4two",
+     "b": "\n*  two4 4",
+     "base": " ",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "_\né"
+    },
+    {
+     "a": "",
+     "base": " ",
+     "op": "a"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "",
+  "a": "three  \n é)(*",
+  "b": "\n*) _  three(three  \n4)one",
+  "expect": {
+   "chunks": [
+    {
+     "a": "three  \n é)(*",
+     "b": "\n*) _  three(three  \n4)one",
+     "base": "",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "4  _*one",
+  "a": "éthreeonethree)   oneone  _(  _é_two4*one",
+  "b": "4  _*one",
+  "expect": {
+   "chunks": [
+    {
+     "a": "éthreeonethree)   oneone",
+     "base": "4",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "  _"
+    },
+    {
+     "a": "(  _é_two4",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "*one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*onetwotwo\nthreeone )",
+  "a": "))*two*onetwotwo\nthreeone ",
+  "b": "4    4*oneone(é(*_onethreetwo*4 é\nthreeoneone4one((onetwooneone )",
+  "expect": {
+   "chunks": [
+    {
+     "a": "))",
+     "b": "4    4",
+     "base": "",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "a": "two*onetwotwo",
+     "b": "oneone(é(*_onethreetwo*4 é",
+     "base": "onetwotwo",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "b": "threeoneone4one((onetwooneone",
+     "base": "threeone",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " "
+    },
+    {
+     "a": "",
+     "base": ")",
+     "op": "a"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "(  \n_ 4twoonethreeé",
+  "a": "(\n_4twoonethreeé",
+  "b": "(  \n) \n((_ 4twoonethreeé)*4(",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "",
+     "base": "  ",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "b": ") \n((",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "a": "",
+     "base": " ",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "4twoonethreeé"
+    },
+    {
+     "b": ")*4(",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "one",
+  "a": "one",
+  "b": "one",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": " oneone4é  _4*)three\n4",
+  "expect": {
+   "chunks": [
+    {
+     "b": " oneone4é  _4*)three\n4",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")\n4(",
+  "a": "\n4\n_é)_)one** ",
+  "b": " éone*)\n4(",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "b": " éone*)",
+     "base": ")",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": "\n4"
+    },
+    {
+     "a": "\n_é)_)one** ",
+     "base": "(",
+     "op": "a"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "",
+  "a": "\n_two",
+  "b": "",
+  "expect": {
+   "chunks": [
+    {
+     "a": "\n_two",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "   _",
+  "a": "   _",
+  "b": "_é_three éthree",
+  "expect": {
+   "chunks": [
+    {
+     "b": "",
+     "base": "   ",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": "é_three éthree",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")éoneé( ",
+  "a": ")éoneé( ",
+  "b": ")éoneé(two  (  two(é",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": ")éoneé("
+    },
+    {
+     "b": "two  (  two(é",
+     "base": " ",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "))",
+  "a": ")",
+  "b": " one)threethree**onethree(*   three\n)",
+  "expect": {
+   "chunks": [
+    {
+     "b": " one",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "",
+     "b": "threethree**onethree(*   three\n)",
+     "base": ")",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": " 4\n4\ntwo",
+  "a": " \n   4*_4\n4\ntwo",
+  "b": "( 4\n4\ntwo",
+  "expect": {
+   "chunks": [
+    {
+     "b": "(",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " "
+    },
+    {
+     "a": "\n   4*_",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "4\n4\ntwo"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*three\n\nthreetwo",
+  "a": "*\n\nthreetwo",
+  "b": "*three\nthreetwo",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "a": "",
+     "base": "three",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    },
+    {
+     "b": "",
+     "base": "\n",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "threetwo"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " ",
+  "a": "*4  \n\n",
+  "b": "two one _)    )(  4three4(three",
+  "expect": {
+   "chunks": [
+    {
+     "a": "*4  \n\n",
+     "b": "two one _)    )(  4three4(three",
+     "base": " ",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "(_4three4two(",
+  "a": "_oneone(*three*é(three)4three4two(",
+  "b": "(_4three4two",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "(",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "a": "oneone(*three*é(three)",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "4three4two"
+    },
+    {
+     "b": "",
+     "base": "(",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " two  ",
+  "a": "( é  éthree\n  two(",
+  "b": " two4",
+  "expect": {
+   "chunks": [
+    {
+     "a": "( é  éthree\n  two(",
+     "b": " two4",
+     "base": " two  ",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "* ",
+  "a": "* ",
+  "b": " ",
+  "expect": {
+   "chunks": [
+    {
+     "b": "",
+     "base": "*",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " "
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " (oneé)   three ",
+  "a": " (oneéone(44* _)_\néthree ",
+  "b": "one4__ (oneé)   three ",
+  "expect": {
+   "chunks": [
+    {
+     "b": "one4__",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " ("
+    },
+    {
+     "a": "oneéone(44* _",
+     "base": "oneé",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    },
+    {
+     "a": "_\néthree",
+     "base": "   three",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": " "
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(*one\n\n  \n",
+  "a": "(\né)*one\n\n  )é(\n",
+  "b": "(*one\n\n  \n",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "a": "\né)",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "*one\n\n  "
+    },
+    {
+     "a": ")é(",
+     "base": "",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "\n"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(",
+  "a": "(",
+  "b": "three(é\n)4) onethreethree  ",
+  "expect": {
+   "chunks": [
+    {
+     "b": "three",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "("
+    },
+    {
+     "b": "é\n)4) onethreethree  ",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "  three4",
+  "a": "  (twoone4three4",
+  "b": "  4éthree  é_three\n",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "  "
+    },
+    {
+     "a": "(twoone4three4",
+     "b": "4éthree  é_three\n",
+     "base": "three4",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": " ))",
+  "a": "* *_é\ntwo_  three   )",
+  "b": " ))",
+  "expect": {
+   "chunks": [
+    {
+     "a": "* *_é\ntwo_  three   ",
+     "base": " )",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "two(",
+  "a": "",
+  "b": "two(",
+  "expect": {
+   "chunks": [
+    {
+     "a": "",
+     "base": "two(",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "",
+  "a": "",
+  "b": "é(",
+  "expect": {
+   "chunks": [
+    {
+     "b": "é(",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "one _*)three)twotwo",
+  "a": "one _*)three)twotwo",
+  "b": "one _*)three)twotwo",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one _*)three)twotwo"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\néone",
+  "a": "\néone",
+  "b": "éone",
+  "expect": {
+   "chunks": [
+    {
+     "b": "",
+     "base": "\n",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "éone"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "three**_  three",
+  "a": "three**_  three",
+  "b": "three twoone__\n twoone(**three4  )*_three",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "three"
+    },
+    {
+     "b": " twoone__\n twoone(",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "**"
+    },
+    {
+     "b": "three4  )*_",
+     "base": "_  ",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "three"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "onethreeé  \n  \n_  )",
+  "a": "onethreeé   *é )three  (_  \n_  )",
+  "b": "onethreeé  \n  \n_  )",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "onethreeé"
+    },
+    {
+     "a": "   *é )three  (_",
+     "base": "  \n",
+     "op": "a"
+    },
+    {
+     "op": "same",
+     "text": "  \n_  )"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": " two(three",
+  "a": " two(three",
+  "b": " three two(*  three*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": " "
+    },
+    {
+     "b": "three ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "two("
+    },
+    {
+     "b": "*  ",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "three"
+    },
+    {
+     "b": "*",
+     "base": "",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "\n\n*",
+  "a": "\n\n*three  4 *oneone",
+  "b": "\n\n*",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "\n\n*"
+    },
+    {
+     "a": "three  4 *oneone",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "*   éthree",
+  "a": "*   éthree",
+  "b": "*4twotwotwo_ )4three4ééthree",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "*"
+    },
+    {
+     "b": "4twotwotwo_ )4three4ééthree",
+     "base": "   éthree",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "(three(_twothree)",
+  "a": "(three(_twothree)",
+  "b": "(three(((  (twothree)",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "(three("
+    },
+    {
+     "b": "((  (",
+     "base": "_",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "twothree)"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": "éthree()",
+  "a": "three)\nthree*éthree4two)one\n  one_é)",
+  "b": "threetwoé _*_éthree()",
+  "expect": {
+   "chunks": [
+    {
+     "a": "three)\nthree*éthree4two)one\n  one_é",
+     "b": "threetwoé _*_éthree(",
+     "base": "éthree(",
+     "op": "conflict"
+    },
+    {
+     "op": "same",
+     "text": ")"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "one*two*\none(  ) ",
+  "a": "one*two*\none(  ) (*4é_two",
+  "b": "one*two*\none(   threeétwo4 _*_three ",
+  "expect": {
+   "chunks": [
+    {
+     "op": "same",
+     "text": "one*two*\none("
+    },
+    {
+     "b": "   threeétwo4 _*_three",
+     "base": "  )",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": " "
+    },
+    {
+     "a": "(*4é_two",
+     "base": "",
+     "op": "a"
+    }
+   ],
+   "conflict": false
+  }
+ },
+ {
+  "base": ")",
+  "a": "  *_é",
+  "b": ")_ ",
+  "expect": {
+   "chunks": [
+    {
+     "a": "  *_é",
+     "b": ")_ ",
+     "base": ")",
+     "op": "conflict"
+    }
+   ],
+   "conflict": true
+  }
+ },
+ {
+  "base": "*é_one_threeonethree",
+  "a": "*é_one_threeonethree",
+  "b": "two)  4one_*é _onethreeonethree",
+  "expect": {
+   "chunks": [
+    {
+     "b": "two)  4one_",
+     "base": "",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "*é"
+    },
+    {
+     "b": " ",
+     "base": "_one",
+     "op": "b"
+    },
+    {
+     "op": "same",
+     "text": "_"
+    },
+    {
+     "b": "onethreeonethree",
+     "base": "threeonethree",
+     "op": "b"
+    }
+   ],
+   "conflict": false
+  }
+ }
+]
