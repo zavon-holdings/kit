@@ -1,0 +1,24 @@
+{
+  "tool_key": "reach.request.classify",
+  "mode": "inline",
+  "_status": "PROPOSED by Reach (11 November 2026) for core and kit: answered by TypeSafe's Jev (System One), not an LLM. Reach builds the input in Go and checks the answer against it (aitools.CheckClassify). The request's words reach core with people already removed (aitools.RedactRequest); nothing else about any person is sent.",
+  "_core": "Core asks Jev three choice questions over `state` = the request: audience (criteria: each audience's key -> its name and description, plus none), channel (each channel, plus none), workflow (each workflow's key -> its name and description, plus none). Every option list is at most 255 including none. Answer each part's highest-probability option and its `confidence` as Jev returns them; never an option Reach did not send.",
+  "input": {
+    "request": "Send the details of next month's women's breakfast to the ladies over 21",
+    "audiences": [
+      { "key": "connect2", "name": "Connect2", "description": "Women aged 21 and over", "count": 340 },
+      { "key": "stellenbosch-young-adults", "name": "Stellenbosch · Young adults", "description": "Young adults at the Stellenbosch location", "count": 210 },
+      { "key": "life-encounter", "name": "Life Encounter", "description": "People who have not attended a Life Encounter in the last five years", "count": 4100 }
+    ],
+    "workflows": [
+      { "key": "journey-first-visit", "name": "First-visit follow-up", "description": "A thank-you the day after a first check-in" }
+    ],
+    "channels": ["email", "sms", "whatsapp"],
+    "locale": "en-GB"
+  },
+  "result": {
+    "audience": { "key": "connect2", "confidence": 0.86 },
+    "channel": { "key": "email", "confidence": 0.71 },
+    "workflow": { "key": "none", "confidence": 0.93 }
+  }
+}
