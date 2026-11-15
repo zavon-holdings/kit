@@ -6,6 +6,7 @@ import { ConditionBuilder } from "./ConditionBuilder.js";
 import { useEditor } from "./context.js";
 import { fieldSuggestions } from "../fields.js";
 import { DecideInspector } from "./DecideInspector.js";
+import { WhatsAppInspector } from "./MessageInspectors.js";
 
 /**
  * The settings of any node as JSON. The fallback for a node type the host
@@ -327,6 +328,7 @@ export function TodoInspector({ node, onChange, readOnly }: InspectorProps) {
 /** The inspectors the package always has. A host's own win. */
 export const BUILT_IN_INSPECTORS = {
   decide: DecideInspector,
+  whatsapp: WhatsAppInspector,
   condition: ConditionInspector,
   join: JoinInspector,
   end: EndInspector,

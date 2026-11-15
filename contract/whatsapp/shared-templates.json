@@ -1,0 +1,21 @@
+{
+  "name": "shared-templates",
+  "description": "The shared Zavon number's templates a workflow's Send a WhatsApp step may name (core: workflow.SharedTemplates and notify.Catalogue). The organisation's name is always the first variable and core fills it; the step gives `params` for the rest. The words are Meta's to keep once approved: a change is a new name.",
+  "templates": [
+    {
+      "name": "zavon_reminder",
+      "params": 1,
+      "body": "A reminder from {{1}}: {{2}}. Tap Open to see it in Zavon."
+    },
+    {
+      "name": "zavon_task",
+      "params": 1,
+      "body": "You have a new task from {{1}}: {{2}}. Tap Open to see it in Zavon."
+    },
+    {
+      "name": "zavon_update",
+      "params": 1,
+      "body": "An update from {{1}}: {{2}}. Tap Open for the details in Zavon."
+    }
+  ]
+}

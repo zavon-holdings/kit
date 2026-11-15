@@ -421,6 +421,19 @@ A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
 
+**1.22.0** (TypeScript: `@zavon/workflow-graph` 1.9.0, `@zavon/workflow-ui`
+1.15.0; contract vectors; Go code unchanged, tag `go/v1.22.0`): Send a
+WhatsApp on Zavon's shared number — a notification core sends itself, drawn
+as its own `whatsapp` node and compiled to `notification {channel:
+"whatsapp", via: "core", …}` (with a provider, or without `via`, it draws as
+the notification it is). `@zavon/workflow-ui` offers it under Messages with
+`WhatsAppInspector` (a shared template, a line per parameter after the
+organisation's name, the email subject, the Open link) and `Recipients`
+(the record's person, people in a var, numbers typed in; other sources
+kept). New `contract/whatsapp/shared-templates.json`: the shared number's
+templates a workflow may send, held to core's catalogue and to
+`SHARED_WHATSAPP_TEMPLATES`. Vectors `contract/graph/a-whatsapp-*.json`.
+
 **1.21.0** (Go unchanged; tag `go/v1.21.0` for the matching pair):
 `@zavon/console-ui` 1.0.0 — the workflow board (lanes with keyset pages,
 fade edges and the "N more" chip, Board/List, the board in the URL, the Move

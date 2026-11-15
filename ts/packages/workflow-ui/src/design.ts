@@ -134,6 +134,8 @@ export function summarize(node: GraphNode, graph?: Graph): string {
     }
     case "email":
       return typeof c.template_code === "string" && c.template_code ? `Template ${c.template_code}` : "";
+    case "whatsapp":
+      return [typeof c.template === "string" ? c.template : "", Array.isArray(c.to) && c.to.length ? plural(c.to.length, "source") : ""].filter(Boolean).join(" · ");
     case "notification": {
       const ch = c.channel === "in_app" ? "In the app" : c.channel === "email" ? "By email" : "";
       const title = (c.in_app as { title?: unknown } | undefined)?.title;

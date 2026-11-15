@@ -74,6 +74,13 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
   { type: "email", label: "Email", group: "Messages", blurb: "Sends one email.", config: { template_code: "" } },
   { type: "notification", label: "Notification", group: "Messages", blurb: "Notifies people by email or in the app.", config: { channel: "email", to: [] } },
   {
+    type: "whatsapp",
+    label: "Send a WhatsApp",
+    group: "Messages",
+    blurb: "A WhatsApp from Zavon's shared number, charged as credits; email for anybody it cannot reach.",
+    config: { template: "zavon_update", params: [""], to: [] },
+  },
+  {
     type: "payment_request",
     label: "Payment request",
     group: "Money",

@@ -1,0 +1,68 @@
+{
+  "name": "a-whatsapp-on-the-organisations-own-number-is-a-notification",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "tell"
+      },
+      {
+        "from": "tell",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "channel": "whatsapp",
+          "template": "their_own",
+          "to": [
+            {
+              "var": "people"
+            }
+          ]
+        },
+        "id": "tell",
+        "type": "notification"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "tell",
+      "name": "tell",
+      "kind": "notification",
+      "config": {
+        "channel": "whatsapp",
+        "template": "their_own",
+        "to": [
+          {
+            "var": "people"
+          }
+        ]
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ],
+  "normal": true
+}

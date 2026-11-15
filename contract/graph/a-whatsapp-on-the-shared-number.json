@@ -1,0 +1,75 @@
+{
+  "name": "a-whatsapp-on-the-shared-number",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "tell"
+      },
+      {
+        "from": "tell",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "params": [
+            "{{vars.event}} starts tomorrow"
+          ],
+          "template": "zavon_update",
+          "to": [
+            {
+              "var": "people"
+            }
+          ]
+        },
+        "id": "tell",
+        "name": "Remind them",
+        "type": "whatsapp"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "tell",
+      "name": "Remind them",
+      "kind": "notification",
+      "config": {
+        "channel": "whatsapp",
+        "params": [
+          "{{vars.event}} starts tomorrow"
+        ],
+        "template": "zavon_update",
+        "to": [
+          {
+            "var": "people"
+          }
+        ],
+        "via": "core"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ],
+  "normal": true
+}

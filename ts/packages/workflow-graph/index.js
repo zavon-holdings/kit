@@ -62,28 +62,34 @@ const P = PROBLEMS;
 
 // A to-do is plain: one way on, done when one of its people completes it, and
 // at home in a fork's arm.
-const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook", "todo", "decide"]);
+const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook", "todo", "decide", "whatsapp"]);
 
 /*
  * Nodes drawn as their own type that are, to the engine, a step of another
  * kind with a fixed part of its config — one node, one step, both ways:
  *
- *   decide  ⇄  call {action: "core.ai.decide", input: <the node's config>}
+ *   decide    ⇄  call {action: "core.ai.decide", input: <the node's config>}
+ *   whatsapp  ⇄  notification {channel: "whatsapp", via: "core", <the node's config>}
  *
  * A step that is exactly that shape draws as the node; anything else (a
- * capture, a `when`) draws as what it is.
+ * capture, a `when`, a provider) draws as what it is.
  */
 export const ACTION_DECIDE = "core.ai.decide";
 
 /** The step a plain node compiles to: [kind, config]. */
 function stepOf(type, cfg) {
   if (type === "decide") return ["call", { action: ACTION_DECIDE, input: cfg ?? {} }];
+  if (type === "whatsapp") return ["notification", { ...(cfg ?? {}), channel: "whatsapp", via: "core" }];
   return [type, cfg];
 }
 
 /** The node a step decompiles to: [type, config]. */
 function drawnAs(kind, cfg) {
   if (kind === "call" && Object.keys(cfg).length === 2 && cfg.action === ACTION_DECIDE && isObject(cfg.input)) return ["decide", cfg.input];
+  if (kind === "notification" && cfg.via === "core" && cfg.channel === "whatsapp" && cfg.provider === undefined) {
+    const { via: _v, channel: _c, ...rest } = cfg;
+    return ["whatsapp", rest];
+  }
   return [kind, cfg];
 }
 // A task finishes with an outcome its edges may route on; a sub-workflow
