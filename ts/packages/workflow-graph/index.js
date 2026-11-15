@@ -110,6 +110,8 @@ const FIXED_OUTCOMES = Object.freeze({
   approval: ["approved", "rejected"],
   payment_request: ["paid", "failed", "expired"],
   invoice: ["paid", "voided", "overdue"],
+  signature: ["signed", "declined", "lapsed"],
+  email_reply: ["replied", "no_reply"],
 });
 /** A routing approval completes on a rejection, and the route decides. */
 const REJECT_CONTINUE = "continue";
@@ -144,8 +146,38 @@ const MONEY = Object.freeze({
     state: "overdue", window: "due", verb: "invoice",
     input: ["amount", "currency", "description", "payer", "due", "po_number", "notes"],
   },
+  // A document sent for signature, and the wait for it: core's own action
+  // and core's own events, so the node names neither.
+  signature: {
+    ns: "signature", call: "--send", outcomes: ["signed", "declined", "lapsed"], fallback: "lapsed",
+    state: "lapsed", window: "deadline", verb: "signature",
+    input: ["template", "signers", "title", "message", "deadline", "remind_signers"],
+    action: "core.signature.request",
+    requires: [
+      ["template", "name the signature request to send a copy of (template)"],
+      ["signers", "name who signs, by the template's signer keys (signers)"],
+    ],
+  },
+  // An email whose Reply-To is the run's own address, and the wait for the
+  // answer: replied when mail arrives there, no_reply (no event, only the
+  // wait running out, exactly at the window) otherwise.
+  email_reply: {
+    ns: "email_reply", call: "--email", outcomes: ["replied", "no_reply"], fallback: "no_reply",
+    state: "no_reply", window: "wait", verb: "email",
+    input: ["to", "to_name", "subject", "body", "wait"],
+    action: "core.email.await_reply", silent: "no_reply", exact: true,
+    requires: [
+      ["to", "say whom the email is to (to)"],
+      ["subject", "give the email a subject"],
+      ["body", "write the email (body)"],
+    ],
+  },
 });
 const isComposite = (t) => Object.hasOwn(MONEY, t);
+/** The call a composite makes: the kind's own, else the node's. */
+const actionOf = (k, cfg) => k.action ?? (typeof cfg.action === "string" ? cfg.action : "");
+export const ACTION_SIGNATURE = "core.signature.request";
+export const ACTION_EMAIL_REPLY = "core.email.await_reply";
 
 /** A node id as one segment of a var path. */
 function varSegment(id) {
@@ -155,12 +187,13 @@ function varSegment(id) {
 }
 
 function moneyEvents(k, cfg) {
-  const given = isObject(cfg.events) ? cfg.events : null;
-  const action = typeof cfg.action === "string" ? cfg.action : "";
+  const given = isObject(cfg.events) && !k.action ? cfg.events : null;
+  const action = actionOf(k, cfg);
   const i = action.indexOf(".");
   const ns = i > 0 ? action.slice(0, i) : action;
   const out = [];
   for (const o of k.outcomes) {
+    if (o === k.silent) continue;
     if (given) {
       const e = typeof given[o] === "string" ? given[o].trim() : "";
       if (e) out.push(e);
@@ -185,6 +218,18 @@ function spanAfter(span) {
   return { value: v + 1, unit: "days" };
 }
 
+/** A {value, unit} span as it is, when it is a fixed one; null otherwise. */
+function spanExact(span) {
+  if (!isObject(span)) return null;
+  const v = span.value;
+  if (!Number.isInteger(v) || v < 1 || !FIXED_SPANS.has(span.unit)) return null;
+  return { value: v, unit: span.unit };
+}
+
+/** A config value that says nothing: absent, blank, or an empty list or object. */
+const isEmptyValue = (v) =>
+  v === undefined || v === null || (typeof v === "string" && !v.trim()) || (Array.isArray(v) && v.length === 0) || (isObject(v) && Object.keys(v).length === 0);
+
 const actionLike = (s) => {
   const t = typeof s === "string" ? s.trim() : "";
   const i = t.indexOf(".");
@@ -198,16 +243,27 @@ function moneyConfig(x, ps, n, cfg) {
   for (const i of x.outs(n.id)) {
     const e = x.edge(i);
     if (e.default || hasWhen(e)) continue;
+    if (k.silent && k.silent.toLowerCase() === (e.label ?? "").toLowerCase()) {
+      ps.push({ code: P.NODE_CONFIG, node: n.id, edge: ref(e), message: `${displayName(n)}: the ${k.silent} way is the default: it is taken when nothing comes back in time` });
+      continue;
+    }
     k.outcomes.forEach((name, o) => {
       if (name.toLowerCase() === (e.label ?? "").toLowerCase() && o >= events.length)
         ps.push({ code: P.NODE_CONFIG, node: n.id, edge: ref(e), message: `${displayName(n)}: the branch "${e.label}" needs its event, events.${name}` });
     });
   }
-  if (!actionLike(cfg.action)) add("name the app's action that asks for the money, as namespace.action");
   if (!spanAfter(cfg[k.window])) add(`${k.window} is a whole number of minutes, hours, days or weeks`);
-  if (typeof cfg.currency !== "string" || !cfg.currency.trim()) add("say the currency");
-  if (!("amount" in cfg)) add("say the amount");
-  if ("events" in cfg) {
+  if (k.action) {
+    const what = n.type.replaceAll("_", " ");
+    if ("action" in cfg) add(`a ${what} calls core's own ${k.action}; it names no action`);
+    if ("events" in cfg) add(`a ${what} waits for core's own events; it names none`);
+    for (const [field, problem] of k.requires ?? []) if (isEmptyValue(cfg[field])) add(problem);
+  } else {
+    if (!actionLike(cfg.action)) add("name the app's action that asks for the money, as namespace.action");
+    if (typeof cfg.currency !== "string" || !cfg.currency.trim()) add("say the currency");
+    if (!("amount" in cfg)) add("say the amount");
+  }
+  if ("events" in cfg && !k.action) {
     if (!isObject(cfg.events)) add("events names the event for each outcome");
     else {
       for (const [key, v] of Object.entries(cfg.events)) {
@@ -221,8 +277,8 @@ function moneyConfig(x, ps, n, cfg) {
   }
   if ("notify" in cfg && !isObject(cfg.notify)) add("notify is a notification's settings");
   if ("reminders" in cfg) {
-    if (n.type !== "invoice" || !Array.isArray(cfg.reminders)) {
-      add("reminders are a list, on an invoice");
+    if (n.type === "payment_request" || !Array.isArray(cfg.reminders)) {
+      add("reminders are a list, on an invoice or a signature");
       return;
     }
     const hasNotify = isObject(cfg.notify);
@@ -1263,25 +1319,34 @@ class Compiler {
     const name = this.stepName(id);
     const seg = `${k.ns}.${varSegment(id)}`;
     const events = moneyEvents(k, cfg);
-    const set = { [`${seg}.currency`]: cfg.currency ?? null };
+    let set = { [`${seg}.currency`]: cfg.currency ?? null };
     if ("amount" in cfg) set[`${seg}.amount`] = cfg.amount;
+    if (n.type === "signature") set = { [`${seg}.template`]: cfg.template ?? null };
+    else if (n.type === "email_reply") set = { [`${seg}.subject`]: cfg.subject ?? null };
     this.add({ code: id + MS.VARS, name, kind: "set_var", config: canon({ set }) });
     const input = {};
     for (const f of k.input) if (f in cfg) input[f] = cfg[f];
     const capture = { [`${seg}.reference`]: "output.reference", [`${seg}.pay_url`]: "output.pay_url" };
     if (n.type === "payment_request") capture[`${seg}.expires_at`] = "output.expires_at";
-    else {
+    else if (n.type === "signature") {
+      delete capture[`${seg}.pay_url`];
+      capture[`${seg}.url`] = "output.url";
+      capture[`${seg}.uid`] = "output.uid";
+    } else if (n.type === "email_reply") {
+      delete capture[`${seg}.pay_url`];
+      capture[`${seg}.reply_to`] = "output.reply_to";
+    } else {
       capture[`${seg}.number`] = "output.number";
       capture[`${seg}.document_url`] = "output.document_url";
       capture[`${seg}.due_at`] = "output.due_at";
     }
-    this.add({ code: id + k.call, name: `${name}: ask`, kind: "call", config: canon({ action: cfg.action ?? null, input, capture }) });
+    this.add({ code: id + k.call, name: `${name}: ask`, kind: "call", config: canon({ action: k.action ?? cfg.action ?? null, input, capture }) });
     const notify = isObject(cfg.notify) ? cfg.notify : null;
     if (notify) this.add({ code: id + MS.NOTIFY, name: `${name}: tell`, kind: "notification", config: canon(notify) });
     const wait = {
       event: events,
       match: { var: `${seg}.reference`, event_field: "reference" },
-      timeout: spanAfter(cfg[k.window]),
+      timeout: k.exact ? spanExact(cfg[k.window]) : spanAfter(cfg[k.window]),
       on_timeout: `branch:${id}${MS.TIMEOUT}`,
     };
     const reminders = Array.isArray(cfg.reminders) ? cfg.reminders : [];
@@ -1532,8 +1597,9 @@ function foldMoney(top, i, children) {
   if (!id || id.includes("--")) return null;
   let type = "";
   let k = null;
+  const call0 = object(top[i + 1].config) ?? {};
   for (const [t, mk] of Object.entries(MONEY)) {
-    if (top[i + 1].code === id + mk.call && top[i + 1].kind === "call") {
+    if (top[i + 1].code === id + mk.call && top[i + 1].kind === "call" && (!mk.action || call0.action === mk.action)) {
       type = t;
       k = mk;
     }
@@ -1542,7 +1608,8 @@ function foldMoney(top, i, children) {
   let j = i + 2;
   const cfg = {};
   const call = object(top[i + 1].config) ?? {};
-  cfg.action = call.action;
+  if (!k.action) cfg.action = call.action;
+  else if (call.action !== k.action) return null;
   if (isObject(call.input)) Object.assign(cfg, call.input);
   if (j < top.length && top[j].code === id + MS.NOTIFY && top[j].kind === "notification") {
     cfg.notify = object(top[j].config) ?? {};
@@ -1563,7 +1630,7 @@ function foldMoney(top, i, children) {
       label.set(e, k.outcomes[n]);
     }
   });
-  cfg.events = events;
+  if (!k.action) cfg.events = events;
   if (Array.isArray(wait.reminders) && wait.reminders.length > 0) {
     const kids = children.get(id + MS.WAIT)?.get(REMINDERS_ARM) ?? [];
     const byCode = new Map(kids.map((c) => [c.code, c]));

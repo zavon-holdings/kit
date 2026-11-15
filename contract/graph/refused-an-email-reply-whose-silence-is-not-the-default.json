@@ -1,0 +1,69 @@
+{
+  "name": "refused-an-email-reply-whose-silence-is-not-the-default",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "ask"
+      },
+      {
+        "default": true,
+        "from": "ask",
+        "label": "replied",
+        "to": "done"
+      },
+      {
+        "from": "ask",
+        "label": "no_reply",
+        "to": "quiet"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "body": "Please reply with the number of guests.",
+          "subject": "Your booking for {{subject.label}}",
+          "to": "{{subject.vars.email}}",
+          "to_name": "{{subject.vars.name}}",
+          "wait": {
+            "unit": "days",
+            "value": 3
+          }
+        },
+        "id": "ask",
+        "type": "email_reply"
+      },
+      {
+        "config": {
+          "outcome": "replied"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "no_reply"
+        },
+        "id": "quiet",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "node_config",
+      "node": "ask",
+      "edge": {
+        "from": "ask",
+        "to": "quiet",
+        "label": "no_reply"
+      }
+    }
+  ]
+}

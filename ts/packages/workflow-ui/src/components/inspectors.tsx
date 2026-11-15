@@ -109,7 +109,9 @@ export function EndInspector({ node, onChange, readOnly }: InspectorProps) {
 type Span = { value?: number; unit?: string };
 const UNITS = ["minutes", "hours", "days", "weeks", "business_days", "business_hours"];
 
-function SpanField({ label, value, onChange }: { label: string; value: Span | undefined; onChange: (v: Span) => void }) {
+const FIXED_UNITS = ["minutes", "hours", "days", "weeks"];
+
+function SpanField({ label, value, onChange, units = UNITS }: { label: string; value: Span | undefined; onChange: (v: Span) => void; units?: string[] }) {
   const v = value ?? {};
   return (
     <div className="zwf-row">
@@ -120,7 +122,7 @@ function SpanField({ label, value, onChange }: { label: string; value: Span | un
       <label className="zwf-field">
         <span>{label}: unit</span>
         <select value={v.unit ?? "days"} onChange={(e) => onChange({ ...v, unit: e.target.value })}>
-          {UNITS.map((u) => (
+          {units.map((u) => (
             <option key={u} value={u}>
               {u.replace("_", " ")}
             </option>
@@ -264,6 +266,162 @@ export function MoneyInspector({ node, onChange, readOnly }: InspectorProps) {
   );
 }
 
+type SignerRow = { key: string; name: string; email: string };
+
+/** What a signature request's config is missing, in the editor's words. */
+export function signatureProblems(c: Record<string, unknown>): string[] {
+  const out: string[] = [];
+  if (typeof c.template !== "string" || !c.template.trim()) out.push("Name the request in Signatures to send a copy of.");
+  const signers = c.signers && typeof c.signers === "object" ? Object.entries(c.signers as Record<string, { email?: string }>) : [];
+  if (signers.length === 0) out.push("Name who signs, by the template's signer keys.");
+  if (typeof c.title === "string" && [...c.title].length > 200) out.push("A title is at most 200 characters.");
+  for (const [k, s] of signers) {
+    if (!/^[a-z][a-z0-9_-]{0,19}$/.test(k)) out.push(`"${k}" is not a signer key (lower-case, as the template names it).`);
+    if (!s?.email?.trim()) out.push(`Signer ${k} has no email address.`);
+  }
+  return out;
+}
+
+/**
+ * A signature request: a copy of a request in Signatures (the template: its
+ * document, fields and signers' places) sent to the people the step names,
+ * and a wait for them. Its ways out are signed, declined (a decline or a
+ * cancel) and lapsed (the deadline passed), the default.
+ */
+export function SignatureInspector({ node, onChange, readOnly }: InspectorProps) {
+  const config = (node.config ?? {}) as {
+    template?: string;
+    signers?: Record<string, { name?: string; email?: string }>;
+    title?: string;
+    message?: string;
+    deadline?: Span;
+    remind_signers?: boolean;
+  };
+  const set = (patch: Partial<typeof config>) => onChange({ ...config, ...patch });
+  const [rows, setRows] = useState<SignerRow[]>(() =>
+    Object.entries(config.signers ?? {}).map(([key, s]) => ({ key, name: s?.name ?? "", email: s?.email ?? "" })),
+  );
+  const writeRows = (next: SignerRow[]) => {
+    setRows(next);
+    const signers: Record<string, { name?: string; email: string }> = {};
+    for (const r of next) {
+      if (!r.key.trim()) continue;
+      signers[r.key.trim()] = r.name.trim() ? { name: r.name, email: r.email } : { email: r.email };
+    }
+    set({ signers });
+  };
+  const problems = signatureProblems(config as Record<string, unknown>);
+  return (
+    <fieldset className="zwf-group" disabled={readOnly}>
+      <legend>The Signature Request</legend>
+      <label className="zwf-field">
+        <span>Template (the request's uid in Signatures)</span>
+        <input value={config.template ?? ""} spellCheck={false} onChange={(e) => set({ template: e.target.value.trim() })} />
+      </label>
+      <div className="zwf-group">
+        <p className="zwf-muted">Signers, by the template's signer keys. A name or address may be a run value, {"{{vars.email}}"}.</p>
+        {rows.map((r, i) => (
+          <div key={i} className="zwf-row">
+            <label className="zwf-field">
+              <span>Signer {i + 1} Key</span>
+              <input value={r.key} spellCheck={false} onChange={(e) => writeRows(rows.map((x, k) => (k === i ? { ...x, key: e.target.value } : x)))} />
+            </label>
+            <label className="zwf-field">
+              <span>Signer {i + 1} Name</span>
+              <input value={r.name} onChange={(e) => writeRows(rows.map((x, k) => (k === i ? { ...x, name: e.target.value } : x)))} />
+            </label>
+            <label className="zwf-field">
+              <span>Signer {i + 1} Email</span>
+              <input value={r.email} spellCheck={false} onChange={(e) => writeRows(rows.map((x, k) => (k === i ? { ...x, email: e.target.value } : x)))} />
+            </label>
+            <button type="button" className="zwf-button zwf-quiet" onClick={() => writeRows(rows.filter((_, k) => k !== i))}>
+              Remove Signer {i + 1}
+            </button>
+          </div>
+        ))}
+        <button type="button" className="zwf-button" onClick={() => writeRows([...rows, { key: "", name: "", email: "" }])}>
+          Add a Signer
+        </button>
+      </div>
+      <label className="zwf-field">
+        <span>Title (the template's when empty)</span>
+        <input value={config.title ?? ""} onChange={(e) => set({ title: e.target.value || undefined })} />
+      </label>
+      <label className="zwf-field">
+        <span>Message (the template's when empty)</span>
+        <textarea rows={3} value={config.message ?? ""} onChange={(e) => set({ message: e.target.value || undefined })} />
+      </label>
+      <SpanField label="Lapses after" value={config.deadline} units={FIXED_UNITS} onChange={(deadline) => set({ deadline })} />
+      <label className="zwf-check">
+        <input type="checkbox" checked={config.remind_signers === true} onChange={(e) => set({ remind_signers: e.target.checked || undefined })} />
+        <span>Remind Signers on the platform's schedule</span>
+      </label>
+      {problems.length > 0 && (
+        <ul className="zwf-problems" aria-label="Not Ready Yet">
+          {problems.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      )}
+      <p className="zwf-muted">Its ways out are its outcomes: signed, declined (a decline or a cancel), lapsed (the default).</p>
+    </fieldset>
+  );
+}
+
+/** What an email awaiting a reply is missing, in the editor's words. */
+export function emailReplyProblems(c: Record<string, unknown>): string[] {
+  const out: string[] = [];
+  const to = typeof c.to === "string" ? c.to.trim() : "";
+  if (!to) out.push("Say whom the email is to.");
+  else if (!to.includes("@") && !to.includes("{{")) out.push("The email is to an address, or a run value that holds one.");
+  const subject = typeof c.subject === "string" ? c.subject.trim() : "";
+  if (!subject) out.push("Give the email a subject.");
+  else if ([...subject].length > 200) out.push("A subject is at most 200 characters.");
+  if (typeof c.body !== "string" || !c.body.trim()) out.push("Write the email.");
+  return out;
+}
+
+/**
+ * An email whose Reply-To is the record's own address, and a wait for the
+ * answer. Its ways out are replied, and no_reply (the default) when nothing
+ * comes back in time.
+ */
+export function EmailReplyInspector({ node, onChange, readOnly }: InspectorProps) {
+  const config = (node.config ?? {}) as { to?: string; to_name?: string; subject?: string; body?: string; wait?: Span };
+  const set = (patch: Partial<typeof config>) => onChange({ ...config, ...patch });
+  const problems = emailReplyProblems(config as Record<string, unknown>);
+  return (
+    <fieldset className="zwf-group" disabled={readOnly}>
+      <legend>The Email</legend>
+      <label className="zwf-field">
+        <span>To (an address, or a run value: {"{{vars.email}}"})</span>
+        <input value={config.to ?? ""} spellCheck={false} onChange={(e) => set({ to: e.target.value })} />
+      </label>
+      <label className="zwf-field">
+        <span>Their Name</span>
+        <input value={config.to_name ?? ""} onChange={(e) => set({ to_name: e.target.value || undefined })} />
+      </label>
+      <label className="zwf-field">
+        <span>Subject</span>
+        <input value={config.subject ?? ""} onChange={(e) => set({ subject: e.target.value })} />
+      </label>
+      <label className="zwf-field">
+        <span>Message</span>
+        <textarea rows={5} value={config.body ?? ""} onChange={(e) => set({ body: e.target.value })} />
+      </label>
+      <SpanField label="Waits for a reply for" value={config.wait} units={FIXED_UNITS} onChange={(wait) => set({ wait })} />
+      {problems.length > 0 && (
+        <ul className="zwf-problems" aria-label="Not Ready Yet">
+          {problems.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      )}
+      <p className="zwf-muted">Replies come back to the record. Its ways out are replied, and no_reply (the default) when nothing comes back in time.</p>
+    </fieldset>
+  );
+}
+
 type PeopleSource = { people?: { email: string; name?: string }[] } & Record<string, unknown>;
 
 /**
@@ -337,5 +495,7 @@ export const BUILT_IN_INSPECTORS = {
   sub_workflow: SubWorkflowInspector,
   payment_request: MoneyInspector,
   invoice: MoneyInspector,
+  signature: SignatureInspector,
+  email_reply: EmailReplyInspector,
   todo: TodoInspector,
 } as const;

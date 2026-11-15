@@ -1,0 +1,67 @@
+{
+  "name": "signature-step",
+  "description": "A workflow's Signature Request (core.signature.request, the graph's signature node): what the step takes, what core refuses when the definition is saved, and the events core raises for the run that sent it. `editor` marks a refusal the Builder's own inspector also says before the save. The events are raised for the RUN's property and tenant and matched on `reference` (the request's reference in Signatures); signed fires when every signer has signed, declined on a decline or a cancel, lapsed when the request expires.",
+  "action": "core.signature.request",
+  "input": {
+    "template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f",
+    "signers": {
+      "tenant": {
+        "name": "{{vars.name}}",
+        "email": "{{vars.email}}"
+      }
+    },
+    "title": "Lease for {{vars.name}}",
+    "message": "Please sign the lease for Flat 4.",
+    "deadline": {
+      "value": 14,
+      "unit": "days"
+    },
+    "remind_signers": true
+  },
+  "output": ["reference", "uid", "url", "emailed", "not_emailed", "expires_at"],
+  "refused": [
+    {
+      "why": "no template",
+      "input": {"signers": {"tenant": {"email": "a@b.test"}}},
+      "says": "names the request in Signatures",
+      "editor": true
+    },
+    {
+      "why": "a template that is not a uid",
+      "input": {"template": "lease", "signers": {"tenant": {"email": "a@b.test"}}},
+      "says": "uid of a request",
+      "editor": false
+    },
+    {
+      "why": "nobody signs",
+      "input": {"template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f", "signers": {}},
+      "says": "names who signs",
+      "editor": true
+    },
+    {
+      "why": "a signer key the template cannot have",
+      "input": {"template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f", "signers": {"Tenant": {"email": "a@b.test"}}},
+      "says": "not a signer key",
+      "editor": true
+    },
+    {
+      "why": "a signer with no address",
+      "input": {"template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f", "signers": {"tenant": {"name": "Laila"}}},
+      "says": "no email address",
+      "editor": true
+    },
+    {
+      "why": "a title over 200 characters",
+      "input": {"template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f", "signers": {"tenant": {"email": "a@b.test"}}, "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"},
+      "says": "at most 200 characters",
+      "editor": true
+    }
+  ],
+  "events": [
+    {"type": "core.signature.signed", "outcome": "signed", "from": ["all_signed"]},
+    {"type": "core.signature.declined", "outcome": "declined", "from": ["declined", "cancelled"]},
+    {"type": "core.signature.lapsed", "outcome": "lapsed", "from": ["expired"]}
+  ],
+  "vars": ["content_sha256", "outcome", "reason", "reference", "run", "signers", "title", "uid", "url", "why"],
+  "signer": ["email", "ip", "key", "name", "reason", "signed_at", "status"]
+}

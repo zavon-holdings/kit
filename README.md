@@ -421,6 +421,25 @@ A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
 
+**1.24.0** (TypeScript: `@zavon/workflow-graph` 1.11.0, `@zavon/workflow-ui`
+1.17.0; contract vectors and `contract/esign`; Go code unchanged, tag
+`go/v1.24.0`): two composites with core's own action and core's own events.
+A `signature` node (Signature Request) sends a copy of a request in core's
+Signatures and waits: `<id>--send` calls `core.signature.request`, the wait
+hears `core.signature.signed | declined | lapsed` on the request's reference,
+lapsed is the default. An `email_reply` node (Email and Await Reply) sends an
+email whose Reply-To is the run's own address and waits: `<id>--email` calls
+`core.email.await_reply`, the wait hears `core.email.replied` and times out at
+`wait` exactly; `no_reply` has no event and is always the default way. Neither
+names an action or events. `@zavon/workflow-ui` offers them under People and
+Messages with `SignatureInspector` / `signatureProblems` and
+`EmailReplyInspector` / `emailReplyProblems`; `ACTION_SIGNATURE` and
+`ACTION_EMAIL_REPLY` from `@zavon/workflow-graph`. `contract/esign/
+signature-step.json` is the step's wire (its input, what core refuses at the
+save, its events and their vars). Vectors `contract/graph/a-signature-*`,
+`refused-a-signature-*`, `an-email-that-waits-for-a-reply`,
+`refused-an-email-reply-*`.
+
 **1.23.0** (TypeScript: `@zavon/workflow-graph` 1.10.0, `@zavon/workflow-ui`
 1.16.0; contract vectors; Go code unchanged, tag `go/v1.23.0`): SMS by
 SMSPortal — a notification core sends through the property's own SMSPortal

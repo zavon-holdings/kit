@@ -88,6 +88,13 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
     config: { body_text: "", to: [] },
   },
   {
+    type: "email_reply",
+    label: "Email and Await Reply",
+    group: "Messages",
+    blurb: "Sends an email whose replies come back to the record, and waits: replied, or no reply in time.",
+    config: { to: "", subject: "", body: "", wait: { value: 3, unit: "days" } },
+  },
+  {
     type: "payment_request",
     label: "Payment request",
     group: "Money",
@@ -100,6 +107,13 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
     group: "Money",
     blurb: "Issues a numbered invoice, sends it, reminds, and waits: paid, voided or overdue.",
     config: { action: "", amount: 0, currency: "ZAR", due: { value: 14, unit: "days" } },
+  },
+  {
+    type: "signature",
+    label: "Signature Request",
+    group: "People",
+    blurb: "Sends a copy of a document in Signatures to the people who sign it, reminds, and waits: signed, declined or lapsed.",
+    config: { template: "", signers: {}, deadline: { value: 14, unit: "days" } },
   },
   { type: "delay", label: "Delay", group: "Timing", blurb: "Pauses for a set time.", config: { value: 1, unit: "days" } },
   { type: "wait_event", label: "Wait for event", group: "Timing", blurb: "Waits for an event, with an optional timeout.", config: { event: [] } },
@@ -128,13 +142,15 @@ export const FIXED_OUTCOMES: Readonly<Record<string, readonly string[]>> = Objec
   approval: ["approved", "rejected"],
   payment_request: ["paid", "failed", "expired"],
   invoice: ["paid", "voided", "overdue"],
+  signature: ["signed", "declined", "lapsed"],
+  email_reply: ["replied", "no_reply"],
 });
 
 /** The outcome a money node falls back on when nothing else is reported. */
-export const FALLBACK_OUTCOME: Readonly<Record<string, string>> = Object.freeze({ payment_request: "expired", invoice: "overdue" });
+export const FALLBACK_OUTCOME: Readonly<Record<string, string>> = Object.freeze({ payment_request: "expired", invoice: "overdue", signature: "lapsed", email_reply: "no_reply" });
 
-/** A node whose ways out are always its outcomes, by name. */
-export const isMoney = (type: string) => type === "payment_request" || type === "invoice";
+/** A node whose ways out are always its outcomes, by name: money, and a signature request (the same composite shape). */
+export const isMoney = (type: string) => type === "payment_request" || type === "invoice" || type === "signature" || type === "email_reply";
 
 /**
  * How a node's ways out are written, which decides what the edge editor
@@ -166,6 +182,8 @@ export function edgeRole(type: string, outCount = 0, labelled = false): EdgeRole
       return "loop";
     case "payment_request":
     case "invoice":
+    case "signature":
+    case "email_reply":
       return "routes";
     default:
       if (isTask(type) && (outCount > 1 || labelled)) return "routes";

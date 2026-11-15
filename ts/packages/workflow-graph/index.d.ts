@@ -21,6 +21,10 @@ export declare const PROBLEMS: Readonly<Record<string, string>>;
 export declare const NOT_YET: Readonly<Record<string, string>>;
 /** The built-in action a decide node compiles to (a call step of core.ai.decide). */
 export declare const ACTION_DECIDE: "core.ai.decide";
+/** The built-in action a signature node compiles to (its --send call step). */
+export declare const ACTION_SIGNATURE: "core.signature.request";
+/** The built-in action an email_reply node compiles to (its --email call step). */
+export declare const ACTION_EMAIL_REPLY: "core.email.await_reply";
 
 export interface GraphNode {
   id: string;

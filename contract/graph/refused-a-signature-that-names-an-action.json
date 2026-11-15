@@ -1,0 +1,81 @@
+{
+  "name": "refused-a-signature-that-names-an-action",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "lease"
+      },
+      {
+        "from": "lease",
+        "label": "signed",
+        "to": "done"
+      },
+      {
+        "from": "lease",
+        "label": "declined",
+        "to": "no"
+      },
+      {
+        "default": true,
+        "from": "lease",
+        "label": "lapsed",
+        "to": "late"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "action": "esign.request",
+          "deadline": {
+            "unit": "days",
+            "value": 14
+          },
+          "signers": {
+            "tenant": {
+              "email": "{{subject.vars.email}}",
+              "name": "{{subject.vars.name}}"
+            }
+          },
+          "template": "x"
+        },
+        "id": "lease",
+        "name": "Lease",
+        "type": "signature"
+      },
+      {
+        "config": {
+          "outcome": "signed"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "declined"
+        },
+        "id": "no",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "lapsed"
+        },
+        "id": "late",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "node_config",
+      "node": "lease"
+    }
+  ]
+}

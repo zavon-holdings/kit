@@ -1,0 +1,74 @@
+{
+  "name": "refused-a-signature-with-nobody-to-sign",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "lease"
+      },
+      {
+        "from": "lease",
+        "label": "signed",
+        "to": "done"
+      },
+      {
+        "from": "lease",
+        "label": "declined",
+        "to": "no"
+      },
+      {
+        "default": true,
+        "from": "lease",
+        "label": "lapsed",
+        "to": "late"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "deadline": {
+            "unit": "days",
+            "value": 14
+          },
+          "template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f"
+        },
+        "id": "lease",
+        "name": "Lease",
+        "type": "signature"
+      },
+      {
+        "config": {
+          "outcome": "signed"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "declined"
+        },
+        "id": "no",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "lapsed"
+        },
+        "id": "late",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "node_config",
+      "node": "lease"
+    }
+  ]
+}

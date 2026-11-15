@@ -20,6 +20,10 @@ export {
   LoopInspector,
   SubWorkflowInspector,
   MoneyInspector,
+  SignatureInspector,
+  signatureProblems,
+  EmailReplyInspector,
+  emailReplyProblems,
   TodoInspector,
   BUILT_IN_INSPECTORS,
 } from "./components/inspectors.js";

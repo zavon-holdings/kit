@@ -1,0 +1,166 @@
+{
+  "name": "an-email-that-waits-for-a-reply",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "ask"
+      },
+      {
+        "from": "ask",
+        "label": "replied",
+        "to": "done"
+      },
+      {
+        "default": true,
+        "from": "ask",
+        "label": "no_reply",
+        "to": "quiet"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "body": "Please reply with the number of guests.",
+          "subject": "Your booking for {{subject.label}}",
+          "to": "{{subject.vars.email}}",
+          "to_name": "{{subject.vars.name}}",
+          "wait": {
+            "unit": "days",
+            "value": 3
+          }
+        },
+        "id": "ask",
+        "name": "Ask the guest",
+        "type": "email_reply"
+      },
+      {
+        "config": {
+          "outcome": "replied"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "no_reply"
+        },
+        "id": "quiet",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "ask--vars",
+      "name": "Ask the guest",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "email_reply.ask.subject": "Your booking for {{subject.label}}"
+        }
+      }
+    },
+    {
+      "code": "ask--email",
+      "name": "Ask the guest: ask",
+      "kind": "call",
+      "config": {
+        "action": "core.email.await_reply",
+        "capture": {
+          "email_reply.ask.reference": "output.reference",
+          "email_reply.ask.reply_to": "output.reply_to"
+        },
+        "input": {
+          "body": "Please reply with the number of guests.",
+          "subject": "Your booking for {{subject.label}}",
+          "to": "{{subject.vars.email}}",
+          "to_name": "{{subject.vars.name}}",
+          "wait": {
+            "unit": "days",
+            "value": 3
+          }
+        }
+      }
+    },
+    {
+      "code": "ask--wait",
+      "name": "Ask the guest: wait",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "core.email.replied"
+        ],
+        "match": {
+          "event_field": "reference",
+          "var": "email_reply.ask.reference"
+        },
+        "on_timeout": "branch:ask--timeout",
+        "timeout": {
+          "unit": "days",
+          "value": 3
+        }
+      }
+    },
+    {
+      "code": "ask--outcome",
+      "name": "Ask the guest: outcome",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "done",
+            "when": {
+              "field": "steps.ask--wait.output.event",
+              "op": "is",
+              "value": "core.email.replied"
+            }
+          }
+        ],
+        "default": "quiet"
+      }
+    },
+    {
+      "code": "ask--timeout",
+      "name": "Ask the guest: no answer",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "email_reply.ask.state": "no_reply"
+        }
+      }
+    },
+    {
+      "code": "ask--timeout-goto",
+      "name": "Ask the guest: no answer, go on",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "quiet"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "replied"
+      }
+    },
+    {
+      "code": "quiet",
+      "name": "quiet",
+      "kind": "end",
+      "config": {
+        "outcome": "no_reply"
+      }
+    }
+  ],
+  "normal": true
+}

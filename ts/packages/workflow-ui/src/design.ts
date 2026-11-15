@@ -151,6 +151,15 @@ export function summarize(node: GraphNode, graph?: Graph): string {
       const due = duration(c.due);
       return [money(c), due && `due in ${due}`].filter(Boolean).join(" · ");
     }
+    case "email_reply": {
+      const wait = duration(c.wait);
+      return [typeof c.to === "string" && c.to ? `To ${c.to}` : "", wait && `waits ${wait}`].filter(Boolean).join(" · ");
+    }
+    case "signature": {
+      const keys = c.signers && typeof c.signers === "object" ? Object.keys(c.signers as object) : [];
+      const by = duration(c.deadline);
+      return [keys.length ? `${keys.join(", ")} sign${keys.length === 1 ? "s" : ""}` : "", by && `lapses in ${by}`].filter(Boolean).join(" · ");
+    }
     case "delay":
       return duration(c) ? `Wait ${duration(c)}` : "";
     case "wait_event": {

@@ -1,0 +1,63 @@
+{
+  "name": "refused-an-email-reply-with-nothing-to-say",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "ask"
+      },
+      {
+        "from": "ask",
+        "label": "replied",
+        "to": "done"
+      },
+      {
+        "default": true,
+        "from": "ask",
+        "label": "no_reply",
+        "to": "quiet"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "subject": "Hello",
+          "to": "{{subject.vars.email}}",
+          "wait": {
+            "unit": "days",
+            "value": 3
+          }
+        },
+        "id": "ask",
+        "name": "Ask the guest",
+        "type": "email_reply"
+      },
+      {
+        "config": {
+          "outcome": "replied"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "no_reply"
+        },
+        "id": "quiet",
+        "type": "end"
+      }
+    ]
+  },
+  "problems": [
+    {
+      "code": "node_config",
+      "node": "ask"
+    }
+  ]
+}

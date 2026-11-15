@@ -1,0 +1,257 @@
+{
+  "name": "a-signature-with-a-reminder-to-the-office",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "lease"
+      },
+      {
+        "from": "lease",
+        "label": "signed",
+        "to": "done"
+      },
+      {
+        "from": "lease",
+        "label": "declined",
+        "to": "no"
+      },
+      {
+        "default": true,
+        "from": "lease",
+        "label": "lapsed",
+        "to": "late"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "deadline": {
+            "unit": "days",
+            "value": 14
+          },
+          "reminders": [
+            {
+              "after": {
+                "unit": "business_days",
+                "value": 7
+              },
+              "notify": {
+                "body_text": "The lease is not signed yet.",
+                "channel": "email",
+                "subject": "Not signed yet",
+                "to": [
+                  {
+                    "people": [
+                      {
+                        "email": "office@example.test"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "signers": {
+            "tenant": {
+              "email": "{{subject.vars.email}}",
+              "name": "{{subject.vars.name}}"
+            }
+          },
+          "template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f",
+          "title": "Lease for {{subject.label}}"
+        },
+        "id": "lease",
+        "name": "Lease",
+        "type": "signature"
+      },
+      {
+        "config": {
+          "outcome": "signed"
+        },
+        "id": "done",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "declined"
+        },
+        "id": "no",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "lapsed"
+        },
+        "id": "late",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "lease--vars",
+      "name": "Lease",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "signature.lease.template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f"
+        }
+      }
+    },
+    {
+      "code": "lease--send",
+      "name": "Lease: ask",
+      "kind": "call",
+      "config": {
+        "action": "core.signature.request",
+        "capture": {
+          "signature.lease.reference": "output.reference",
+          "signature.lease.uid": "output.uid",
+          "signature.lease.url": "output.url"
+        },
+        "input": {
+          "deadline": {
+            "unit": "days",
+            "value": 14
+          },
+          "signers": {
+            "tenant": {
+              "email": "{{subject.vars.email}}",
+              "name": "{{subject.vars.name}}"
+            }
+          },
+          "template": "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f",
+          "title": "Lease for {{subject.label}}"
+        }
+      }
+    },
+    {
+      "code": "lease--wait",
+      "name": "Lease: wait",
+      "kind": "wait_event",
+      "config": {
+        "event": [
+          "core.signature.signed",
+          "core.signature.declined",
+          "core.signature.lapsed"
+        ],
+        "match": {
+          "event_field": "reference",
+          "var": "signature.lease.reference"
+        },
+        "on_timeout": "branch:lease--timeout",
+        "reminders": [
+          {
+            "after": {
+              "unit": "business_days",
+              "value": 7
+            },
+            "notify": "lease--remind-1"
+          }
+        ],
+        "timeout": {
+          "unit": "days",
+          "value": 15
+        }
+      }
+    },
+    {
+      "code": "lease--remind-1",
+      "name": "Lease: reminder 1",
+      "kind": "notification",
+      "config": {
+        "body_text": "The lease is not signed yet.",
+        "channel": "email",
+        "subject": "Not signed yet",
+        "to": [
+          {
+            "people": [
+              {
+                "email": "office@example.test"
+              }
+            ]
+          }
+        ]
+      },
+      "parent": "lease--wait",
+      "branch": "reminders"
+    },
+    {
+      "code": "lease--outcome",
+      "name": "Lease: outcome",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "done",
+            "when": {
+              "field": "steps.lease--wait.output.event",
+              "op": "is",
+              "value": "core.signature.signed"
+            }
+          },
+          {
+            "goto": "no",
+            "when": {
+              "field": "steps.lease--wait.output.event",
+              "op": "is",
+              "value": "core.signature.declined"
+            }
+          }
+        ],
+        "default": "late"
+      }
+    },
+    {
+      "code": "lease--timeout",
+      "name": "Lease: no answer",
+      "kind": "set_var",
+      "config": {
+        "set": {
+          "signature.lease.state": "lapsed"
+        }
+      }
+    },
+    {
+      "code": "lease--timeout-goto",
+      "name": "Lease: no answer, go on",
+      "kind": "branch",
+      "config": {
+        "cases": [],
+        "default": "late"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "signed"
+      }
+    },
+    {
+      "code": "no",
+      "name": "no",
+      "kind": "end",
+      "config": {
+        "outcome": "declined"
+      }
+    },
+    {
+      "code": "late",
+      "name": "late",
+      "kind": "end",
+      "config": {
+        "outcome": "lapsed"
+      }
+    }
+  ],
+  "normal": true
+}

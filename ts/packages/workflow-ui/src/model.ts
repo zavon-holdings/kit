@@ -229,7 +229,9 @@ function newEdgeShape(g: Graph, from: GraphNode): Pick<GraphEdge, "label" | "def
       if (!used.has(NEXT_LABEL)) return { label: NEXT_LABEL };
       return { label: nextCase() };
     case "payment_request":
-    case "invoice": {
+    case "invoice":
+    case "signature":
+    case "email_reply": {
       const names = outcomeNames(from).filter((name) => !used.has(name));
       const fallback = FALLBACK_OUTCOME[from.type];
       if (names.length === 0) return { label: nextCase() };
