@@ -1,0 +1,18 @@
+{
+  "name": "every-key-in-order",
+  "search": "?final=1&tests=1&snoozed=only&assignee=me&sort=deadline&only=flagged&q=van&v=list&wf=abc",
+  "state": {
+    "wf": "abc",
+    "view": "list",
+    "q": "van",
+    "only": [
+      "flagged"
+    ],
+    "assignee": "me",
+    "sort": "deadline",
+    "tests": true,
+    "final": true,
+    "snoozed": "only"
+  },
+  "canonical": "wf=abc&v=list&q=van&only=flagged&assignee=me&sort=deadline&tests=1&final=1&snoozed=only"
+}

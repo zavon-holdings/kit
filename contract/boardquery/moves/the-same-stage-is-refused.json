@@ -1,0 +1,31 @@
+{
+  "name": "the-same-stage-is-refused",
+  "columns": [
+    "received",
+    "review",
+    "interview",
+    "offer"
+  ],
+  "rules": {
+    "back_needs_reason": true,
+    "back_admin_only": true,
+    "skip_needs_confirm": true,
+    "frequent_moves": 3,
+    "frequent_window_hours": 24
+  },
+  "move": {
+    "from": "review",
+    "to": "review",
+    "admin": false,
+    "reason": "",
+    "confirm_skip": false,
+    "recent_moves": 0
+  },
+  "verdict": {
+    "ok": false,
+    "direction": "same",
+    "skipped": [],
+    "refusal": "same_stage",
+    "warnings": []
+  }
+}

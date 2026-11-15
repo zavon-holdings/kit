@@ -1,0 +1,16 @@
+{
+  "name": "an-unknown-view-is-the-board",
+  "search": "?v=grid",
+  "state": {
+    "wf": "",
+    "view": "board",
+    "q": "",
+    "only": [],
+    "assignee": "",
+    "sort": "",
+    "tests": false,
+    "final": false,
+    "snoozed": ""
+  },
+  "canonical": ""
+}

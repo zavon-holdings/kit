@@ -41,6 +41,7 @@ are passed as strings.
 | `@zavon/merge3`          | The three-way tree merge, for Node and the browser. Twin of `go/merge3`. |
 | `@zavon/tour`            | A spotlight tour for React: the page dimmed around one element, a tooltip with a link to further reading, next, back and skip. Tours as data; progress through a storage adapter — this browser, or a server with an offline queue (1.1) — and What's new, which opens by itself for a returning person (1.2). |
 | `@zavon/assistant`       | AI assistance controls for React: the gateway's wire types, a status hook, a button that shows a tool's credit price or why it is not available, a side sheet for help answers and proposals, a before and after view, and feedback thumbs. Every word comes from the host. |
+| `@zavon/console-ui`      | The console's workflow board for React: steps as fitted lanes with no scrollbars, ten cards a lane and the next ten by each lane's keyset cursor, Board/List, the board in the URL, the Move dialog and bulk moves under one move rule, and rule chips. Held to `contract/boardquery`. |
 
 ### `@zavon/workflow-ui`
 
@@ -130,6 +131,41 @@ The `api` is optional member by member (`validate`, `simulate`,
   Axe runs over every editor state in the package's tests.
 - Built with `tsc` into `dist/` when packed; `npm test` typechecks and runs
   vitest with testing-library.
+
+### `@zavon/console-ui`
+
+The board a console draws one workflow with (owner rules 12–14): steps are
+lanes, records are cards. It names no service — the host passes its fetches
+and words — and its look is CSS variables (`--zcu-*`) a host maps onto its
+own tokens. Import `@zavon/console-ui/styles.css` once.
+
+- **`Board`**: every lane's first page and true total come from the host's
+  first request; a lane asks `loadMore(column, cursor)` for its next ten as it
+  is scrolled to its foot. Lanes fill the board's height and scroll inside
+  with no scrollbar: the edge with more fades (`useLaneOverflow`) and an
+  "N more" chip (`LaneMore`) counts the cards below, loaded or not. An empty
+  lane keeps its tint, outline and ruled header. `fill` sizes the board to
+  the window from where it starts (`useFillHeight`) when the host's layout
+  gives it no height.
+- **Moving**: `moveVerdict` is the one rule (`contract/boardquery/moves`):
+  backwards only through `MoveDialog`, with a reason, and only for an admin
+  unless the host's stored rules say otherwise; forward past a step asks to
+  confirm the steps skipped; frequent moves warn, never refuse. A drag is
+  decided before the drop (`dropVerdict`): one step forward lands, a skip
+  opens the dialog, backwards is refused whoever drags.
+- **Bulk**: "Select" on one lane at a time, "Select All N" on the server's
+  total (`listIds`), then `BulkMoveDialog`: choose, confirm, progress (sent
+  in chunks), result with each refusal.
+- **Rule chips**: `cardMarks` (a card's marker), `columnChips` (a lane's
+  counts over the whole lane) and `ruleLine` (one sentence on the record),
+  drawn by `RuleChips` and `RuleLine`.
+- **`BoardList`** and **`ViewToggle`**: the same records as a list, ten a
+  page with the true total and a cursor stack for Previous.
+- **URL state**: `parseBoardUrl` / `writeBoardUrl` (`contract/boardquery/url`)
+  — short keys, defaults never written, one key order; `boardQueryOf` is what
+  the server is asked. `parseBoardQuery` replays the server's own grammar
+  (`contract/boardquery/*.json`) and `parsePageQuery` a lane's page keys
+  (`contract/boardquery/pages`).
 
 ### `@zavon/merge3` and `go/merge3`
 
@@ -370,7 +406,7 @@ where a lapsed record goes is a fact about the other steps. `boardquery/` is
 written by hand: a board's query string (`only`, `assignee`, `me`, `sort`,
 `tests`, `final` and the live `snoozed`, `stage`, `owner`, `q`) accepted with
 its normalised form — defaults left out, `only` sorted and de-duplicated — or
-refused naming the key; console-ui's `useUrlState` and core's board replay it.
+refused naming the key; console-ui's `parseBoardQuery` and core's board replay it. Beside it, `moves/` is the move rule (back, skip, frequent moves: a verdict per move, which core's move route, the board's drag and its Move dialog all answer), `pages/` a lane's page keys (`column`, `after`, `limit`, `ids`), both replayed by core and console-ui, and `url/` the board's state in a console's URL, replayed by console-ui.
 `activity/` is the Activity screen's: its query string (`types`, `kinds`,
 `codes`, `actor`, `q`, `from`, `to`, `sort`, `tests`, `page`, `per_page`, and
 for the report `group` and `split`) accepted with its normalised form or
@@ -384,6 +420,14 @@ checks the two agree; a screen draws its labels and icons from it.
 A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
+
+**1.21.0** (Go unchanged; tag `go/v1.21.0` for the matching pair):
+`@zavon/console-ui` 1.0.0 — the workflow board (lanes with keyset pages,
+fade edges and the "N more" chip, Board/List, the board in the URL, the Move
+dialog, bulk moves on one column, rule chips). New vectors under
+`contract/boardquery`: `moves/` (the move rule), `pages/` (a lane's page
+keys) and `url/` (the board in the URL). Unchanged packs keep their
+versions.
 
 **1.20.0** (TypeScript: `@zavon/workflow-graph` 1.8.0, `@zavon/workflow-ui`
 1.14.0; contract vectors; Go code unchanged, tag `go/v1.20.0`): the Decide

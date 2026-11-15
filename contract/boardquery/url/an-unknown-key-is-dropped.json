@@ -1,0 +1,16 @@
+{
+  "name": "an-unknown-key-is-dropped",
+  "search": "?colour=red&sort=oldest",
+  "state": {
+    "wf": "",
+    "view": "board",
+    "q": "",
+    "only": [],
+    "assignee": "",
+    "sort": "oldest",
+    "tests": false,
+    "final": false,
+    "snoozed": ""
+  },
+  "canonical": "sort=oldest"
+}

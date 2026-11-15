@@ -1,0 +1,34 @@
+{
+  "name": "forward-past-a-step-with-no-confirmation-rule",
+  "columns": [
+    "received",
+    "review",
+    "interview",
+    "offer"
+  ],
+  "rules": {
+    "back_needs_reason": true,
+    "back_admin_only": true,
+    "skip_needs_confirm": false,
+    "frequent_moves": 3,
+    "frequent_window_hours": 24
+  },
+  "move": {
+    "from": "received",
+    "to": "offer",
+    "admin": false,
+    "reason": "",
+    "confirm_skip": false,
+    "recent_moves": 0
+  },
+  "verdict": {
+    "ok": true,
+    "direction": "forward",
+    "skipped": [
+      "review",
+      "interview"
+    ],
+    "refusal": "",
+    "warnings": []
+  }
+}

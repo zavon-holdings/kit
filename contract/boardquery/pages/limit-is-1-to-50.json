@@ -1,0 +1,11 @@
+{
+  "name": "limit-is-1-to-50",
+  "query": "limit=25",
+  "ok": true,
+  "page": {
+    "column": "",
+    "after": "",
+    "limit": 25,
+    "ids": false
+  }
+}

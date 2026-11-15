@@ -1,0 +1,6 @@
+{
+  "name": "limit-0-is-refused",
+  "query": "limit=0",
+  "ok": false,
+  "error": "limit"
+}

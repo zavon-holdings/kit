@@ -1,0 +1,6 @@
+{
+  "name": "limit-over-50-is-refused",
+  "query": "limit=51",
+  "ok": false,
+  "error": "limit"
+}

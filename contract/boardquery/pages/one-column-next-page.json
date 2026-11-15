@@ -1,0 +1,11 @@
+{
+  "name": "one-column-next-page",
+  "query": "column=review&after=eyJrIjoxfQ",
+  "ok": true,
+  "page": {
+    "column": "review",
+    "after": "eyJrIjoxfQ",
+    "limit": 10,
+    "ids": false
+  }
+}

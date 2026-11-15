@@ -1,0 +1,16 @@
+{
+  "name": "search-is-trimmed",
+  "search": "?q=%20%20Nomsa%20",
+  "state": {
+    "wf": "",
+    "view": "board",
+    "q": "Nomsa",
+    "only": [],
+    "assignee": "",
+    "sort": "",
+    "tests": false,
+    "final": false,
+    "snoozed": ""
+  },
+  "canonical": "q=Nomsa"
+}

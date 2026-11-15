@@ -1,0 +1,16 @@
+{
+  "name": "empty-is-the-default-board",
+  "search": "",
+  "state": {
+    "wf": "",
+    "view": "board",
+    "q": "",
+    "only": [],
+    "assignee": "",
+    "sort": "",
+    "tests": false,
+    "final": false,
+    "snoozed": ""
+  },
+  "canonical": ""
+}

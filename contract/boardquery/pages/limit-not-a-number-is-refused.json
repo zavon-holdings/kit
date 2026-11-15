@@ -1,0 +1,6 @@
+{
+  "name": "limit-not-a-number-is-refused",
+  "query": "limit=ten",
+  "ok": false,
+  "error": "limit"
+}

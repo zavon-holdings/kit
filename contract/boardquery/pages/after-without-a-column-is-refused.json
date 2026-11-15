@@ -1,0 +1,6 @@
+{
+  "name": "after-without-a-column-is-refused",
+  "query": "after=eyJrIjoxfQ",
+  "ok": false,
+  "error": "after"
+}

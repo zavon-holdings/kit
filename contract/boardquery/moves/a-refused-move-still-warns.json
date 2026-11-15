@@ -1,0 +1,35 @@
+{
+  "name": "a-refused-move-still-warns",
+  "columns": [
+    "received",
+    "review",
+    "interview",
+    "offer"
+  ],
+  "rules": {
+    "back_needs_reason": true,
+    "back_admin_only": true,
+    "skip_needs_confirm": true,
+    "frequent_moves": 3,
+    "frequent_window_hours": 24
+  },
+  "move": {
+    "from": "received",
+    "to": "interview",
+    "admin": false,
+    "reason": "",
+    "confirm_skip": false,
+    "recent_moves": 5
+  },
+  "verdict": {
+    "ok": false,
+    "direction": "forward",
+    "skipped": [
+      "review"
+    ],
+    "refusal": "skip_confirm_required",
+    "warnings": [
+      "frequent_moves"
+    ]
+  }
+}

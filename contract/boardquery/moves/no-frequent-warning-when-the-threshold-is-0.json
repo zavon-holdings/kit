@@ -1,0 +1,31 @@
+{
+  "name": "no-frequent-warning-when-the-threshold-is-0",
+  "columns": [
+    "received",
+    "review",
+    "interview",
+    "offer"
+  ],
+  "rules": {
+    "back_needs_reason": true,
+    "back_admin_only": true,
+    "skip_needs_confirm": true,
+    "frequent_moves": 0,
+    "frequent_window_hours": 24
+  },
+  "move": {
+    "from": "received",
+    "to": "review",
+    "admin": false,
+    "reason": "",
+    "confirm_skip": false,
+    "recent_moves": 40
+  },
+  "verdict": {
+    "ok": true,
+    "direction": "forward",
+    "skipped": [],
+    "refusal": "",
+    "warnings": []
+  }
+}

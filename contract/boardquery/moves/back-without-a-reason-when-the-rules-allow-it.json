@@ -1,0 +1,31 @@
+{
+  "name": "back-without-a-reason-when-the-rules-allow-it",
+  "columns": [
+    "received",
+    "review",
+    "interview",
+    "offer"
+  ],
+  "rules": {
+    "back_needs_reason": false,
+    "back_admin_only": true,
+    "skip_needs_confirm": true,
+    "frequent_moves": 3,
+    "frequent_window_hours": 24
+  },
+  "move": {
+    "from": "interview",
+    "to": "review",
+    "admin": true,
+    "reason": "",
+    "confirm_skip": false,
+    "recent_moves": 0
+  },
+  "verdict": {
+    "ok": true,
+    "direction": "back",
+    "skipped": [],
+    "refusal": "",
+    "warnings": []
+  }
+}

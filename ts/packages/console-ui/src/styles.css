@@ -1,0 +1,390 @@
+/*
+ * @zavon/console-ui — the board's look, as CSS variables a host overrides.
+ *
+ * No typography of its own: font families are inherited from the host and
+ * sizes are relative to the host's. A status is always a tint, a dot and
+ * words — never colour alone. The defaults sit on the root with no
+ * specificity, so a host sets its own on any element around the board; a
+ * dark host sets the same variables darker.
+ */
+
+:where(:root) {
+  --zcu-ink: #1c1f24;
+  --zcu-muted: #5b616c;
+  --zcu-line: #d9dce2;
+  --zcu-page: #f7f7f5;
+  --zcu-surface: #ffffff;
+  --zcu-accent: #2f5bd3;
+  --zcu-on-accent: #ffffff;
+  --zcu-ok: #1f7a43;
+  --zcu-ok-tint: #e5f4ea;
+  --zcu-warn: #8a5a00;
+  --zcu-warn-tint: #fdf2dc;
+  --zcu-danger: #b42318;
+  --zcu-danger-tint: #fdeceb;
+  --zcu-info: #24589e;
+  --zcu-info-tint: #e7effa;
+  --zcu-radius: 12px;
+  --zcu-lane-width: 18rem;
+  --zcu-shadow: 0 1px 2px rgb(16 18 40 / 0.06), 0 1px 3px rgb(16 18 40 / 0.05);
+  --zcu-backdrop: rgb(16 18 40 / 0.42);
+}
+
+/* ── the board: lanes side by side; the board scrolls sideways, never the page ── */
+
+.zcu-board {
+  display: flex;
+  gap: 0.75rem;
+  height: 100%;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  padding-bottom: 0.25rem;
+  color: var(--zcu-ink);
+}
+
+/* A lane reads as a lane when empty: a tint a step darker than the page, a
+   thin outline, a ruled header with its name and true total. */
+.zcu-lane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: min(82vw, var(--zcu-lane-width));
+  height: 100%;
+  min-height: 0;
+  scroll-snap-align: start;
+  border-radius: var(--zcu-radius);
+  background: var(--zcu-lane, color-mix(in srgb, var(--zcu-line) 40%, var(--zcu-page)));
+  box-shadow: inset 0 0 0 1px var(--zcu-line);
+  transition: box-shadow 150ms ease, opacity 150ms ease, background-color 150ms ease;
+}
+.zcu-lane[data-drop="ok"] { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--zcu-ok) 70%, transparent); }
+.zcu-lane[data-drop="ok"][data-drop-over] { background: color-mix(in srgb, var(--zcu-ok-tint) 70%, var(--zcu-page)); }
+.zcu-lane[data-drop="confirm"] { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--zcu-warn) 60%, transparent); }
+.zcu-lane[data-drop="no"] { opacity: 0.5; cursor: not-allowed; }
+.zcu-lane[data-drop="no"] * { cursor: not-allowed; }
+
+.zcu-lane-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--zcu-line);
+}
+.zcu-lane-title { min-width: 0; display: grid; gap: 0.25rem; }
+.zcu-lane-name {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.zcu-lane-total { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--zcu-muted); font-size: 0.75rem; }
+.zcu-lane-sub { margin: 0; font-size: 0.71875rem; color: var(--zcu-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zcu-lane-note { margin: 0 0.75rem 0.5rem; font-size: 0.71875rem; color: var(--zcu-muted); }
+.zcu-lane-empty, .zcu-lane-loading { margin: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--zcu-muted); }
+
+/* No scrollbar: the edge with more fades (the top once scrolled, the bottom
+   while cards run on) and the "N more" chip sits on the bottom fade.
+   data-more-above / data-more-below come from useLaneOverflow. Lanes contain
+   only their vertical overscroll, so a sideways swipe over one moves the board. */
+.zcu-lane-scroll {
+  --zcu-fade-top: 0px;
+  --zcu-fade-bottom: 0px;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: 0 0.5rem 0.5rem;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--zcu-fade-top), #000 calc(100% - var(--zcu-fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--zcu-fade-top), #000 calc(100% - var(--zcu-fade-bottom)), transparent 100%);
+}
+.zcu-lane-scroll::-webkit-scrollbar { display: none; }
+.zcu-lane-scroll[data-more-above] { --zcu-fade-top: 1.25rem; }
+.zcu-lane-scroll[data-more-below] { --zcu-fade-bottom: 3rem; }
+
+.zcu-lane-more {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--zcu-line);
+  border-radius: 999px;
+  background: var(--zcu-surface);
+  color: var(--zcu-muted);
+  font: inherit;
+  font-size: 0.71875rem;
+  font-weight: 600;
+  box-shadow: var(--zcu-shadow);
+  cursor: pointer;
+  white-space: nowrap;
+  animation: zcu-more-in 200ms ease-out both;
+}
+.zcu-lane-more:hover { color: var(--zcu-ink); }
+@keyframes zcu-more-in { from { opacity: 0; transform: translate(-50%, 4px); } }
+.zcu-lane-more-arrow { animation: zcu-more-bob 3.2s ease-in-out 1s infinite; }
+.zcu-lane-more:hover .zcu-lane-more-arrow { animation-play-state: paused; }
+@keyframes zcu-more-bob {
+  0%, 62%, 100% { transform: translateY(0); }
+  74% { transform: translateY(2px); }
+  86% { transform: translateY(0); }
+}
+
+.zcu-lane-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem;
+  padding: 0.5rem 0.625rem;
+  border-top: 1px solid var(--zcu-line);
+  background: var(--zcu-surface);
+  border-radius: 0 0 var(--zcu-radius) var(--zcu-radius);
+}
+.zcu-lane-bulk-count { font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+.zcu-lane-bulk-actions { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+
+/* ── cards ── */
+
+.zcu-cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.zcu-card {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--zcu-line);
+  border-radius: calc(var(--zcu-radius) - 3px);
+  background: var(--zcu-surface);
+  box-shadow: var(--zcu-shadow);
+  cursor: grab;
+}
+.zcu-card:active { cursor: grabbing; }
+.zcu-card[data-selected] { box-shadow: inset 0 0 0 2px var(--zcu-accent); }
+.zcu-card-row { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.zcu-card-check { flex: 0 0 auto; margin: 0; }
+.zcu-card-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.zcu-card-title a { color: inherit; text-decoration: none; }
+.zcu-card-title a:hover { text-decoration: underline; }
+.zcu-card-sub, .zcu-card-meta { display: block; margin: 0; font-size: 0.71875rem; color: var(--zcu-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zcu-card-move {
+  flex: 0 0 auto;
+  padding: 0.0625rem 0.4375rem;
+  border: 1px solid var(--zcu-line);
+  border-radius: 6px;
+  background: var(--zcu-surface);
+  color: var(--zcu-muted);
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.zcu-card:hover .zcu-card-move, .zcu-card:focus-within .zcu-card-move, .zcu-card-move:focus-visible { opacity: 1; }
+@media (hover: none) { .zcu-card-move { opacity: 1; } }
+
+/* ── rule chips: a card marker, a column chip, one line on the record ── */
+
+.zcu-chips { display: flex; flex-wrap: wrap; gap: 0.25rem; min-width: 0; }
+.zcu-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  max-width: 100%;
+  padding: 0.0625rem 0.4375rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.zcu-chip[data-size="xs"] { font-size: 0.65625rem; padding: 0 0.375rem; }
+.zcu-chip-dot { flex: 0 0 auto; width: 0.375rem; height: 0.375rem; border-radius: 999px; background: currentColor; }
+.zcu-chip[data-tone="danger"], .zcu-rule-line[data-tone="danger"], .zcu-notice[data-tone="danger"] { background: var(--zcu-danger-tint); color: var(--zcu-danger); }
+.zcu-chip[data-tone="warn"], .zcu-rule-line[data-tone="warn"], .zcu-notice[data-tone="warn"] { background: var(--zcu-warn-tint); color: var(--zcu-warn); }
+.zcu-chip[data-tone="info"], .zcu-rule-line[data-tone="info"] { background: var(--zcu-info-tint); color: var(--zcu-info); }
+.zcu-rule-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  margin: 0;
+  padding: 0.3125rem 0.625rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* ── buttons, fields, the toggle ── */
+
+.zcu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  border: 1px solid var(--zcu-line);
+  border-radius: 8px;
+  background: var(--zcu-surface);
+  color: var(--zcu-ink);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.zcu-btn[data-size="xs"] { padding: 0.1875rem 0.5rem; font-size: 0.71875rem; border-radius: 6px; }
+.zcu-btn[data-variant="primary"] { background: var(--zcu-accent); border-color: var(--zcu-accent); color: var(--zcu-on-accent); }
+.zcu-btn[data-variant="quiet"] { background: transparent; }
+.zcu-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.zcu-link { border: 0; padding: 0; background: none; color: var(--zcu-accent); font: inherit; cursor: pointer; text-decoration: underline; }
+
+.zcu-toggle { display: inline-flex; padding: 2px; border: 1px solid var(--zcu-line); border-radius: 9px; background: var(--zcu-surface); }
+.zcu-toggle-btn {
+  padding: 0.25rem 0.75rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--zcu-muted);
+  font: inherit;
+  font-size: 0.78125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.zcu-toggle-btn[aria-pressed="true"] { background: var(--zcu-ink); color: var(--zcu-surface); }
+
+.zcu-field { display: grid; gap: 0.375rem; margin: 0 0 1rem; padding: 0; border: 0; min-width: 0; }
+.zcu-label { padding: 0; font-size: 0.75rem; font-weight: 700; }
+.zcu-hint { margin: 0; font-size: 0.75rem; color: var(--zcu-muted); }
+.zcu-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--zcu-line);
+  border-radius: 8px;
+  background: var(--zcu-surface);
+  color: var(--zcu-ink);
+  font: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+}
+.zcu-options { display: grid; gap: 0.25rem; }
+.zcu-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4375rem 0.625rem;
+  border: 1px solid var(--zcu-line);
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.zcu-option[data-disabled] { opacity: 0.5; cursor: not-allowed; }
+.zcu-option-name { flex: 1 1 auto; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zcu-option-tag { flex: 0 0 auto; font-size: 0.6875rem; color: var(--zcu-muted); }
+.zcu-check { display: flex; align-items: flex-start; gap: 0.5rem; margin: 0 0 1rem; font-size: 0.8125rem; }
+.zcu-notice { margin: 0 0 0.75rem; padding: 0.5rem 0.625rem; border-radius: 8px; font-size: 0.8125rem; }
+
+/* ── the dialog: its body scrolls inside, its foot stays in view ── */
+
+.zcu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: var(--zcu-backdrop);
+}
+.zcu-modal {
+  display: flex;
+  flex-direction: column;
+  width: min(32rem, 100%);
+  max-height: calc(100dvh - 2rem);
+  border-radius: calc(var(--zcu-radius) + 2px);
+  background: var(--zcu-surface);
+  color: var(--zcu-ink);
+  box-shadow: 0 24px 56px -12px rgb(16 18 40 / 0.3);
+  outline: none;
+}
+.zcu-modal-title { margin: 0; padding: 1.125rem 1.25rem 0.5rem; font-size: 1rem; font-weight: 700; }
+.zcu-modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0.25rem 1.25rem 0.5rem; }
+.zcu-modal-lede { margin: 0 0 1rem; font-size: 0.875rem; color: var(--zcu-muted); }
+.zcu-modal-foot { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0.75rem 1.25rem 1rem; border-top: 1px solid var(--zcu-line); }
+.zcu-progress-wrap { display: grid; gap: 0.5rem; }
+.zcu-progress { height: 0.375rem; border-radius: 999px; background: color-mix(in srgb, var(--zcu-line) 70%, transparent); overflow: hidden; }
+.zcu-progress > span { display: block; height: 100%; background: var(--zcu-accent); transition: width 200ms ease; }
+.zcu-refused { margin: 0.25rem 0 0; padding-left: 1.125rem; font-size: 0.8125rem; display: grid; gap: 0.25rem; }
+
+/* ── the list: rows scroll inside, the header row and the pager stay ── */
+
+.zcu-list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--zcu-line);
+  border-radius: var(--zcu-radius);
+  background: var(--zcu-surface);
+  overflow: hidden;
+}
+.zcu-list-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.zcu-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+.zcu-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0.5rem 0.875rem;
+  background: var(--zcu-surface);
+  border-bottom: 1px solid var(--zcu-line);
+  color: var(--zcu-muted);
+  font-size: 0.71875rem;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+.zcu-table td { padding: 0.5rem 0.875rem; border-bottom: 1px solid color-mix(in srgb, var(--zcu-line) 60%, transparent); vertical-align: middle; }
+.zcu-list-title { display: block; font-weight: 600; }
+.zcu-list-title a { color: inherit; text-decoration: none; }
+.zcu-list-title a:hover { text-decoration: underline; }
+.zcu-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  border-top: 1px solid var(--zcu-line);
+  font-size: 0.75rem;
+  color: var(--zcu-muted);
+  font-variant-numeric: tabular-nums;
+}
+.zcu-pager-buttons { display: flex; gap: 0.25rem; }
+
+.zcu-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.zcu-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+@media (prefers-reduced-motion: reduce) {
+  .zcu-lane-more, .zcu-lane-more-arrow, .zcu-lane, .zcu-progress > span { animation: none; transition: none; }
+}

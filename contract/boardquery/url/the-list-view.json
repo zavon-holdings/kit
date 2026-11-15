@@ -1,0 +1,16 @@
+{
+  "name": "the-list-view",
+  "search": "?v=list&wf=0b6c3f1e-1111-4a4a-9c9c-222233334444",
+  "state": {
+    "wf": "0b6c3f1e-1111-4a4a-9c9c-222233334444",
+    "view": "list",
+    "q": "",
+    "only": [],
+    "assignee": "",
+    "sort": "",
+    "tests": false,
+    "final": false,
+    "snoozed": ""
+  },
+  "canonical": "wf=0b6c3f1e-1111-4a4a-9c9c-222233334444&v=list"
+}

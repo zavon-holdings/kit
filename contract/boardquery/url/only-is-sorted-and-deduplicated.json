@@ -1,0 +1,19 @@
+{
+  "name": "only-is-sorted-and-deduplicated",
+  "search": "?only=overdue,due_soon,overdue",
+  "state": {
+    "wf": "",
+    "view": "board",
+    "q": "",
+    "only": [
+      "due_soon",
+      "overdue"
+    ],
+    "assignee": "",
+    "sort": "",
+    "tests": false,
+    "final": false,
+    "snoozed": ""
+  },
+  "canonical": "only=due_soon,overdue"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "ids-of-a-whole-column",
+  "query": "column=review&ids=1",
+  "ok": true,
+  "page": {
+    "column": "review",
+    "after": "",
+    "limit": 10,
+    "ids": true
+  }
+}

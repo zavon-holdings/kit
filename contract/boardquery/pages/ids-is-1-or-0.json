@@ -1,0 +1,6 @@
+{
+  "name": "ids-is-1-or-0",
+  "query": "column=review&ids=yes",
+  "ok": false,
+  "error": "ids"
+}

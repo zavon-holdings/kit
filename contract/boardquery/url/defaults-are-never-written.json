@@ -1,0 +1,16 @@
+{
+  "name": "defaults-are-never-written",
+  "search": "?v=board&sort=newest&tests=0&final=0&q=",
+  "state": {
+    "wf": "",
+    "view": "board",
+    "q": "",
+    "only": [],
+    "assignee": "",
+    "sort": "",
+    "tests": false,
+    "final": false,
+    "snoozed": ""
+  },
+  "canonical": ""
+}

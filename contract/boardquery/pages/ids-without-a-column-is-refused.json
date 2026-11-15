@@ -1,0 +1,6 @@
+{
+  "name": "ids-without-a-column-is-refused",
+  "query": "ids=1",
+  "ok": false,
+  "error": "ids"
+}
