@@ -134,6 +134,8 @@ export function summarize(node: GraphNode, graph?: Graph): string {
     }
     case "email":
       return typeof c.template_code === "string" && c.template_code ? `Template ${c.template_code}` : "";
+    case "sms":
+      return [c.channel === "whatsapp" ? `WhatsApp ${typeof c.template === "string" ? c.template : ""}`.trim() : "SMS", Array.isArray(c.to) && c.to.length ? plural(c.to.length, "source") : ""].filter(Boolean).join(" · ");
     case "whatsapp":
       return [typeof c.template === "string" ? c.template : "", Array.isArray(c.to) && c.to.length ? plural(c.to.length, "source") : ""].filter(Boolean).join(" · ");
     case "notification": {

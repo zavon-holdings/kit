@@ -421,6 +421,19 @@ A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
 
+**1.23.0** (TypeScript: `@zavon/workflow-graph` 1.10.0, `@zavon/workflow-ui`
+1.16.0; contract vectors; Go code unchanged, tag `go/v1.23.0`): SMS by
+SMSPortal — a notification core sends through the property's own SMSPortal
+account, drawn as its own `sms` node and compiled to `notification
+{channel: "sms" (or the node's "whatsapp"), via: "core", provider:
+"smsportal", …}`. The same node sends a WhatsApp on that account's own
+number with a template the account holds. `@zavon/workflow-ui` offers it
+under Messages with `SmsInspector` (SMS or WhatsApp, the message with its
+characters and parts, or the template and its parameters, the email it
+falls back to) beside `Recipients`; `smsParts`, `smsProblems`,
+`SMS_MAX_CHARS`. Vectors `contract/graph/an-sms-*.json` and
+`a-whatsapp-under-the-propertys-smsportal-account.json`.
+
 **1.22.0** (TypeScript: `@zavon/workflow-graph` 1.9.0, `@zavon/workflow-ui`
 1.15.0; contract vectors; Go code unchanged, tag `go/v1.22.0`): Send a
 WhatsApp on Zavon's shared number — a notification core sends itself, drawn

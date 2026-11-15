@@ -89,6 +89,13 @@ const SHAPES: Record<string, ReactNode> = {
       {P("M3.5 7l8.5 6 8.5-6")}
     </>
   ),
+  sms: (
+    <>
+      <rect x="6.5" y="2.5" width="11" height="19" rx="2.5" />
+      {P("M10 18.5h4")}
+      {P("M9 7.5h6M9 11h4")}
+    </>
+  ),
   whatsapp: (
     <>
       {P("M4.5 19.5l1.2-3.6A8 8 0 1 1 8.4 18.6z")}

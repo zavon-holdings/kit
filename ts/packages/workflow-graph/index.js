@@ -62,7 +62,7 @@ const P = PROBLEMS;
 
 // A to-do is plain: one way on, done when one of its people completes it, and
 // at home in a fork's arm.
-const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook", "todo", "decide", "whatsapp"]);
+const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook", "todo", "decide", "whatsapp", "sms"]);
 
 /*
  * Nodes drawn as their own type that are, to the engine, a step of another
@@ -70,6 +70,7 @@ const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "web
  *
  *   decide    ⇄  call {action: "core.ai.decide", input: <the node's config>}
  *   whatsapp  ⇄  notification {channel: "whatsapp", via: "core", <the node's config>}
+ *   sms       ⇄  notification {channel: "sms" or the node's, via: "core", provider: "smsportal", <the node's config>}
  *
  * A step that is exactly that shape draws as the node; anything else (a
  * capture, a `when`, a provider) draws as what it is.
@@ -80,6 +81,7 @@ export const ACTION_DECIDE = "core.ai.decide";
 function stepOf(type, cfg) {
   if (type === "decide") return ["call", { action: ACTION_DECIDE, input: cfg ?? {} }];
   if (type === "whatsapp") return ["notification", { ...(cfg ?? {}), channel: "whatsapp", via: "core" }];
+  if (type === "sms") return ["notification", { channel: "sms", ...(cfg ?? {}), via: "core", provider: "smsportal" }];
   return [type, cfg];
 }
 
@@ -89,6 +91,11 @@ function drawnAs(kind, cfg) {
   if (kind === "notification" && cfg.via === "core" && cfg.channel === "whatsapp" && cfg.provider === undefined) {
     const { via: _v, channel: _c, ...rest } = cfg;
     return ["whatsapp", rest];
+  }
+  if (kind === "notification" && cfg.via === "core" && cfg.provider === "smsportal") {
+    const { via: _v, provider: _p, ...rest } = cfg;
+    if (rest.channel === "sms") delete rest.channel;
+    return ["sms", rest];
   }
   return [kind, cfg];
 }

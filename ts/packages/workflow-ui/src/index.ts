@@ -35,7 +35,7 @@ export {
   type DecideField,
   type DecideOption,
 } from "./components/DecideInspector.js";
-export { WhatsAppInspector, Recipients, whatsAppProblems, SHARED_WHATSAPP_TEMPLATES } from "./components/MessageInspectors.js";
+export { WhatsAppInspector, SmsInspector, Recipients, whatsAppProblems, smsProblems, smsParts, SMS_MAX_CHARS, SHARED_WHATSAPP_TEMPLATES } from "./components/MessageInspectors.js";
 export { Heading } from "./components/Heading.js";
 export { EditorContext, useEditor, useReducedMotion, type Editor, type TriggerEditor, type ConfirmRequest } from "./components/context.js";
 export { TriggerPanel, InterruptsPanel, type TriggerPanelProps, type InterruptsPanelProps } from "./components/TriggerPanel.js";

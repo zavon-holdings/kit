@@ -1,0 +1,69 @@
+{
+  "name": "an-sms-through-the-propertys-smsportal-account",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "text"
+      },
+      {
+        "from": "text",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "body_text": "{{vars.event}} starts tomorrow",
+          "to": [
+            {
+              "var": "people"
+            }
+          ]
+        },
+        "id": "text",
+        "type": "sms"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "text",
+      "name": "text",
+      "kind": "notification",
+      "config": {
+        "body_text": "{{vars.event}} starts tomorrow",
+        "channel": "sms",
+        "provider": "smsportal",
+        "to": [
+          {
+            "var": "people"
+          }
+        ],
+        "via": "core"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ],
+  "normal": true
+}

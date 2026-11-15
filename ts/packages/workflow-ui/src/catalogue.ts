@@ -81,6 +81,13 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
     config: { template: "zavon_update", params: [""], to: [] },
   },
   {
+    type: "sms",
+    label: "SMS by SMSPortal",
+    group: "Messages",
+    blurb: "An SMS, or a WhatsApp on its own number, through the property's SMSPortal account; charged as credits.",
+    config: { body_text: "", to: [] },
+  },
+  {
     type: "payment_request",
     label: "Payment request",
     group: "Money",

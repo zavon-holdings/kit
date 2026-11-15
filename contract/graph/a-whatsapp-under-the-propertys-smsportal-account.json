@@ -1,0 +1,76 @@
+{
+  "name": "a-whatsapp-under-the-propertys-smsportal-account",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "text"
+      },
+      {
+        "from": "text",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "channel": "whatsapp",
+          "params": [
+            "{{vars.event}}"
+          ],
+          "template": "camp_reminder",
+          "to": [
+            {
+              "var": "people"
+            }
+          ]
+        },
+        "id": "text",
+        "type": "sms"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "text",
+      "name": "text",
+      "kind": "notification",
+      "config": {
+        "channel": "whatsapp",
+        "params": [
+          "{{vars.event}}"
+        ],
+        "provider": "smsportal",
+        "template": "camp_reminder",
+        "to": [
+          {
+            "var": "people"
+          }
+        ],
+        "via": "core"
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ],
+  "normal": true
+}

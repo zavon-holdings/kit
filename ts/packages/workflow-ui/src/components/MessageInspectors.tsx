@@ -158,3 +158,120 @@ export function WhatsAppInspector({ node, onChange, readOnly }: InspectorProps) 
     </fieldset>
   );
 }
+
+type SmsConfig = WhatsAppConfig & { channel?: "sms" | "whatsapp" };
+
+/** The most an SMS may say: six parts (core's limit). */
+export const SMS_MAX_CHARS = 918;
+
+/** How many parts an SMS of plain text takes: 160 alone, 153 a part when joined. */
+export function smsParts(text: string): number {
+  const n = [...text].length;
+  if (n === 0) return 0;
+  return n <= 160 ? 1 : Math.ceil(n / 153);
+}
+
+/** What is not yet right about an SMSPortal node, in words. */
+export function smsProblems(c: SmsConfig): string[] {
+  const out: string[] = [];
+  if ((c.channel ?? "sms") === "sms") {
+    const text = (c.body_text ?? "").trim();
+    if (!text) out.push("Say what the SMS says.");
+    else if ([...text].length > SMS_MAX_CHARS) out.push(`An SMS is at most ${SMS_MAX_CHARS} characters (six parts).`);
+  } else if (!/^[a-z0-9_]{1,512}$/.test(c.template ?? "")) {
+    out.push("Name the WhatsApp template the SMSPortal account holds (lower case, digits and _).");
+  }
+  if (!(c.to ?? []).length) out.push("Name who the message goes to.");
+  return out;
+}
+
+/**
+ * The SMSPortal step: an SMS, or a WhatsApp on the same account's own
+ * number with a template that account holds — through the property's
+ * SMSPortal account (its SMS gateway). Charged per message; STOP and
+ * anybody who cannot be reached get the email instead.
+ */
+export function SmsInspector({ node, onChange, readOnly }: InspectorProps) {
+  const config = (node.config ?? {}) as SmsConfig;
+  const channel = config.channel ?? "sms";
+  const set = (patch: Partial<SmsConfig>) => {
+    const next: Record<string, unknown> = { ...config, ...patch };
+    for (const k of ["subject", "body_text", "template"]) if (next[k] === "" || next[k] === undefined) delete next[k];
+    if (next.channel === "sms") delete next.channel;
+    if (Array.isArray(next.params) && next.params.length === 0) delete next.params;
+    if (next.link && !(next.link as { url: string }).url) delete next.link;
+    onChange(next);
+  };
+  const params = config.params ?? [];
+  const text = config.body_text ?? "";
+  const problems = smsProblems(config);
+  return (
+    <fieldset className="zwf-group" disabled={readOnly}>
+      <legend>SMS or WhatsApp by SMSPortal</legend>
+      <p className="zwf-muted">
+        Sent through the property&apos;s own SMSPortal account. Each message costs credits from the organisation&apos;s wallet; people who opted out, or cannot be
+        reached, get the email instead.
+      </p>
+      <label className="zwf-field">
+        <span>Channel</span>
+        <select
+          value={channel}
+          onChange={(e) =>
+            set(e.target.value === "whatsapp" ? { channel: "whatsapp", template: config.template ?? "", body_text: undefined } : { channel: "sms", template: undefined, params: [] })
+          }
+        >
+          <option value="sms">SMS</option>
+          <option value="whatsapp">WhatsApp (the account&apos;s own number)</option>
+        </select>
+      </label>
+      {channel === "sms" ? (
+        <>
+          <label className="zwf-field">
+            <span>Message</span>
+            <textarea rows={3} value={text} placeholder="{{vars.event}} starts tomorrow at 09:00." onChange={(e) => set({ body_text: e.target.value })} />
+          </label>
+          <p className="zwf-muted">
+            {[...text].length} characters · {smsParts(text)} part{smsParts(text) === 1 ? "" : "s"}
+          </p>
+        </>
+      ) : (
+        <>
+          <label className="zwf-field">
+            <span>Template</span>
+            <input value={config.template ?? ""} spellCheck={false} placeholder="the template's name in SMSPortal" onChange={(e) => set({ template: e.target.value })} />
+          </label>
+          {params.map((p, i) => (
+            <div key={i} className="zwf-row">
+              <label className="zwf-field">
+                <span>Parameter {i + 1}</span>
+                <input value={p} onChange={(e) => set({ params: params.map((x, k) => (k === i ? e.target.value : x)) })} />
+              </label>
+              <button type="button" className="zwf-button zwf-quiet" onClick={() => set({ params: params.filter((_, k) => k !== i) })}>
+                Remove Parameter {i + 1}
+              </button>
+            </div>
+          ))}
+          <button type="button" className="zwf-button" onClick={() => set({ params: [...params, ""] })}>
+            Add a Parameter
+          </button>
+          <label className="zwf-field">
+            <span>Email Text</span>
+            <textarea rows={2} value={config.body_text ?? ""} placeholder="What the email says when WhatsApp cannot be sent" onChange={(e) => set({ body_text: e.target.value })} />
+          </label>
+        </>
+      )}
+      <Recipients value={config.to} onChange={(to) => set({ to })} />
+      <label className="zwf-field">
+        <span>Email Subject</span>
+        <input value={config.subject ?? ""} placeholder="The email sent instead, when the message cannot be" onChange={(e) => set({ subject: e.target.value })} />
+      </label>
+      {problems.length > 0 && (
+        <ul className="zwf-problems" aria-label="Not Ready Yet">
+          {problems.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      )}
+    </fieldset>
+  );
+}
