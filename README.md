@@ -385,6 +385,22 @@ A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
 
+**1.20.0** (TypeScript: `@zavon/workflow-graph` 1.8.0, `@zavon/workflow-ui`
+1.14.0; contract vectors; Go code unchanged, tag `go/v1.20.0`): the Decide
+node — core's `core.ai.decide` on a call step, drawn as its own `decide`
+node and compiled to `call {action: "core.ai.decide", input: <the node's
+config>}` (a call with any other part, a capture, draws as the call it is),
+in sequence, in a fork's arm and in a loop's body; `ACTION_DECIDE`.
+`@zavon/workflow-ui` offers it under Logic as "Decide With AI" with a
+built-in inspector (`DecideInspector`, `decideProblems`): the record's fields
+to read, one to eight questions — a choice, a score of 2 to 10 described
+levels, or yes or no — each with its threshold, who confirms an answer the
+AI is not sure of, and whether a form's sensitive answers are sent; a
+condition after it is offered `steps.<id>.output.<key>.answer`. Vectors
+`contract/graph/a-decide-*.json`, `contract/ai/tools/workflow.decide.json`
+(the gateway tool, with Jev's own answer shapes under `_jev`), and
+`ai_decision` (a review) in `contract/activity/types.json`.
+
 **1.19.0** (Go and TypeScript: `merge3` text merging, additive; tag
 `go/v1.19.0`; `@zavon/merge3` 1.1.0): `MergeOptions.Text` / `merge3(…, {
 text })` merges named string fields token by token (diff3 over tokens), so

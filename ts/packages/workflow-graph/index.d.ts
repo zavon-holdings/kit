@@ -19,6 +19,8 @@ export declare const MONEY_SUFFIXES: Readonly<{
 }>;
 export declare const PROBLEMS: Readonly<Record<string, string>>;
 export declare const NOT_YET: Readonly<Record<string, string>>;
+/** The built-in action a decide node compiles to (a call step of core.ai.decide). */
+export declare const ACTION_DECIDE: "core.ai.decide";
 
 export interface GraphNode {
   id: string;

@@ -1,0 +1,204 @@
+{
+  "name": "a-decide-in-the-arm-of-a-fork",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "fork"
+      },
+      {
+        "from": "fork",
+        "to": "triage"
+      },
+      {
+        "from": "fork",
+        "to": "tell"
+      },
+      {
+        "from": "triage",
+        "to": "join"
+      },
+      {
+        "from": "tell",
+        "to": "join"
+      },
+      {
+        "from": "join",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "fork",
+        "type": "fork"
+      },
+      {
+        "config": {
+          "fields": [
+            {
+              "label": "Summary",
+              "path": "subject.vars.summary"
+            }
+          ],
+          "questions": [
+            {
+              "key": "panel",
+              "options": [
+                {
+                  "key": "science",
+                  "label": "Science panel"
+                },
+                {
+                  "key": "arts",
+                  "label": "Arts panel"
+                }
+              ],
+              "text": "Which panel should review this?",
+              "threshold": 0.7,
+              "type": "choice"
+            }
+          ],
+          "review": {
+            "assignees": [
+              {
+                "people": [
+                  {
+                    "email": "office@example.test"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "id": "triage",
+        "type": "decide"
+      },
+      {
+        "config": {
+          "channel": "in_app",
+          "in_app": {
+            "title": "New application"
+          },
+          "to": [
+            {
+              "subject": true
+            }
+          ]
+        },
+        "id": "tell",
+        "type": "notification"
+      },
+      {
+        "config": {
+          "join": "all"
+        },
+        "id": "join",
+        "type": "join"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "fork",
+      "name": "fork",
+      "kind": "parallel",
+      "config": {
+        "arms": {
+          "arm-1": [
+            "triage"
+          ],
+          "arm-2": [
+            "tell"
+          ]
+        },
+        "join": "all"
+      }
+    },
+    {
+      "code": "triage",
+      "name": "triage",
+      "kind": "call",
+      "config": {
+        "action": "core.ai.decide",
+        "input": {
+          "fields": [
+            {
+              "label": "Summary",
+              "path": "subject.vars.summary"
+            }
+          ],
+          "questions": [
+            {
+              "key": "panel",
+              "options": [
+                {
+                  "key": "science",
+                  "label": "Science panel"
+                },
+                {
+                  "key": "arts",
+                  "label": "Arts panel"
+                }
+              ],
+              "text": "Which panel should review this?",
+              "threshold": 0.7,
+              "type": "choice"
+            }
+          ],
+          "review": {
+            "assignees": [
+              {
+                "people": [
+                  {
+                    "email": "office@example.test"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "parent": "fork",
+      "branch": "arm-1"
+    },
+    {
+      "code": "tell",
+      "name": "tell",
+      "kind": "notification",
+      "config": {
+        "channel": "in_app",
+        "in_app": {
+          "title": "New application"
+        },
+        "to": [
+          {
+            "subject": true
+          }
+        ]
+      },
+      "parent": "fork",
+      "branch": "arm-2"
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ]
+}

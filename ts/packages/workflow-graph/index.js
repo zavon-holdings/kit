@@ -62,7 +62,30 @@ const P = PROBLEMS;
 
 // A to-do is plain: one way on, done when one of its people completes it, and
 // at home in a fork's arm.
-const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook", "todo"]);
+const PLAIN = new Set(["email", "delay", "call", "set_var", "notification", "webhook", "todo", "decide"]);
+
+/*
+ * Nodes drawn as their own type that are, to the engine, a step of another
+ * kind with a fixed part of its config — one node, one step, both ways:
+ *
+ *   decide  ⇄  call {action: "core.ai.decide", input: <the node's config>}
+ *
+ * A step that is exactly that shape draws as the node; anything else (a
+ * capture, a `when`) draws as what it is.
+ */
+export const ACTION_DECIDE = "core.ai.decide";
+
+/** The step a plain node compiles to: [kind, config]. */
+function stepOf(type, cfg) {
+  if (type === "decide") return ["call", { action: ACTION_DECIDE, input: cfg ?? {} }];
+  return [type, cfg];
+}
+
+/** The node a step decompiles to: [type, config]. */
+function drawnAs(kind, cfg) {
+  if (kind === "call" && Object.keys(cfg).length === 2 && cfg.action === ACTION_DECIDE && isObject(cfg.input)) return ["decide", cfg.input];
+  return [kind, cfg];
+}
 // A task finishes with an outcome its edges may route on; a sub-workflow
 // finishes with its child run's.
 const isTask = (t) => t === "review" || t === "form" || t === "approval" || t === "sub_workflow";
@@ -1176,7 +1199,8 @@ class Compiler {
       this.add({ code: id, name: this.stepName(id), kind: "loop", config: canon(object(n.config) ?? {}) });
       for (const nid of this.loops.get(id).body) {
         const b = this.x.byID.get(nid);
-        this.add({ code: nid, name: this.stepName(nid), kind: b.type, config: canon(object(b.config) ?? {}), parent: id, branch: LOOP_ARM });
+        const [kind, scfg] = stepOf(b.type, object(b.config) ?? {});
+        this.add({ code: nid, name: this.stepName(nid), kind, config: canon(scfg), parent: id, branch: LOOP_ARM });
       }
     } else {
       const cfg = object(n.config) ?? {};
@@ -1187,7 +1211,8 @@ class Compiler {
         const [, timeout] = x.waitEdges(id);
         if (timeout.length) cfg.on_timeout = `branch:${this.first(x.edge(timeout[0]).to)}`;
       }
-      this.add({ code: id, name: this.stepName(id), kind: n.type, config: canon(cfg) });
+      const [kind, scfg] = stepOf(n.type, cfg);
+      this.add({ code: id, name: this.stepName(id), kind, config: canon(scfg) });
       if (x.routes(n)) {
         this.add({ code: id + SUFFIX_ROUTE, name: `After ${this.stepName(id)}`, kind: "branch", config: this.choice(id, id) });
         return;
@@ -1308,7 +1333,8 @@ class Compiler {
     for (const a of r.arms) {
       for (const nid of a.nodes) {
         const n = this.x.byID.get(nid);
-        this.add({ code: nid, name: this.stepName(nid), kind: n.type, config: canon(object(n.config) ?? {}), parent: id, branch: a.name });
+        const [kind, scfg] = stepOf(n.type, object(n.config) ?? {});
+        this.add({ code: nid, name: this.stepName(nid), kind, config: canon(scfg), parent: id, branch: a.name });
       }
     }
   }
@@ -1445,7 +1471,8 @@ export function decompile(steps) {
     }
     const routed = isTask(s.kind) && i + 1 < top.length && top[i + 1].code === s.code + SUFFIX_ROUTE && top[i + 1].kind === "branch";
     if (routed && s.kind === "approval" && cfg.on_reject === REJECT_CONTINUE) delete cfg.on_reject;
-    g.nodes.push(withConfig(named({ id: s.code, type: s.kind }, s), cfg));
+    const [type, ncfg] = drawnAs(s.kind, cfg);
+    g.nodes.push(withConfig(named({ id: s.code, type }, s), ncfg));
     if (routed) {
       consumed.add(i + 1);
       const [cases, def0, m] = readBranch(object(top[i + 1].config) ?? {});
@@ -1586,9 +1613,10 @@ function decompileFork(g, s, cfg, arms, fresh) {
       const ccfg = object(child.config);
       if (ccfg === null) throw new NotDrawableError(`${child.code}'s settings are not an object`);
       if (carriesTaskType(child.kind)) delete ccfg.task_type;
-      const n = { id: child.code, type: child.kind };
+      const [ntype, ncfg] = drawnAs(child.kind, ccfg);
+      const n = { id: child.code, type: ntype };
       if (child.name !== child.code) n.name = child.name;
-      if (Object.keys(ccfg).length > 0) n.config = ccfg;
+      if (Object.keys(ncfg).length > 0) n.config = ncfg;
       g.nodes.push(n);
       g.edges.push(label ? { from: prev, to: child.code, label } : { from: prev, to: child.code });
       prev = child.code;
@@ -1616,9 +1644,10 @@ function decompileLoop(g, s, cfg, arms) {
     const ccfg = object(child.config);
     if (ccfg === null) throw new NotDrawableError(`${child.code}'s settings are not an object`);
     if (carriesTaskType(child.kind)) delete ccfg.task_type;
-    const c = { id: child.code, type: child.kind };
+    const [ctype, bcfg] = drawnAs(child.kind, ccfg);
+    const c = { id: child.code, type: ctype };
     if (child.name !== child.code) c.name = child.name;
-    if (Object.keys(ccfg).length > 0) c.config = ccfg;
+    if (Object.keys(bcfg).length > 0) c.config = bcfg;
     g.nodes.push(c);
     g.edges.push(label ? { from: prev, to: child.code, label } : { from: prev, to: child.code });
     prev = child.code;

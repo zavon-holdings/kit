@@ -154,6 +154,11 @@ export function summarize(node: GraphNode, graph?: Graph): string {
       const t = duration(c.timeout);
       return [ev.length ? (ev.length === 1 ? ev[0] : `${ev[0]} +${ev.length - 1}`) : "", t && `times out in ${t}`].filter(Boolean).join(" · ");
     }
+    case "decide": {
+      const qs = Array.isArray(c.questions) ? c.questions.length : 0;
+      const fs = Array.isArray(c.fields) ? c.fields.length : 0;
+      return qs ? [plural(qs, "question"), fs ? `reads ${plural(fs, "field")}` : ""].filter(Boolean).join(" · ") : "";
+    }
     case "call":
       return typeof c.action === "string" ? c.action : "";
     case "webhook": {

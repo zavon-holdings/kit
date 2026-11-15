@@ -1,0 +1,136 @@
+{
+  "name": "a-decide-call-with-a-capture-is-drawn-as-a-call",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "triage"
+      },
+      {
+        "from": "triage",
+        "to": "done"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "action": "core.ai.decide",
+          "capture": {
+            "panel": "output.panel.answer"
+          },
+          "input": {
+            "fields": [
+              {
+                "label": "Summary",
+                "path": "subject.vars.summary"
+              }
+            ],
+            "questions": [
+              {
+                "key": "panel",
+                "options": [
+                  {
+                    "key": "science",
+                    "label": "Science panel"
+                  },
+                  {
+                    "key": "arts",
+                    "label": "Arts panel"
+                  }
+                ],
+                "text": "Which panel should review this?",
+                "threshold": 0.7,
+                "type": "choice"
+              }
+            ],
+            "review": {
+              "assignees": [
+                {
+                  "people": [
+                    {
+                      "email": "office@example.test"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "id": "triage",
+        "type": "call"
+      },
+      {
+        "config": {
+          "outcome": "completed"
+        },
+        "id": "done",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "triage",
+      "name": "triage",
+      "kind": "call",
+      "config": {
+        "action": "core.ai.decide",
+        "capture": {
+          "panel": "output.panel.answer"
+        },
+        "input": {
+          "fields": [
+            {
+              "label": "Summary",
+              "path": "subject.vars.summary"
+            }
+          ],
+          "questions": [
+            {
+              "key": "panel",
+              "options": [
+                {
+                  "key": "science",
+                  "label": "Science panel"
+                },
+                {
+                  "key": "arts",
+                  "label": "Arts panel"
+                }
+              ],
+              "text": "Which panel should review this?",
+              "threshold": 0.7,
+              "type": "choice"
+            }
+          ],
+          "review": {
+            "assignees": [
+              {
+                "people": [
+                  {
+                    "email": "office@example.test"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "done",
+      "name": "done",
+      "kind": "end",
+      "config": {
+        "outcome": "completed"
+      }
+    }
+  ],
+  "normal": true
+}

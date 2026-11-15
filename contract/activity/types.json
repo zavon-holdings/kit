@@ -68,6 +68,7 @@
     }
   ],
   "codes": {
+    "ai_decision": "review",
     "assignee.changed": "assignment",
     "band.flagged": "warning",
     "deadline.checked": "schedule",

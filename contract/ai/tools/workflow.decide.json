@@ -1,0 +1,52 @@
+{
+  "tool_key": "workflow.decide",
+  "mode": "inline",
+  "_status": "Core's own tool (docs/roadmap/jev.md J2): a workflow's Decide step, core.ai.decide. Only core calls it, as the organisation's workflow (a service actor); no product does.",
+  "_core": "Asked of Jev (tier jev) as one System One request: state = the fields, one 'Label: value' line each; a choice's criteria are its options' keys -> 'label — description'; a score's are its levels in order; a noul's are {true, false} when the step says what yes and no mean. A score answers its level counted from 1 (round of TypeSafe's position, plus 1) and that position from 1 as score; a noul answers yes at p >= 0.5, its confidence the probability of the answer given, max(p, 1 - p), and p_yes. Confidences are kept to two decimals.",
+  "_jev": {
+    "panel": { "type": "choice", "choice": "science", "confidence": 0.81, "probabilities": { "science": 0.88, "arts": 0.07, "community": 0.05 } },
+    "urgency": { "type": "score", "score": 1.43, "confidence": 0.35, "probabilities": { "0": 0.0, "1": 0.57, "2": 0.43 } },
+    "needs_person": { "type": "noul", "noul": 0.26 }
+  },
+  "input": {
+    "fields": [
+      { "label": "Project title", "value": "Water quality sensors for the river school" },
+      { "label": "Summary", "value": "Learners build low-cost sensors and publish readings for the town." },
+      { "label": "Category chosen by the applicant", "value": "Science and technology" }
+    ],
+    "questions": [
+      {
+        "key": "panel",
+        "type": "choice",
+        "text": "Which panel should review this application?",
+        "options": [
+          { "key": "science", "label": "Science panel", "description": "Research, technology and engineering projects" },
+          { "key": "arts", "label": "Arts panel", "description": "Music, theatre, writing and visual arts" },
+          { "key": "community", "label": "Community panel", "description": "Projects for a neighbourhood or a group" }
+        ]
+      },
+      {
+        "key": "urgency",
+        "type": "score",
+        "text": "How urgent is this request?",
+        "levels": [
+          "It can wait for the next funding round",
+          "It should be decided this month",
+          "It must be decided this week or the project stops"
+        ]
+      },
+      {
+        "key": "needs_person",
+        "type": "noul",
+        "text": "Does this application need a person to look at it before it goes to a panel?",
+        "yes": "It mentions a risk, a complaint, or something the rules do not cover",
+        "no": "It is an ordinary application"
+      }
+    ]
+  },
+  "result": {
+    "panel": { "answer": "science", "confidence": 0.81 },
+    "urgency": { "answer": 2, "score": 2.43, "confidence": 0.35 },
+    "needs_person": { "answer": "no", "confidence": 0.74, "p_yes": 0.26 }
+  }
+}

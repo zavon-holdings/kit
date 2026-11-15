@@ -23,6 +23,18 @@ export {
   TodoInspector,
   BUILT_IN_INSPECTORS,
 } from "./components/inspectors.js";
+export {
+  DecideInspector,
+  decideProblems,
+  newQuestion,
+  DECIDE_LIMITS,
+  NEW_THRESHOLD,
+  type DecideConfig,
+  type DecideQuestion,
+  type DecideQuestionType,
+  type DecideField,
+  type DecideOption,
+} from "./components/DecideInspector.js";
 export { Heading } from "./components/Heading.js";
 export { EditorContext, useEditor, useReducedMotion, type Editor, type TriggerEditor, type ConfirmRequest } from "./components/context.js";
 export { TriggerPanel, InterruptsPanel, type TriggerPanelProps, type InterruptsPanelProps } from "./components/TriggerPanel.js";

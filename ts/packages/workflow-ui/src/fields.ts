@@ -14,6 +14,10 @@ export function fieldSuggestions(g: Graph, sample?: Sample): string[] {
   for (const n of g.nodes) {
     if (isTask(n.type)) out.add(`steps.${n.id}.output.outcome`);
     if (n.type === "wait_event") out.add(`steps.${n.id}.output.event`);
+    if (n.type === "decide") {
+      const qs = (n.config as { questions?: { key?: unknown }[] } | undefined)?.questions;
+      for (const q of Array.isArray(qs) ? qs : []) if (typeof q?.key === "string" && q.key) out.add(`steps.${n.id}.output.${q.key}.answer`);
+    }
   }
   out.add("event.type");
   for (const k of Object.keys(sample?.event?.vars ?? {})) out.add(`event.vars.${k}`);

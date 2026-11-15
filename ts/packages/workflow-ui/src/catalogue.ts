@@ -32,6 +32,17 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
     config: { over: { count: 3 }, max_iterations: 100 },
   },
   {
+    type: "decide",
+    label: "Decide With AI",
+    group: "Logic",
+    blurb: "Asks AI typed questions about the record; a person decides any answer it is not sure of.",
+    config: {
+      fields: [{ path: "subject.label", label: "Title" }],
+      questions: [{ key: "needs_person", type: "noul", text: "", threshold: 0.7 }],
+      review: { assignees: [] },
+    },
+  },
+  {
     type: "sub_workflow",
     label: "Sub-workflow",
     group: "Logic",

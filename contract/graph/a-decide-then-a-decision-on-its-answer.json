@@ -1,0 +1,183 @@
+{
+  "name": "a-decide-then-a-decision-on-its-answer",
+  "direction": "compile",
+  "graph": {
+    "edges": [
+      {
+        "from": "start",
+        "to": "triage"
+      },
+      {
+        "from": "triage",
+        "to": "route"
+      },
+      {
+        "from": "route",
+        "label": "yes",
+        "to": "science"
+      },
+      {
+        "default": true,
+        "from": "route",
+        "label": "no",
+        "to": "arts"
+      }
+    ],
+    "format": "workflow.graph/1",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "config": {
+          "fields": [
+            {
+              "label": "Summary",
+              "path": "subject.vars.summary"
+            }
+          ],
+          "questions": [
+            {
+              "key": "panel",
+              "options": [
+                {
+                  "key": "science",
+                  "label": "Science panel"
+                },
+                {
+                  "key": "arts",
+                  "label": "Arts panel"
+                }
+              ],
+              "text": "Which panel should review this?",
+              "threshold": 0.7,
+              "type": "choice"
+            }
+          ],
+          "review": {
+            "assignees": [
+              {
+                "people": [
+                  {
+                    "email": "office@example.test"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "id": "triage",
+        "name": "Triage",
+        "type": "decide"
+      },
+      {
+        "config": {
+          "when": {
+            "field": "steps.triage.output.panel.answer",
+            "op": "is",
+            "value": "science"
+          }
+        },
+        "id": "route",
+        "type": "condition"
+      },
+      {
+        "config": {
+          "outcome": "science"
+        },
+        "id": "science",
+        "type": "end"
+      },
+      {
+        "config": {
+          "outcome": "arts"
+        },
+        "id": "arts",
+        "type": "end"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "code": "triage",
+      "name": "Triage",
+      "kind": "call",
+      "config": {
+        "action": "core.ai.decide",
+        "input": {
+          "fields": [
+            {
+              "label": "Summary",
+              "path": "subject.vars.summary"
+            }
+          ],
+          "questions": [
+            {
+              "key": "panel",
+              "options": [
+                {
+                  "key": "science",
+                  "label": "Science panel"
+                },
+                {
+                  "key": "arts",
+                  "label": "Arts panel"
+                }
+              ],
+              "text": "Which panel should review this?",
+              "threshold": 0.7,
+              "type": "choice"
+            }
+          ],
+          "review": {
+            "assignees": [
+              {
+                "people": [
+                  {
+                    "email": "office@example.test"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "code": "route",
+      "name": "route",
+      "kind": "branch",
+      "config": {
+        "cases": [
+          {
+            "goto": "science",
+            "when": {
+              "field": "steps.triage.output.panel.answer",
+              "op": "is",
+              "value": "science"
+            }
+          }
+        ],
+        "default": "arts"
+      }
+    },
+    {
+      "code": "science",
+      "name": "science",
+      "kind": "end",
+      "config": {
+        "outcome": "science"
+      }
+    },
+    {
+      "code": "arts",
+      "name": "arts",
+      "kind": "end",
+      "config": {
+        "outcome": "arts"
+      }
+    }
+  ],
+  "normal": true
+}
