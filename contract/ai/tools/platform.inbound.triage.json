@@ -1,0 +1,16 @@
+{
+  "tool_key": "platform.inbound.triage",
+  "mode": "inline",
+  "_core": "Core runs this itself on mail its inbound router could not file by address (docs/roadmap/jev.md J4), as the service of the property whose runs are offered; no product calls it. Two choice questions over state = the message's subject and text (minimised): run (each of the sender's open runs, plus none) and needs_reply (yes, no; answered true or false). Every answer is {answer, confidence}. A person confirms the suggestion before the message is filed on the run.",
+  "input": {
+    "message": { "subject": "Re: your application", "text": "Thanks, I have attached the reference letter you asked for. When will I hear about the interview?" },
+    "runs": [
+      { "key": "wfr-2s", "name": "Volunteer intake", "description": "Alex Example, waiting at References" },
+      { "key": "wfr-9k", "name": "Event booking", "description": "Youth camp, waiting at Payment" }
+    ]
+  },
+  "result": {
+    "run": { "answer": "wfr-2s", "confidence": 0.91 },
+    "needs_reply": { "answer": true, "confidence": 0.77 }
+  }
+}

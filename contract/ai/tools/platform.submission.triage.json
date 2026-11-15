@@ -1,0 +1,23 @@
+{
+  "tool_key": "platform.submission.triage",
+  "mode": "inline",
+  "_core": "Answered by core's decision engine, not a writing model (docs/roadmap/jev.md J4). Three choice questions over state = the form's name and its answers: spam (spam, genuine), category (each category's key -> its name and description, plus none; not asked when no category is sent, and then answered none at confidence 1), urgency (low, normal, high, urgent). Every answer is {answer, confidence}, the Decide step's shape, so a product can put it in a run's variables. With no engine configured the tool is not configured (503); it never runs on another model.",
+  "input": {
+    "form": { "name": "Contact us", "purpose": "Questions and requests from the public" },
+    "answers": [
+      { "label": "Name", "value": "Alex Example" },
+      { "label": "Message", "value": "Is there still space at the youth camp on Saturday? We would like to bring four children." }
+    ],
+    "categories": [
+      { "key": "events", "name": "Events", "description": "Bookings and questions about events" },
+      { "key": "prayer", "name": "Prayer request" },
+      { "key": "giving", "name": "Giving", "description": "Donations and receipts" }
+    ],
+    "locale": "en-GB"
+  },
+  "result": {
+    "spam": { "answer": "genuine", "confidence": 0.97 },
+    "category": { "answer": "events", "confidence": 0.82 },
+    "urgency": { "answer": "high", "confidence": 0.64 }
+  }
+}

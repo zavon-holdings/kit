@@ -185,6 +185,9 @@ func TestToolVectorsAreComplete(t *testing.T) {
 		"reach.issue.translate",
 		"reach.issue.proofread",
 		"reach.request.classify",
+		// The Builder advisors and triage (admin docs/roadmap/jev.md J3, J4).
+		"workflow.form.suggest", "workflow.merge.suggest",
+		"platform.inbound.triage", "platform.submission.triage",
 	}
 	dir := filepath.Join("..", "..", "contract", "ai", "tools")
 	for _, key := range want {

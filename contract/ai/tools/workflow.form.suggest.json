@@ -1,0 +1,22 @@
+{
+  "tool_key": "workflow.form.suggest",
+  "mode": "inline",
+  "_core": "Draft chips for a form step, accepted one by one. Core decides which fields with its decision engine (one ask-or-skip choice per field the step does not ask yet) and has a writing model give the one-sentence reasons for the chips shown; without the decision engine the writing model does both. The answer has the same shape either way: at most 8 suggestions, best first, each a field key from `fields` not in `asked`.",
+  "input": {
+    "workflow": "Volunteer intake",
+    "step": { "code": "apply", "name": "Sign-up form", "purpose": "What we need to place a volunteer" },
+    "fields": [
+      { "key": "email", "label": "Email", "type": "email", "source": "Record" },
+      { "key": "phone", "label": "Phone", "type": "phone", "source": "Record" },
+      { "key": "availability", "label": "Availability", "type": "text", "source": "Kept on the item" },
+      { "key": "shoe_size", "label": "Shoe size", "type": "number", "source": "Record" }
+    ],
+    "asked": ["email"]
+  },
+  "result": {
+    "suggestions": [
+      { "field": "availability", "reason": "Placing a volunteer needs the days they can give." },
+      { "field": "phone", "reason": "Volunteers are called before a shift." }
+    ]
+  }
+}

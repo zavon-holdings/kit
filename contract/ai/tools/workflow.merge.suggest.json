@@ -1,0 +1,21 @@
+{
+  "tool_key": "workflow.merge.suggest",
+  "mode": "inline",
+  "_core": "Draft chips for a notification or email step's merge fields, accepted one by one. As workflow.form.suggest: the decision engine picks (one ask-or-skip choice per field whose tag the message does not hold yet), a writing model gives the reasons, the same shape without the engine. At most 6, best first, each a key from `fields` with that field's own `tag`.",
+  "input": {
+    "workflow": "Volunteer intake",
+    "step": { "code": "welcome", "name": "Welcome", "kind": "email", "subject": "Welcome to the team", "body": "Hello {{record.first_name}}, we are glad you are joining us." },
+    "fields": [
+      { "key": "first_name", "label": "First name", "type": "text", "tag": "{{record.first_name}}" },
+      { "key": "start_date", "label": "Start date", "type": "date", "tag": "{{record.start_date}}" },
+      { "key": "team", "label": "Team", "type": "text", "tag": "{{record.team}}" }
+    ],
+    "used": ["{{record.first_name}}"]
+  },
+  "result": {
+    "suggestions": [
+      { "field": "start_date", "tag": "{{record.start_date}}", "reason": "A welcome says when they start." },
+      { "field": "team", "tag": "{{record.team}}", "reason": "They will want to know who they work with." }
+    ]
+  }
+}
