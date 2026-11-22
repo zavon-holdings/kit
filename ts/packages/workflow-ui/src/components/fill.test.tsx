@@ -2,6 +2,7 @@
 // node said with the catalogue's labels, the host's toasts, Advanced, and a
 // handle to select a node. jsdom has no layout, so the fit itself is proved
 // in a browser by the host; these hold the structure and the behaviour.
+import { readFileSync } from "node:fs";
 import { createRef, useState } from "react";
 import { describe, expect, test, vi } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
@@ -142,12 +143,17 @@ describe("the start node, said with the catalogue's labels", () => {
 });
 
 describe("toasts", () => {
-  test("the editor's own Restore toast sits in the top-right corner class, not the host's", async () => {
+  test("the editor's own Restore toast is drawn, and its rule puts it top right, never at the bottom", async () => {
     const user = userEvent.setup();
     render(<Harness defaultView="list" />);
     await user.click(row("Mark high"));
     await user.click(within(inspector()).getByRole("button", { name: "Remove Mark high" }));
     expect(document.querySelector(".zwf-toast")).toHaveTextContent("Removed Mark high.");
+    const css = readFileSync("src/styles.css", "utf8");
+    const rule = /\.zwf-toast \{([^}]*)\}/.exec(css)![1];
+    expect(rule).toMatch(/top: 20px/);
+    expect(rule).toMatch(/right: 20px/);
+    expect(rule).not.toMatch(/bottom:/);
   });
 
   test("a host that shows toasts is handed one, and its Restore restores", async () => {

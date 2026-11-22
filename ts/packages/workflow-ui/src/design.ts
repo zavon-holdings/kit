@@ -21,7 +21,7 @@ export const CATEGORY_LABELS: Readonly<Record<NodeCategory, string>> = Object.fr
   money: "Money",
   timing: "Timing",
   apps: "Apps and Integrations",
-  structure: "Start and end",
+  structure: "Start and End",
 });
 
 export function categoryOf(type: string): NodeCategory {
