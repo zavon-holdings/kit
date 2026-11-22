@@ -146,8 +146,8 @@ The `api` is optional member by member (`validate`, `simulate`,
   still wins. `describeTrigger(t, labelOf)` and `eventLabelFrom(events)`.
 - **Toasts**: the Restore card sits top right; `onToast` hands it to the
   host's own stack instead (`BuilderToast`; return a dismiss function).
-- **Advanced** (the View menu; `defaultAdvanced`, `onAdvancedChange`): off,
-  the Steps tab, the sample's subject and JSON, a node's settings as JSON and
+- **Advanced** (the View menu; `defaultAdvanced`, on unless the host passes
+  `false`; `onAdvancedChange`): off, the Steps tab, the sample's subject and JSON, a node's settings as JSON and
   a condition rules cannot show are hidden, each JSON field leaving a line
   that says where it went, and Simulate offers a box per value the graph
   reads (`varsRead`, `typedValue`).
@@ -462,11 +462,12 @@ exactly what it said before without one.
 
 Changes every consumer sees, without passing anything:
 - The Restore card is top right (20 px in), not bottom centre.
-- **Advanced is off by default**: the Steps tab, the sample's Subject Type,
-  Subject Id, Vars (JSON) and the event, a node's Settings (JSON) and a
-  condition's JSON view are hidden until the View menu's Advanced is ticked
-  (or the host passes `defaultAdvanced`). Simulate offers a box per run value
-  instead, and each hidden JSON field leaves a line saying where it went.
+- An **Advanced** checkbox in the View menu. It starts on, so every field
+  shows as before; a host for operators passes `defaultAdvanced={false}` to
+  hide the Steps tab, the sample's Subject Type, Subject Id, Vars (JSON) and
+  the event, a node's Settings (JSON) and a condition's JSON view until it is
+  ticked. Simulate then offers a box per run value instead, and each hidden
+  JSON field leaves a line saying where it went.
 - The panels' tab bar sits in a `.zwf-panels-head` row, the panels in a
   `.zwf-dock` (open unless `fill`).
 - Title Case for controls, headings, field labels, menu items, the palette's

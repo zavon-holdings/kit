@@ -121,9 +121,10 @@ export type WorkflowBuilderProps = {
   handleRef?: Ref<WorkflowBuilderHandle>;
   /**
    * Whether the Advanced fields start shown: the Steps tab, the sample's
-   * subject and its values as JSON, a node's settings as JSON. Default off;
-   * the View menu turns them on. A node with no form keeps a line saying
-   * where its settings are.
+   * subject and its values as JSON, a node's settings as JSON. Default on
+   * (as before 1.18); a host for operators passes false, and the View menu
+   * turns them on. Off, a node with no form keeps a line saying where its
+   * settings are, and Simulate offers a box per value the graph reads.
    */
   defaultAdvanced?: boolean;
   /** Called when the person turns Advanced on or off (to remember it). */
@@ -196,7 +197,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
   const [panel, setPanel] = useState<Panel>("problems");
   const fill = !!props.fill;
   const [dockOpen, setDockOpen] = useState(!fill || !!props.defaultDockOpen);
-  const [advanced, setAdvancedState] = useState(!!props.defaultAdvanced);
+  const [advanced, setAdvancedState] = useState(props.defaultAdvanced ?? true);
   const onAdvancedChange = props.onAdvancedChange;
   const setAdvanced = useCallback(
     (on: boolean) => {

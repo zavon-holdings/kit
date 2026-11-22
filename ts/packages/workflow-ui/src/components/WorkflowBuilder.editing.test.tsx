@@ -351,7 +351,7 @@ describe("several samples, and scenarios", () => {
   test("two samples run side by side, each with its own result", async () => {
     const user = userEvent.setup();
     const simulate = vi.fn().mockResolvedValueOnce(endedAs("completed", ["large", "prepare"])).mockResolvedValueOnce(endedAs("declined", ["large", "approve"]));
-    render(<Harness defaultAdvanced api={{ simulate }} />);
+    render(<Harness api={{ simulate }} />);
     await user.click(screen.getByRole("tab", { name: "Simulate" }));
     await user.click(screen.getByRole("button", { name: "Add Another Sample" }));
     const second = screen.getByRole("region", { name: "Sample 2" });

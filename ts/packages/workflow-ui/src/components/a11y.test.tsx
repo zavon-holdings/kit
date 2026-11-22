@@ -43,7 +43,6 @@ function Harness({ readOnly = false, fill = false }: { readOnly?: boolean; fill?
     <WorkflowBuilder
       graph={graph}
       onChange={readOnly ? undefined : setGraph}
-      defaultAdvanced
       fill={fill}
       api={api}
       triggerValue={trigger}

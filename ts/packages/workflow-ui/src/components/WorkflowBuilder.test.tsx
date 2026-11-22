@@ -198,7 +198,7 @@ describe("read only", () => {
 describe("the Steps panel", () => {
   test("lists the compiled steps, generated ones marked and mapped to their node", async () => {
     const user = userEvent.setup();
-    render(<Harness defaultAdvanced savedSteps={analyse(sampleTree()).steps!} />);
+    render(<Harness savedSteps={analyse(sampleTree()).steps!} />);
     await user.click(screen.getByRole("tab", { name: "Steps" }));
     const table = screen.getByRole("table", { name: "Compiled Steps" });
     const route = within(table).getByText("approve--route").closest("tr")!;
@@ -211,7 +211,7 @@ describe("the Steps panel", () => {
   test("says the graph does not compile while it has problems", async () => {
     const user = userEvent.setup();
     const g = sampleTree();
-    render(<Harness defaultAdvanced initial={{ ...g, edges: g.edges.filter((e) => !(e.from === "tier" && e.default)) }} />);
+    render(<Harness initial={{ ...g, edges: g.edges.filter((e) => !(e.from === "tier" && e.default)) }} />);
     expect(screen.getByRole("tab", { name: /Problems \(\d+\)/ })).toBeInTheDocument();
     await user.click(screen.getByRole("tab", { name: "Steps" }));
     expect(screen.getByText(/does not compile yet/)).toBeInTheDocument();

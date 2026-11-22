@@ -186,10 +186,10 @@ describe("toasts", () => {
 });
 
 describe("Advanced", () => {
-  test("off by default: no Steps tab, no JSON in the sample; the values the graph reads are a form", async () => {
+  test("off: no Steps tab, no JSON in the sample; the values the graph reads are a form", async () => {
     const user = userEvent.setup();
     const simulate = vi.fn().mockResolvedValue(ended);
-    render(<Harness api={{ simulate }} />);
+    render(<Harness defaultAdvanced={false} api={{ simulate }} />);
     expect(screen.queryByRole("tab", { name: "Steps" })).toBeNull();
     await user.click(screen.getByRole("tab", { name: "Simulate" }));
     expect(screen.queryByRole("textbox", { name: "Vars (JSON)" })).toBeNull();
@@ -201,9 +201,9 @@ describe("Advanced", () => {
     expect(simulate.mock.calls[0][0].vars).toEqual({ amount: 5000, tier: "gold" });
   });
 
-  test("a node with no form says where its settings are instead of showing JSON", async () => {
+  test("off, a node with no form says where its settings are instead of showing JSON", async () => {
     const user = userEvent.setup();
-    render(<Harness defaultView="list" />);
+    render(<Harness defaultAdvanced={false} defaultView="list" />);
     await user.click(row("Mark high"));
     expect(within(inspector()).queryByRole("textbox", { name: "Settings (JSON)" })).toBeNull();
     expect(within(inspector()).getByText(/Turn on Advanced in the View menu/)).toBeInTheDocument();
@@ -212,7 +212,7 @@ describe("Advanced", () => {
   test("the View menu turns it on, and the host hears", async () => {
     const user = userEvent.setup();
     const onAdvancedChange = vi.fn();
-    render(<Harness defaultView="list" onAdvancedChange={onAdvancedChange} />);
+    render(<Harness defaultAdvanced={false} defaultView="list" onAdvancedChange={onAdvancedChange} />);
     await user.click(screen.getByText("View", { selector: "summary" }));
     await user.click(screen.getByRole("checkbox", { name: "Advanced" }));
     expect(onAdvancedChange).toHaveBeenCalledWith(true);
@@ -221,9 +221,14 @@ describe("Advanced", () => {
     expect(within(inspector()).getByRole("textbox", { name: "Settings (JSON)" })).toBeInTheDocument();
   });
 
-  test("defaultAdvanced starts with everything shown", () => {
-    render(<Harness defaultAdvanced />);
+  test("on by default, so a host that says nothing keeps every field as in 1.17", async () => {
+    const user = userEvent.setup();
+    render(<Harness defaultView="list" api={{ simulate: vi.fn() }} />);
     expect(screen.getByRole("tab", { name: "Steps" })).toBeInTheDocument();
+    await user.click(row("Mark high"));
+    expect(within(inspector()).getByRole("textbox", { name: "Settings (JSON)" })).toBeInTheDocument();
+    await user.click(screen.getByRole("tab", { name: "Simulate" }));
+    expect(screen.getByRole("textbox", { name: "Vars (JSON)" })).toBeInTheDocument();
   });
 });
 
