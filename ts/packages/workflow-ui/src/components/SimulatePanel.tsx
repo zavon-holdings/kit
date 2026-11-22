@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { expectFrom, scenarioNameProblem } from "../scenarios.js";
-import type { ApiError, Problem, Sample, SimulateResult, WorkflowApi } from "../types.js";
-import { nameOf, useEditor } from "./context.js";
+import type { ApiError, Graph, Problem, Sample, SimulateResult, WorkflowApi } from "../types.js";
+import { nameOf, useAdvanced, useEditor } from "./context.js";
 import { Heading } from "./Heading.js";
 
 function parseObject(text: string): Record<string, unknown> {
@@ -13,6 +13,39 @@ function parseObject(text: string): Record<string, unknown> {
   if (v === null || typeof v !== "object" || Array.isArray(v)) throw new Error("this is a JSON object: {\"name\": value}");
   return v as Record<string, unknown>;
 }
+
+/** The run values a graph reads (`vars.amount` in a condition), in the order first met. */
+export function varsRead(graph: Graph): string[] {
+  const out: string[] = [];
+  const walk = (v: unknown) => {
+    if (typeof v === "string") {
+      const m = /^vars\.([A-Za-z_][\w]*)/.exec(v);
+      if (m && !out.includes(m[1])) out.push(m[1]);
+    } else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === "object") Object.values(v).forEach(walk);
+  };
+  walk(graph.nodes.map((n) => n.config));
+  walk(graph.edges.map((e) => e.when));
+  return out;
+}
+
+/** What a person typed in a value's box, as the value: a number, true or false, a list or object written as JSON, or the words. */
+export function typedValue(text: string): unknown {
+  const t = text.trim();
+  if (t === "true") return true;
+  if (t === "false") return false;
+  if (/^-?\d+(\.\d+)?$/.test(t)) return Number(t);
+  if (/^[[{]/.test(t)) {
+    try {
+      return JSON.parse(t);
+    } catch {
+      return text;
+    }
+  }
+  return text;
+}
+
+const shownValue = (v: unknown) => (v === undefined || v === null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v));
 
 type Draft = {
   key: number;
@@ -115,7 +148,7 @@ export function SimulatePanel({ api }: { api?: WorkflowApi }) {
         <div className="zwf-row">
           {many && (
             <button type="button" className="zwf-button zwf-primary" disabled={blocked || drafts.some((d) => d.busy)} onClick={() => void runAll()}>
-              Simulate all {drafts.length} samples
+              Simulate All {drafts.length} Samples
             </button>
           )}
           <button
@@ -126,7 +159,7 @@ export function SimulatePanel({ api }: { api?: WorkflowApi }) {
               setNextKey((k) => k + 1);
             }}
           >
-            Add another sample
+            Add Another Sample
           </button>
           {blocked && <span className="zwf-muted">Fix the graph's problems first.</span>}
         </div>
@@ -186,6 +219,7 @@ function SampleColumn({
   onRemove?: () => void;
 }) {
   const ed = useEditor();
+  const advanced = useAdvanced();
   const result = d.result;
   const answer = (code: string, choice: string) => onRun({ ...d.decisions, [code]: choice });
   const title = `Sample ${index + 1}`;
@@ -205,13 +239,13 @@ function SampleColumn({
           ) : (
             result && (
               <button type="button" className="zwf-button zwf-quiet" onClick={onShow}>
-                Show its path
+                Show Its Path
               </button>
             )
           )}
           {onRemove && (
             <button type="button" className="zwf-button zwf-quiet" onClick={onRemove}>
-              Remove {title.toLowerCase()}
+              Remove {title}
             </button>
           )}
         </div>
@@ -223,15 +257,18 @@ function SampleColumn({
           onRun(d.decisions);
         }}
       >
+        {!advanced ? (
+          <ValuesForm draft={d} onPatch={onPatch} />
+        ) : (
         <fieldset className="zwf-group">
           <legend>Sample</legend>
           <div className="zwf-row">
             <label className="zwf-field">
-              <span>Subject type</span>
+              <span>Subject Type</span>
               <input value={d.subjectType} onChange={(e) => onPatch({ subjectType: e.target.value })} />
             </label>
             <label className="zwf-field">
-              <span>Subject id</span>
+              <span>Subject Id</span>
               <input value={d.subjectId} onChange={(e) => onPatch({ subjectId: e.target.value })} />
             </label>
           </div>
@@ -240,24 +277,25 @@ function SampleColumn({
             <textarea rows={4} spellCheck={false} value={d.varsText} onChange={(e) => onPatch({ varsText: e.target.value })} />
           </label>
           <details>
-            <summary>The event that started it (optional)</summary>
+            <summary>The Event That Started It (optional)</summary>
             <label className="zwf-field">
-              <span>Event type</span>
+              <span>Event Type</span>
               <input value={d.eventType} onChange={(e) => onPatch({ eventType: e.target.value })} />
             </label>
             <label className="zwf-field">
-              <span>Event vars (JSON)</span>
+              <span>Event Vars (JSON)</span>
               <textarea rows={3} spellCheck={false} value={d.eventVars} onChange={(e) => onPatch({ eventVars: e.target.value })} />
             </label>
           </details>
         </fieldset>
+        )}
         <div className="zwf-row">
-          <button type="submit" className="zwf-button zwf-primary" disabled={d.busy || blocked} aria-label={many ? `Simulate ${title.toLowerCase()}` : undefined}>
+          <button type="submit" className="zwf-button zwf-primary" disabled={d.busy || blocked} aria-label={many ? `Simulate ${title}` : undefined}>
             {d.busy ? "Simulating…" : "Simulate"}
           </button>
           {Object.keys(d.decisions).length > 0 && (
             <button type="button" className="zwf-button zwf-quiet" onClick={() => onRun({})}>
-              Clear the answers
+              Clear the Answers
             </button>
           )}
           {!many && blocked && <span className="zwf-muted">Fix the graph's problems first.</span>}
@@ -266,7 +304,7 @@ function SampleColumn({
 
       {Object.keys(d.decisions).length > 0 && (
         <fieldset className="zwf-group zwf-decisions">
-          <legend>Answers given</legend>
+          <legend>Answers Given</legend>
           {Object.entries(d.decisions).map(([code, choice]) => (
             <label key={code} className="zwf-field">
               <span>{nameOf(ed.graph, code)}</span>
@@ -349,6 +387,52 @@ function SampleColumn({
   );
 }
 
+/**
+ * The sample's run values as a form, one box per value the graph reads or
+ * the sample holds: what Advanced's JSON holds, without the JSON.
+ */
+function ValuesForm({ draft: d, onPatch }: { draft: Draft; onPatch: (p: Partial<Draft>) => void }) {
+  const ed = useEditor();
+  let vars: Record<string, unknown> | null = null;
+  try {
+    vars = parseObject(d.varsText);
+  } catch {
+    vars = null;
+  }
+  if (!vars)
+    return (
+      <p className="zwf-status zwf-status-danger" role="alert">
+        <span className="zwf-dot" aria-hidden="true" />
+        The sample's values are not JSON yet. Turn on Advanced in the View menu to correct them.
+      </p>
+    );
+  const held = vars;
+  const names = [...varsRead(ed.graph), ...Object.keys(held)].filter((n, i, all) => all.indexOf(n) === i);
+  const set = (name: string, text: string) => {
+    const next = { ...held };
+    if (text.trim() === "") delete next[name];
+    else next[name] = typedValue(text);
+    onPatch({ varsText: JSON.stringify(next, null, 2) });
+  };
+  return (
+    <fieldset className="zwf-group">
+      <legend>Values</legend>
+      {names.length === 0 ? (
+        <p className="zwf-muted">Nothing in this workflow reads a value, so there is nothing to set.</p>
+      ) : (
+        <div className="zwf-row">
+          {names.map((n) => (
+            <label key={n} className="zwf-field">
+              <span>{n}</span>
+              <input value={shownValue(held[n])} spellCheck={false} onChange={(e) => set(n, e.target.value)} />
+            </label>
+          ))}
+        </div>
+      )}
+    </fieldset>
+  );
+}
+
 /** Keeps a walk as a named scenario: the sample, the answers, and what it came to. */
 function SaveScenario({ draft, result }: { draft: Draft; result: SimulateResult }) {
   const ed = useEditor();
@@ -374,11 +458,11 @@ function SaveScenario({ draft, result }: { draft: Draft; result: SimulateResult 
   return (
     <div className="zwf-row zwf-save-scenario">
       <label className="zwf-field">
-        <span>Keep this walk as a scenario named</span>
+        <span>Scenario Name</span>
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Gold member, approved" />
       </label>
       <button type="button" className="zwf-button" disabled={busy} onClick={() => void save()}>
-        Save the scenario
+        Save the Scenario
       </button>
       {state && (
         <span className={`zwf-status zwf-status-${state.tone}`} role={state.tone === "danger" ? "alert" : "status"}>

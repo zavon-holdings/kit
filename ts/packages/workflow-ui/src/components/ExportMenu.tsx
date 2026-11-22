@@ -33,18 +33,18 @@ export function ExportMenu({ title, onImport }: { title: string; onImport?: (g: 
   return (
     <details className="zwf-menu" ref={menu}>
       <summary className="zwf-button">Export</summary>
-      <div className="zwf-menu-body" role="group" aria-label="Export and import">
+      <div className="zwf-menu-body" role="group" aria-label="Export and Import">
         <button type="button" className="zwf-button zwf-quiet" onClick={() => {
             download(`${name}.workflow.json`, graphToJson(ed.graph));
             done();
           }}>
-          Download the graph (JSON)
+          Download the Graph (JSON)
         </button>
         <button type="button" className="zwf-button zwf-quiet" onClick={() => {
             download(`${name}.svg`, picture(), "image/svg+xml");
             done();
           }}>
-          Download a picture (SVG)
+          Download a Picture (SVG)
         </button>
         <button
           type="button"
@@ -63,7 +63,7 @@ export function ExportMenu({ title, onImport }: { title: string; onImport?: (g: 
             }
           }}
         >
-          Download a picture (PNG)
+          Download a Picture (PNG)
         </button>
         <button type="button" className="zwf-button zwf-quiet" onClick={() => {
             printGraph(picture(), title, outline());
@@ -74,7 +74,7 @@ export function ExportMenu({ title, onImport }: { title: string; onImport?: (g: 
         {onImport && (
           <>
             <button type="button" className="zwf-button zwf-quiet" onClick={() => file.current?.click()}>
-              Import a graph (JSON)…
+              Import a Graph (JSON)…
             </button>
             <input
               ref={file}

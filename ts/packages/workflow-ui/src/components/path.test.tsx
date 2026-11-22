@@ -74,7 +74,7 @@ describe("the List tab as a numbered path", () => {
     render(<Harness initial={straightRun()} />);
     await user.click(screen.getByRole("tab", { name: "List" }));
     await user.click(within(list()).getByRole("button", { name: "Add a step between Welcome and Pause" }));
-    const menu = within(list()).getByRole("group", { name: "Add a step" });
+    const menu = within(list()).getByRole("group", { name: "Add a Step" });
     await user.click(within(menu).getByRole("button", { name: /^Webhook/ }));
     expect(shown()).toBe("start > welcome > webhook > pause > follow-up > done");
     expect(within(screen.getByRole("complementary", { name: "Inspector" })).getByRole("textbox", { name: "Name" })).toHaveAttribute("placeholder", "webhook");
@@ -84,8 +84,8 @@ describe("the List tab as a numbered path", () => {
     const user = userEvent.setup();
     render(<Harness initial={straightRun()} />);
     await user.click(screen.getByRole("tab", { name: "List" }));
-    await user.click(screen.getByRole("button", { name: "Add a step" }));
-    await user.click(within(screen.getByRole("group", { name: "Add a step" })).getByRole("button", { name: /^Delay/ }));
+    await user.click(screen.getByRole("button", { name: "Add a Step" }));
+    await user.click(within(screen.getByRole("group", { name: "Add a Step" })).getByRole("button", { name: /^Delay/ }));
     expect(shown()).toBe("start > welcome > pause > follow-up > delay > done");
   });
 
@@ -93,10 +93,10 @@ describe("the List tab as a numbered path", () => {
     const user = userEvent.setup();
     render(<Harness initial={straightRun()} />);
     await user.click(screen.getByRole("tab", { name: "List" }));
-    const add = screen.getByRole("button", { name: "Add a step" });
+    const add = screen.getByRole("button", { name: "Add a Step" });
     await user.click(add);
     await user.keyboard("{Escape}");
-    expect(screen.queryByRole("group", { name: "Add a step" })).toBeNull();
+    expect(screen.queryByRole("group", { name: "Add a Step" })).toBeNull();
     expect(add).toHaveFocus();
   });
 

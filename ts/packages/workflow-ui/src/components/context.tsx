@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { Analysis } from "../analysis.js";
 import type { Graph, Inspectors, Sample, Selection, WorkflowApi } from "../types.js";
-import type { CatalogueEvent, Interrupt, Trigger } from "../trigger.js";
+import type { CatalogueEvent, EventLabel, Interrupt, Trigger } from "../trigger.js";
 import type { ConfirmDialogProps } from "./ConfirmDialog.js";
 import type { RequirementField, RequirementSuggestInput, RequirementSuggestion } from "../requirements.js";
 
@@ -74,6 +74,14 @@ export type Editor = {
   requirementsDocsUrl?: string;
   /** "Suggest requirements" through the host's AI; absent hides the button. */
   suggestRequirements?: (input: RequirementSuggestInput) => Promise<RequirementSuggestion[]>;
+  /**
+   * Whether the Advanced fields show: the Steps tab, raw JSON (a sample's
+   * values, a node's settings, a condition rules cannot show). Absent is on,
+   * so a part used outside the editor keeps every field.
+   */
+  advanced?: boolean;
+  /** An event type's label from the host's catalogue. */
+  eventLabel?: EventLabel;
 };
 
 /** What a confirmation card asks: the dialog's words, and what happens on yes. */
@@ -89,6 +97,17 @@ export type TriggerEditor = {
 };
 
 export const EditorContext = createContext<Editor | null>(null);
+
+/**
+ * Whether Advanced fields show. Outside an editor (a part used on its own),
+ * always: the part has no View menu to turn them on from.
+ */
+export function useAdvanced(): boolean {
+  return useContext(EditorContext)?.advanced ?? true;
+}
+
+/** The line shown where a raw-JSON field is, while Advanced is off. */
+export const ADVANCED_HINT = "Turn on Advanced in the View menu to edit these as JSON.";
 
 export function useEditor(): Editor {
   const e = useContext(EditorContext);

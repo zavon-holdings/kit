@@ -1392,6 +1392,125 @@
   gap: 8px;
 }
 
+.zwf-panels-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.zwf-panels-head > .zwf-tabs {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.zwf-dock-toggle {
+  margin-left: auto;
+}
+
+.zwf-dock {
+  min-height: 0;
+}
+
+.zwf-dock[hidden] {
+  display: none;
+}
+
+/*
+ * Fill: the editor is the height of its container. The canvas or the List
+ * takes what the bar and the dock leave; everything that runs long scrolls
+ * inside itself, so the page never does.
+ */
+.zwf[data-fill="true"] {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  --zwf-dock-height: 38%;
+}
+
+.zwf[data-fill="true"] > .zwf-bar,
+.zwf[data-fill="true"] > .zwf-panels {
+  flex: none;
+}
+
+.zwf[data-fill="true"] > .zwf-body {
+  flex: 1 1 0;
+  min-height: 0;
+  align-items: stretch;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.zwf[data-fill="true"] > .zwf-body > .zwf-palette,
+.zwf[data-fill="true"] > .zwf-body > .zwf-inspector {
+  max-height: none;
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+}
+
+.zwf[data-fill="true"] > .zwf-body > .zwf-view {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.zwf[data-fill="true"] > .zwf-body > .zwf-view > .zwf-canvas {
+  flex: 1 1 0;
+  min-height: 0;
+  height: auto;
+}
+
+.zwf[data-fill="true"][data-view="list"] > .zwf-body > .zwf-view {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.zwf[data-fill="true"] > .zwf-panels {
+  max-height: var(--zwf-dock-height);
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.zwf[data-fill="true"] > .zwf-panels > .zwf-dock {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Between the inspector's own row and one column: three narrower columns, still fitted. */
+@media (max-width: 1100px) and (min-width: 761px) {
+  .zwf[data-fill="true"] > .zwf-body {
+    grid-template-columns: minmax(160px, 190px) minmax(0, 1fr) minmax(220px, 280px);
+  }
+  .zwf[data-fill="true"][data-readonly="true"] > .zwf-body {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  }
+  .zwf[data-fill="true"] > .zwf-body > .zwf-inspector {
+    grid-column: auto;
+  }
+}
+
+/* A phone: one column in the page's flow, which may scroll there. */
+@media (max-width: 760px) {
+  .zwf[data-fill="true"] {
+    display: grid;
+    height: auto;
+  }
+  .zwf[data-fill="true"] > .zwf-body > .zwf-view > .zwf-canvas {
+    height: var(--zwf-canvas-height);
+  }
+  .zwf[data-fill="true"] > .zwf-panels {
+    max-height: none;
+  }
+  .zwf[data-fill="true"] > .zwf-body > .zwf-palette {
+    height: auto;
+    max-height: 300px;
+  }
+  .zwf[data-fill="true"] > .zwf-body > .zwf-inspector {
+    height: auto;
+  }
+}
+
 .zwf-panel {
   border: 1px solid var(--zwf-line);
   border-radius: var(--_radius-lg);
@@ -1837,13 +1956,12 @@
   }
 }
 
-/* A removal's Restore card. */
+/* A removal's Restore card: top right, where the family's toasts are. */
 .zwf-toast {
   position: fixed;
-  left: 50%;
-  bottom: 24px;
+  top: 20px;
+  right: 20px;
   z-index: 45;
-  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 10px;

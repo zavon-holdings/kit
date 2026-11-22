@@ -241,7 +241,7 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
             </div>
             {node.type !== "end" && (
               <label className="zwf-field">
-                <span>Times a loop may come back here (1–100; empty is 25)</span>
+                <span>Times a Loop May Come Back Here (1–100; empty is 25)</span>
                 <input
                   type="number"
                   min={1}
@@ -254,7 +254,7 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
                 {node.max_passes !== undefined && (node.max_passes < 1 || node.max_passes > 100) && <span className="zwf-field-error">Use a number from 1 to 100.</span>}
               </label>
             )}
-            {HostInspector && !structural && (
+            {HostInspector && !structural && ed.advanced !== false && (
               <div className="zwf-field">
                 <span className="zwf-help">The settings as JSON</span>
                 <JsonInspector node={node} readOnly={ro} onChange={(config) => ed.update((g) => setNodeConfig(g, node.id, config), { coalesce: `config:${node.id}` })} />
@@ -272,7 +272,7 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
           </button>
           {node.type !== "end" && (
             <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.copy(subtree(ed.graph, node.id))}>
-              Copy it and everything after it
+              Copy It and Everything After It
             </button>
           )}
           {!ro && ed.canPaste && (
@@ -291,7 +291,7 @@ function NodeSettings({ node, headingRef, focusEdge }: { node: GraphNode; headin
           </button>
           {branch.length > 1 && (
             <button type="button" className="zwf-button zwf-danger zwf-quiet-danger" onClick={() => remove(branch, "branch")}>
-              Remove it and everything after it ({branch.length} steps)
+              Remove It and Everything After It ({branch.length} steps)
             </button>
           )}
         </div>
@@ -339,9 +339,9 @@ function WaysOut({ node, focusEdge }: { node: GraphNode; focusEdge?: number }) {
       {!ro && (
         <div className="zwf-connect">
           <label className="zwf-field">
-            <span>Connect to…</span>
+            <span>Connect To…</span>
             <select value={target} onChange={(e) => setTarget(e.target.value)}>
-              <option value="">Choose a node</option>
+              <option value="">Choose a Node</option>
               {candidates.map((n) => (
                 <option key={n.id} value={n.id}>
                   {nameOf(ed.graph, n.id)} ({typeLabel(n.type)})
@@ -413,7 +413,7 @@ function WayOut({
         {labelled && !isTimeout && (
           <label className="zwf-field">
             <span>
-              {role === "fork" ? "Arm name (optional; a step-code word)" : role === "routes" ? "Outcome" : role === "loop" ? "Way (body or next)" : "Branch name"}
+              {role === "fork" ? "Arm Name (optional; a step-code word)" : role === "routes" ? "Outcome" : role === "loop" ? "Way (body or next)" : "Branch Name"}
             </span>
             <input
               value={edge.label ?? ""}
@@ -430,7 +430,7 @@ function WayOut({
           </label>
         )}
         <label className="zwf-field">
-          <span>Goes to</span>
+          <span>Goes To</span>
           <select value={edge.to} onChange={(e) => ed.update((g) => setEdge(g, index, { to: e.target.value }))}>
             {ed.graph.nodes
               .filter((n) => n.type !== "start" && n.id !== node.id)
@@ -459,7 +459,7 @@ function WayOut({
         )}
         {role === "routes" && !edge.default && (
           <details className="zwf-advanced" open={edge.when !== undefined}>
-            <summary>Only when (optional)</summary>
+            <summary>Only When (optional)</summary>
             <ConditionBuilder
               legend={`Take "${edge.label ?? ""}" only when`}
               value={edge.when}
@@ -486,7 +486,7 @@ function WayOut({
               <span className="zwf-muted">A default connection is required. Make another the default to change it.</span>
             ) : (
               <button type="button" className="zwf-button zwf-quiet" onClick={() => ed.update((g) => disconnect(g, index))}>
-                Remove connection
+                Remove Connection
               </button>
             )}
           </div>
@@ -498,12 +498,12 @@ function WayOut({
 
 
 const ALIGNMENTS: { how: Alignment; label: string }[] = [
-  { how: "left", label: "Align left" },
-  { how: "center", label: "Align centres" },
-  { how: "right", label: "Align right" },
-  { how: "top", label: "Align tops" },
-  { how: "middle", label: "Align middles" },
-  { how: "bottom", label: "Align bottoms" },
+  { how: "left", label: "Align Left" },
+  { how: "center", label: "Align Centres" },
+  { how: "right", label: "Align Right" },
+  { how: "top", label: "Align Tops" },
+  { how: "middle", label: "Align Middles" },
+  { how: "bottom", label: "Align Bottoms" },
 ];
 
 /** Several nodes selected: arrange them, copy them, or remove them together. */
@@ -536,10 +536,10 @@ function SeveralNodes({ ids }: { ids: string[] }) {
               </button>
             ))}
             <button type="button" className="zwf-button zwf-quiet" disabled={ids.length < 3} onClick={() => ed.update((g) => distributeNodes(g, ids, "horizontal"))}>
-              Space evenly across
+              Space Evenly Across
             </button>
             <button type="button" className="zwf-button zwf-quiet" disabled={ids.length < 3} onClick={() => ed.update((g) => distributeNodes(g, ids, "vertical"))}>
-              Space evenly down
+              Space Evenly Down
             </button>
           </div>
         </fieldset>

@@ -36,13 +36,15 @@ const api: WorkflowApi = {
   deleteScenario: vi.fn(async () => {}),
 };
 
-function Harness({ readOnly = false }: { readOnly?: boolean }) {
+function Harness({ readOnly = false, fill = false }: { readOnly?: boolean; fill?: boolean }) {
   const [graph, setGraph] = useState<Graph>(sampleTree());
   const [trigger, setTrigger] = useState<Trigger>({ kind: "event", event_type: "orders.order.placed" });
   return (
     <WorkflowBuilder
       graph={graph}
       onChange={readOnly ? undefined : setGraph}
+      defaultAdvanced
+      fill={fill}
       api={api}
       triggerValue={trigger}
       onTriggerChange={setTrigger}
@@ -87,20 +89,28 @@ describe("axe finds nothing", () => {
     expect(await violations()).toEqual([]);
   });
 
+  test("in fill mode, with the dock closed and open", async () => {
+    const user = userEvent.setup();
+    render(<Harness fill />);
+    expect(await violations()).toEqual([]);
+    await user.click(screen.getByRole("tab", { name: "Simulate" }));
+    expect(await violations()).toEqual([]);
+  });
+
   test("in each panel, and the shortcuts sheet", async () => {
     const user = userEvent.setup();
     render(<Harness />);
     await user.click(screen.getByRole("tab", { name: "Steps" }));
     expect(await violations()).toEqual([]);
     await user.click(screen.getByRole("tab", { name: "Simulate" }));
-    await user.click(screen.getByRole("button", { name: "Add another sample" }));
-    await user.click(screen.getByRole("button", { name: "Simulate all 2 samples" }));
+    await user.click(screen.getByRole("button", { name: "Add Another Sample" }));
+    await user.click(screen.getByRole("button", { name: "Simulate All 2 Samples" }));
     await screen.findAllByText("Ended: completed");
     expect(await violations()).toEqual([]);
     await user.click(screen.getByRole("tab", { name: "Scenarios" }));
     await screen.findByText("Gold");
     expect(await violations()).toEqual([]);
-    await user.click(screen.getByRole("button", { name: "Keyboard shortcuts" }));
+    await user.click(screen.getByRole("button", { name: "Keyboard Shortcuts" }));
     expect(await violations()).toEqual([]);
   });
 

@@ -52,16 +52,16 @@ export function Palette() {
   const shown = PALETTE_GROUPS.map((group) => ({ group, kinds: NODE_KINDS.filter((k) => k.group === group && matches(k)) })).filter((g) => g.kinds.length > 0);
 
   return (
-    <nav className="zwf-palette" aria-label="Add a node">
+    <nav className="zwf-palette" aria-label="Add a Node">
       <div className="zwf-palette-head">
         <p className="zwf-palette-title">Steps</p>
         <p className="zwf-muted zwf-palette-hint">Click to add below the selected step, or drag onto the canvas.</p>
         <div className="zwf-palette-search">
           <Icon name="search" size={14} />
           <label className="zwf-visually-hidden" htmlFor={`${id}-q`}>
-            Search steps
+            Search Steps
           </label>
-          <input id={`${id}-q`} type="search" placeholder="Search steps" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQ("")} />
+          <input id={`${id}-q`} type="search" placeholder="Search Steps" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Escape" && setQ("")} />
         </div>
       </div>
       {shown.length === 0 && (

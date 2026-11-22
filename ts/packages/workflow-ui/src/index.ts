@@ -3,13 +3,13 @@
 // The editor is controlled: the host holds the graph, saves it, and passes
 // an `api` for the server's check and simulation. The package holds no fetch
 // code and names no service.
-export { WorkflowBuilder, selectedIds, type WorkflowBuilderProps } from "./components/WorkflowBuilder.js";
+export { WorkflowBuilder, selectedIds, type WorkflowBuilderProps, type WorkflowBuilderHandle, type BuilderToast, type ExtraPanel } from "./components/WorkflowBuilder.js";
 export { WorkflowCanvas, layoutAll } from "./components/WorkflowCanvas.js";
 export { ListView } from "./components/ListView.js";
 export { Inspector } from "./components/Inspector.js";
 export { Palette } from "./components/Palette.js";
 export { StepsPanel } from "./components/StepsPanel.js";
-export { SimulatePanel } from "./components/SimulatePanel.js";
+export { SimulatePanel, varsRead, typedValue } from "./components/SimulatePanel.js";
 export { ProblemsPanel } from "./components/ProblemsPanel.js";
 export { ConditionBuilder, readCondition, type ConditionBuilderProps } from "./components/ConditionBuilder.js";
 export {
@@ -41,7 +41,7 @@ export {
 } from "./components/DecideInspector.js";
 export { WhatsAppInspector, SmsInspector, Recipients, whatsAppProblems, smsProblems, smsParts, SMS_MAX_CHARS, SHARED_WHATSAPP_TEMPLATES } from "./components/MessageInspectors.js";
 export { Heading } from "./components/Heading.js";
-export { EditorContext, useEditor, useReducedMotion, type Editor, type TriggerEditor, type ConfirmRequest } from "./components/context.js";
+export { EditorContext, useEditor, useAdvanced, ADVANCED_HINT, useReducedMotion, type Editor, type TriggerEditor, type ConfirmRequest } from "./components/context.js";
 export { TriggerPanel, InterruptsPanel, type TriggerPanelProps, type InterruptsPanelProps } from "./components/TriggerPanel.js";
 export { AssigneePreview, ASKS_PEOPLE } from "./components/AssigneePreview.js";
 export { VersionDiff, GraphView, type GraphViewProps, type VersionSide } from "./components/VersionDiff.js";

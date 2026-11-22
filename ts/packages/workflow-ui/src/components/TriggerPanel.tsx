@@ -5,6 +5,7 @@ import {
   CRON_PRESETS,
   describeCron,
   describeTrigger,
+  eventLabelFrom,
   interruptProblems,
   TRIGGER_KINDS,
   triggerProblems,
@@ -42,7 +43,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
   return (
     <fieldset className="zwf-group zwf-trigger" disabled={ro}>
       <legend>Trigger</legend>
-      <p className="zwf-muted">{describeTrigger(value)}</p>
+      <p className="zwf-muted">{describeTrigger(value, eventLabelFrom(events))}</p>
       <div role="radiogroup" aria-label="Starts" className="zwf-choices-col">
         {TRIGGER_KINDS.map((k) => (
           <label key={k.kind} className="zwf-check">
@@ -62,7 +63,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
       {value.kind === "event" && (
         <>
           <label className="zwf-field">
-            <span>The event</span>
+            <span>The Event</span>
             <input list={`${id}-events`} value={value.event_type ?? ""} spellCheck={false} placeholder="app.thing.happened" onChange={(e) => set({ event_type: e.target.value })} />
             <datalist id={`${id}-events`}>
               {events.map((e) => (
@@ -83,7 +84,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
           />
           <label className="zwf-check">
             <input type="checkbox" checked={!!value.once_per_subject} onChange={(e) => set({ once_per_subject: e.target.checked || undefined })} />
-            <span>One run per subject</span>
+            <span>One Run per Subject</span>
           </label>
         </>
       )}
@@ -91,7 +92,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
       {value.kind === "schedule" && (
         <>
           <label className="zwf-field">
-            <span>A usual time</span>
+            <span>A Usual Time</span>
             <select
               value={CRON_PRESETS.some((p) => p.cron === value.cron_expression) ? value.cron_expression : ""}
               onChange={(e) => e.target.value && set({ cron_expression: e.target.value })}
@@ -115,11 +116,11 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
       {value.kind === "date" && (
         <>
           <label className="zwf-field">
-            <span>Date field (a value on each subject)</span>
+            <span>Date Field (a value on each subject)</span>
             <input value={value.date_var ?? ""} spellCheck={false} placeholder="renewal_date" onChange={(e) => set({ date_var: e.target.value })} />
           </label>
           <label className="zwf-field">
-            <span>Days before (negative) or after (positive); 0 is on the day</span>
+            <span>Days Before (negative) or After (positive); 0 is on the day</span>
             <input
               type="number"
               min={-366}
@@ -130,7 +131,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
           </label>
           <label className="zwf-check">
             <input type="checkbox" checked={!!value.date_recurs} onChange={(e) => set({ date_recurs: e.target.checked || undefined })} />
-            <span>Every year, on the anniversary</span>
+            <span>Every Year, on the Anniversary</span>
           </label>
         </>
       )}
@@ -149,7 +150,7 @@ export function TriggerPanel({ value, onChange, events = [] }: TriggerPanelProps
           </label>
           {value.subject_kind === "external" && (
             <label className="zwf-field">
-              <span>Subject type (app:type)</span>
+              <span>Subject Type (app:type)</span>
               <input value={value.subject_type ?? ""} spellCheck={false} placeholder="orders:order" onChange={(e) => set({ subject_type: e.target.value })} />
             </label>
           )}
@@ -206,7 +207,7 @@ export function InterruptsPanel({ value, onChange, targets, events = [] }: Inter
             <label className="zwf-field">
               <span>Interrupt {i + 1}: go to</span>
               <select value={it.goto} onChange={(e) => set(i, { goto: e.target.value })}>
-                <option value="">Choose a step</option>
+                <option value="">Choose a Step</option>
                 {targets.map((t) => (
                   <option key={t.code} value={t.code}>
                     {t.name}
@@ -215,7 +216,7 @@ export function InterruptsPanel({ value, onChange, targets, events = [] }: Inter
               </select>
             </label>
             <details className="zwf-advanced" open={it.when !== undefined}>
-              <summary>Only when (optional)</summary>
+              <summary>Only When (optional)</summary>
               <ConditionBuilder
                 legend={`Interrupt ${i + 1} only when`}
                 value={it.when ?? {}}
@@ -240,7 +241,7 @@ export function InterruptsPanel({ value, onChange, targets, events = [] }: Inter
       </datalist>
       {!ro && (
         <button type="button" className="zwf-button" onClick={() => onChange?.([...value, { event: "", goto: "" }])}>
-          Add an interrupt
+          Add an Interrupt
         </button>
       )}
       {problems.length > 0 && (

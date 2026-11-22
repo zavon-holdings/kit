@@ -35,7 +35,7 @@ are passed as strings.
 | `@zavon/webhooksig`      | The signature, for Node and the browser. Twin of `go/webhooksig`. |
 | `@zavon/conditions`      | The workflow condition language: parse, evaluate, describe, fields. |
 | `@zavon/workflow-graph`  | A decision-tree compiler: validate a graph, compile it to steps, decompile steps to a graph. Draws decisions, forks, loops, approvals, sub-workflows, payment requests and invoices (each one node, compiled to a sequence), and carries canvas notes that never compile. |
-| `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels. |
+| `@zavon/workflow-ui`     | A React editor for those graphs: canvas, an accessible List twin, palette, inspector, Problems, Steps and Simulate panels; a fill mode for a fitted screen. |
 | `@zavon/bands`           | Which band of a scale a score is in. Twin of `go/bands`. |
 | `@zavon/emailcta`        | One button per email. Twin of `go/emailcta`. |
 | `@zavon/merge3`          | The three-way tree merge, for Node and the browser. Twin of `go/merge3`. |
@@ -131,6 +131,32 @@ The `api` is optional member by member (`validate`, `simulate`,
   Axe runs over every editor state in the package's tests.
 - Built with `tsc` into `dist/` when packed; `npm test` typechecks and runs
   vitest with testing-library.
+- **A fitted screen** (1.18): `fill` makes the editor the height of its
+  container (give it one: a flex child with `min-height: 0`). The canvas or
+  the List takes what the top bar and the dock leave and scrolls inside
+  itself, the zoom controls stay on the canvas, the palette and the inspector
+  scroll inside the same height, and Problems, Steps, Simulate and Scenarios
+  are a dock at the foot (`defaultDockOpen`, closed unless said) with its own
+  scroll; `extraPanels` puts the host's own (Versions) beside them. Between
+  761 and 1100 px the three columns narrow; on a phone it falls back to the
+  page's flow. Without `fill` nothing moves.
+- **The start node in words**: with `triggerValue`, the start node says the
+  trigger with the catalogue's labels (`events[].label`, or `eventLabel`):
+  "Starts when: Event registration paid." `triggerSummary`, when passed,
+  still wins. `describeTrigger(t, labelOf)` and `eventLabelFrom(events)`.
+- **Toasts**: the Restore card sits top right; `onToast` hands it to the
+  host's own stack instead (`BuilderToast`; return a dismiss function).
+- **Advanced** (the View menu; `defaultAdvanced`, `onAdvancedChange`): off,
+  the Steps tab, the sample's subject and JSON, a node's settings as JSON and
+  a condition rules cannot show are hidden, each JSON field leaving a line
+  that says where it went, and Simulate offers a box per value the graph
+  reads (`varsRead`, `typedValue`).
+- **A handle** (`handleRef`: `WorkflowBuilderHandle`): `select(id)` selects a
+  node, brings it into view and focuses it (false for an unknown id);
+  `clearSelection()`.
+- **The canvas attribution stays.** React Flow's guide says "Only remove
+  this attribution, if you are subscribed to React Flow Pro"; there is no
+  subscription, so kit does not set `proOptions.hideAttribution`.
 
 ### `@zavon/console-ui`
 
@@ -420,6 +446,169 @@ checks the two agree; a screen draws its labels and icons from it.
 A tag `vX.Y.Z` runs the tests and attaches the TypeScript packs to a GitHub
 release. The Go module is versioned by the matching `go/vX.Y.Z` tag. Minor
 versions are additive.
+
+**1.25.0** (TypeScript: `@zavon/workflow-ui` 1.18.0; no contract change;
+Go code unchanged, tag `go/v1.25.0`): the editor for a fitted screen (rule
+14a). New props, all optional: `fill` and `defaultDockOpen` (the editor the
+height of its container, the panels a dock that scrolls inside itself),
+`extraPanels` (`ExtraPanel`: host tabs in the dock), `eventLabel` (the start
+node said with the catalogue's labels; `triggerValue` plus `events` does it
+alone), `onToast` (`BuilderToast`: the Restore card in the host's toast
+stack), `handleRef` (`WorkflowBuilderHandle`: `select(id)`,
+`clearSelection()`), `defaultAdvanced` and `onAdvancedChange`. New exports:
+`eventLabelFrom`, `EventLabel`, `varsRead`, `typedValue`, `useAdvanced`,
+`ADVANCED_HINT`; `describeTrigger` takes an optional label lookup and says
+exactly what it said before without one.
+
+Changes every consumer sees, without passing anything:
+- The Restore card is top right (20 px in), not bottom centre.
+- **Advanced is off by default**: the Steps tab, the sample's Subject Type,
+  Subject Id, Vars (JSON) and the event, a node's Settings (JSON) and a
+  condition's JSON view are hidden until the View menu's Advanced is ticked
+  (or the host passes `defaultAdvanced`). Simulate offers a box per run value
+  instead, and each hidden JSON field leaves a line saying where it went.
+- The panels' tab bar sits in a `.zwf-panels-head` row, the panels in a
+  `.zwf-dock` (open unless `fill`).
+- Title Case for controls, headings, field labels, menu items, the palette's
+  names and the starters' names (codes unchanged; "Somebody decides" is "One
+  Person Decides"). Tests and e2e selectors naming the old words need the new
+  ones:
+
+| Was | Now |
+| --- | --- |
+| Check with the server | Check With the Server |
+| Tidy the layout | Tidy the Layout |
+| Add a note | Add a Note |
+| Keyboard shortcuts | Keyboard Shortcuts |
+| Snap to the grid | Snap to the Grid |
+| Read only | Read Only |
+| Workflow editor | Workflow Editor |
+| Remove step | Remove Step |
+| Find a node… | Find a Node… |
+| Find a node | Find a Node |
+| Search steps | Search Steps |
+| Add a node | Add a Node |
+| Add a step | Add a Step |
+| Connect to… | Connect To… |
+| Remove connection | Remove Connection |
+| Copy it and everything after it | Copy It and Everything After It |
+| Space evenly across | Space Evenly Across |
+| Space evenly down | Space Evenly Down |
+| Align left | Align Left |
+| Align right | Align Right |
+| Align centres | Align Centres |
+| Align tops | Align Tops |
+| Align middles | Align Middles |
+| Align bottoms | Align Bottoms |
+| Branch name | Branch Name |
+| Goes to | Goes To |
+| Only when (optional) | Only When (optional) |
+| Choose a node | Choose a Node |
+| Times a loop may come back here (1–100; empty is 25) | Times a Loop May Come Back Here (1–100; empty is 25) |
+| Zoom in | Zoom In |
+| Zoom out | Zoom Out |
+| Fit to view | Fit to View |
+| Show the overview map | Show the Overview Map |
+| Hide the overview map | Hide the Overview Map |
+| Add your first step | Add Your First Step |
+| Start with a condition | Start With a Condition |
+| Start with an approval | Start With an Approval |
+| Start with an email | Start With an Email |
+| Add another sample | Add Another Sample |
+| Show its path | Show Its Path |
+| Subject type | Subject Type |
+| Subject id | Subject Id |
+| The event that started it (optional) | The Event That Started It (optional) |
+| Event type | Event Type |
+| Event vars (JSON) | Event Vars (JSON) |
+| Clear the answers | Clear the Answers |
+| Answers given | Answers Given |
+| Keep this walk as a scenario named | Scenario Name |
+| Save the scenario | Save the Scenario |
+| Saved scenarios | Saved Scenarios |
+| Compiled steps | Compiled Steps |
+| From node | From Node |
+| Against saved | Against Saved |
+| Download the graph (JSON) | Download the Graph (JSON) |
+| Download a picture (SVG) | Download a Picture (SVG) |
+| Download a picture (PNG) | Download a Picture (PNG) |
+| Import a graph (JSON)… | Import a Graph (JSON)… |
+| Export and import | Export and Import |
+| Add a rule | Add a Rule |
+| Take this way when | Take This Way When |
+| The event | The Event |
+| One run per subject | One Run per Subject |
+| A usual time | A Usual Time |
+| Date field (a value on each subject) | Date Field (a value on each subject) |
+| Days before (negative) or after (positive); 0 is on the day | Days Before (negative) or After (positive); 0 is on the day |
+| Every year, on the anniversary | Every Year, on the Anniversary |
+| Subject type (app:type) | Subject Type (app:type) |
+| Add an interrupt | Add an Interrupt |
+| Choose a step | Choose a Step |
+| By hand | By Hand |
+| When something happens | When Something Happens |
+| On a schedule | On a Schedule |
+| On a date | On a Date |
+| When an app asks | When an App Asks |
+| Required to move on | Required to Move On |
+| Add all | Add All |
+| Add field | Add Field |
+| Add a required field | Add a Required Field |
+| Field name | Field Name |
+| Choices, separated by commas | Choices (separated by commas) |
+| Choose a field… | Choose a Field… |
+| New field… | New Field… |
+| Add a reminder | Add a Reminder |
+| The arms meet when | The Arms Meet When |
+| Wait for | Wait For |
+| How many arms | How Many Arms |
+| The list (a run value) | The List (a run value) |
+| Each item is called | Each Item Is Called |
+| At most this many times (a while loop must say) | At Most This Many Times (a while loop must say) |
+| On reaching it | On Reaching It |
+| Run another workflow | Run Another Workflow |
+| Wait for it to finish, and route on its outcome | Wait for It to Finish, and Route on Its Outcome |
+| App action | App Action |
+| Amount, in cents (or a run value, vars.…) | Amount, in Cents (or a run value, vars.…) |
+| Due in | Due In |
+| Expires after | Expires After |
+| Keep going while | Keep Going While |
+| Lapses after | Lapses After |
+| Remind Signers on the platform's schedule | Remind Signers on the Platform's Schedule |
+| Waits for a reply for | Waits for a Reply For |
+| The to-do | The To-Do |
+| Reminders while it is not done | Reminders While It Is Not Done |
+| Reminders while it is unpaid | Reminders While It Is Unpaid |
+| The invoice | The Invoice |
+| The payment | The Payment |
+| Score bands | Score Bands |
+| Add a band | Add a Band |
+| Try a score | Try a Score |
+| Bands, highest first | Bands, Highest First |
+| Show as lists | Show as Lists |
+| Only the steps that differ | Only the Steps That Differ |
+| Discard changes | Discard Changes |
+| Payment request | Payment Request |
+| Wait for event | Wait for Event |
+| Call an app | Call an App |
+| Set a value | Set a Value |
+| People and approvals | People and Approvals |
+| Apps and integrations | Apps and Integrations |
+| Somebody decides | One Person Decides |
+| Route by a value | Route by a Value |
+| Wait, then chase | Wait, Then Chase |
+| Two things at once | Two Things at Once |
+| Run all N against this drawing | Run All N Against This Drawing |
+| Simulate all N samples | Simulate All N Samples |
+| Remove sample N | Remove Sample N |
+| Remove it and everything after it (N steps) | Remove It and Everything After It (N steps) |
+| Remove N steps | Remove N Steps |
+| Arm name (optional; a step-code word) | Arm Name (optional; a step-code word) |
+| Add a step (the List's last button) | Add a Step |
+| Overview map | Overview Map |
+
+The React Flow attribution is left showing: its guide asks that it be
+removed only under a React Flow Pro subscription.
 
 **1.24.0** (TypeScript: `@zavon/workflow-graph` 1.11.0, `@zavon/workflow-ui`
 1.17.0; contract vectors and `contract/esign`; Go code unchanged, tag

@@ -22,13 +22,13 @@ export function FindNode({ inputRef }: { inputRef?: RefObject<HTMLInputElement |
   return (
     <div className="zwf-find" role="search">
       <label className="zwf-visually-hidden" htmlFor={`${id}-q`}>
-        Find a node
+        Find a Node
       </label>
       <input
         ref={inputRef}
         id={`${id}-q`}
         type="search"
-        placeholder="Find a node…"
+        placeholder="Find a Node…"
         value={q}
         aria-describedby={q ? `${id}-count` : undefined}
         onChange={(e) => setQ(e.target.value)}

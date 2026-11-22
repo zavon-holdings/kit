@@ -44,14 +44,14 @@ export function StepsPanel({ savedSteps }: { savedSteps?: Step[] }) {
         </p>
       )}
       <table className="zwf-table">
-        <caption className="zwf-visually-hidden">Compiled steps</caption>
+        <caption className="zwf-visually-hidden">Compiled Steps</caption>
         <thead>
           <tr>
             <th scope="col">#</th>
             <th scope="col">Step</th>
             <th scope="col">Kind</th>
-            <th scope="col">From node</th>
-            {diff && <th scope="col">Against saved</th>}
+            <th scope="col">From Node</th>
+            {diff && <th scope="col">Against Saved</th>}
           </tr>
         </thead>
         <tbody>

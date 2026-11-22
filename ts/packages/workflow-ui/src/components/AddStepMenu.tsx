@@ -11,7 +11,7 @@ const ADDABLE = NODE_KINDS.filter((k) => k.type !== "start" && k.type !== "end")
 
 /**
  * One menu of the kinds of step, each with its icon and a line on what it
- * does: the "+" between two steps on the path, and the "Add a step" at its
+ * does: the "+" between two steps on the path, and the "Add a Step" at its
  * end. A kind the host cannot offer is shown greyed with the reason.
  */
 export function AddStepMenu({ label, wide = false, onAdd }: { label: string; wide?: boolean; onAdd: (type: string) => void }) {
@@ -59,7 +59,7 @@ export function AddStepMenu({ label, wide = false, onAdd }: { label: string; wid
         {wide && label}
       </button>
       {open && (
-        <div id={`${id}-menu`} role="group" aria-label="Add a step" className="zwf-add-step-menu">
+        <div id={`${id}-menu`} role="group" aria-label="Add a Step" className="zwf-add-step-menu">
           {ADDABLE.map((k) => {
             const why = ed.unavailable[k.type];
             return (

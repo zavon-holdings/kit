@@ -53,10 +53,10 @@ describe("the to-do node", () => {
     render(<Harness initial={{ assignees: [role] }} onConfig={(c) => (last = c)} />);
     await user.type(screen.getByLabelText("Task"), "Book the hall");
     await user.type(screen.getByLabelText("Assignees (one email address per line)"), "ana@example.test{enter}ben@example.test");
-    await user.clear(screen.getByLabelText("Due in"));
-    await user.type(screen.getByLabelText("Due in"), "3");
-    await user.selectOptions(screen.getByLabelText("Due in: unit"), "business_days");
-    await user.click(screen.getByRole("button", { name: "Add a reminder" }));
+    await user.clear(screen.getByLabelText("Due In"));
+    await user.type(screen.getByLabelText("Due In"), "3");
+    await user.selectOptions(screen.getByLabelText("Due In: unit"), "business_days");
+    await user.click(screen.getByRole("button", { name: "Add a Reminder" }));
     expect(last.title).toBe("Book the hall");
     expect(last.assignees).toEqual([role, { people: [{ email: "ana@example.test" }, { email: "ben@example.test" }] }]);
     expect(last.due).toEqual({ value: 3, unit: "business_days" });

@@ -126,7 +126,7 @@ describe("notes", () => {
     const user = userEvent.setup();
     const onGraph = vi.fn();
     render(<Harness initial={emptyGraph()} onGraph={onGraph} />);
-    await user.click(screen.getByRole("button", { name: "Add a note" }));
+    await user.click(screen.getByRole("button", { name: "Add a Note" }));
     expect(onGraph.mock.calls.at(-1)![0].notes).toHaveLength(1);
     await user.click(screen.getByRole("tab", { name: "List" }));
     const notes = screen.getByRole("region", { name: "Notes on the canvas" });
@@ -176,7 +176,7 @@ describe("built-in inspectors for the new types", () => {
     render(<Harness initial={g} onGraph={onGraph} />);
     const inspector = await open(user, "invoice");
     expect(within(inspector).getByText(/paid, voided, overdue \(the default\)/)).toBeInTheDocument();
-    await user.click(within(inspector).getByRole("button", { name: "Add a reminder" }));
+    await user.click(within(inspector).getByRole("button", { name: "Add a Reminder" }));
     expect(onGraph.mock.calls.at(-1)![0].nodes[1].config.reminders).toEqual([{ after: { value: 3, unit: "business_days" } }]);
   });
 });

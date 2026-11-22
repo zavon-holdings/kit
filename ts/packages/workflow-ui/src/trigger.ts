@@ -29,11 +29,11 @@ export type Trigger = {
 export type CatalogueEvent = { type: string; label?: string; subject?: string; vars?: string[] };
 
 export const TRIGGER_KINDS: readonly { kind: TriggerKind; label: string; blurb: string }[] = Object.freeze([
-  { kind: "manual", label: "By hand", blurb: "Somebody starts each run." },
-  { kind: "event", label: "When something happens", blurb: "An event an app reports starts a run, when its filter matches." },
-  { kind: "schedule", label: "On a schedule", blurb: "A run starts at set times." },
-  { kind: "date", label: "On a date", blurb: "A run starts on (or before or after) a date the subject carries." },
-  { kind: "api", label: "When an app asks", blurb: "An app starts each run itself." },
+  { kind: "manual", label: "By Hand", blurb: "Somebody starts each run." },
+  { kind: "event", label: "When Something Happens", blurb: "An event an app reports starts a run, when its filter matches." },
+  { kind: "schedule", label: "On a Schedule", blurb: "A run starts at set times." },
+  { kind: "date", label: "On a Date", blurb: "A run starts on (or before or after) a date the subject carries." },
+  { kind: "api", label: "When an App Asks", blurb: "An app starts each run itself." },
 ]);
 
 export const CRON_PRESETS: readonly { cron: string; label: string }[] = Object.freeze([
@@ -147,13 +147,28 @@ export function filterWritten(f: unknown): boolean {
   return true;
 }
 
-/** The trigger in one sentence. */
-export function describeTrigger(t: Trigger | null | undefined): string {
+/** An event type's label from the host's catalogue, or nothing when it has none. */
+export type EventLabel = (eventType: string) => string | undefined;
+
+/** A label lookup over a catalogue: the event's own label when one is written. */
+export function eventLabelFrom(events: readonly CatalogueEvent[] | undefined): EventLabel {
+  return (type) => events?.find((e) => e.type === type)?.label?.trim() || undefined;
+}
+
+/**
+ * The trigger in one sentence. With `labelOf`, an event the catalogue names
+ * is said by its label ("Starts when: Event registration paid.") rather than
+ * its type; without one, or for an event it does not know, by its type.
+ */
+export function describeTrigger(t: Trigger | null | undefined, labelOf?: EventLabel): string {
   if (!t) return "No trigger: started by hand.";
   switch (t.kind) {
     case "event": {
+      const type = t.event_type?.trim() ?? "";
+      const label = type && labelOf ? labelOf(type)?.trim().replace(/[.\s]+$/, "") : undefined;
+      if (label) return `Starts when: ${label}${filterWritten(t.filter) ? " (and its filter matches)" : ""}.`;
       const f = filterWritten(t.filter) ? ", when its filter matches" : "";
-      return `Starts when ${t.event_type?.trim() || "an event"} happens${f}.`;
+      return `Starts when ${type || "an event"} happens${f}.`;
     }
     case "schedule": {
       const words = describeCron(t.cron_expression ?? "");
