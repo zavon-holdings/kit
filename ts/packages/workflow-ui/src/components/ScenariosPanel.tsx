@@ -88,7 +88,7 @@ export function ScenariosPanel({ api }: { api?: WorkflowApi }) {
         <>
           <div className="zwf-row">
             <button type="button" className="zwf-button zwf-primary" disabled={busy || blocked} onClick={() => void runAll()}>
-              {busy ? "Running…" : `Run all ${list.length} against this drawing`}
+              {busy ? "Running…" : `Run All ${list.length} Against This Drawing`}
             </button>
             {blocked && <span className="zwf-muted">Fix the graph's problems first.</span>}
             {ran > 0 && !stale && (
@@ -105,7 +105,7 @@ export function ScenariosPanel({ api }: { api?: WorkflowApi }) {
             )}
           </div>
           <table className="zwf-table">
-            <caption className="zwf-visually-hidden">Saved scenarios</caption>
+            <caption className="zwf-visually-hidden">Saved Scenarios</caption>
             <thead>
               <tr>
                 <th scope="col">Scenario</th>
@@ -140,7 +140,7 @@ export function ScenariosPanel({ api }: { api?: WorkflowApi }) {
                       {r?.result && (
                         <button type="button" className="zwf-link" onClick={() => ed.setPath(r.result!.path ?? [])}>
                           {" "}
-                          Show its path
+                          Show Its Path
                         </button>
                       )}
                     </td>

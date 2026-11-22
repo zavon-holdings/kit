@@ -30,7 +30,7 @@ export type StepRequirementsProps = {
 const NEW = "__new__";
 
 /**
- * "Required to move on": chips picked from the catalogue, a field created in
+ * "Required to Move On": chips picked from the catalogue, a field created in
  * place, and the rule in one plain sentence. The server enforces it; this
  * only sets it.
  */
@@ -97,7 +97,7 @@ export function StepRequirements(props: StepRequirementsProps) {
     <section className="zwf-requirements" aria-labelledby={`${uid}-h`} data-testid="step-requirements">
       <div className="zwf-requirements-head">
         <Heading level={level} id={`${uid}-h`} className="zwf-subheading zwf-card-title">
-          Required to move on
+          Required to Move On
         </Heading>
         {props.docsUrl && (
           <a className="zwf-info" href={props.docsUrl} target="_blank" rel="noreferrer" aria-label="About step requirements (opens in a new tab)" title="About step requirements">
@@ -159,7 +159,7 @@ export function StepRequirements(props: StepRequirementsProps) {
                   {drafts.reason && <p className="zwf-help">{drafts.reason}</p>}
                   <div className="zwf-row zwf-actions">
                     <button type="button" className="zwf-button" onClick={() => accept(drafts.fields)}>
-                      Add all
+                      Add All
                     </button>
                     <button type="button" className="zwf-button zwf-quiet" onClick={() => setDrafts(null)}>
                       Dismiss
@@ -173,7 +173,7 @@ export function StepRequirements(props: StepRequirementsProps) {
       )}
       {!readOnly && !adding && (
         <label className="zwf-field">
-          <span>Add a required field</span>
+          <span>Add a Required Field</span>
           <select
             value=""
             onChange={(e) => {
@@ -182,7 +182,7 @@ export function StepRequirements(props: StepRequirementsProps) {
               else if (v) set([...required, v]);
             }}
           >
-            <option value="">Choose a field…</option>
+            <option value="">Choose a Field…</option>
             {sources.map((s) => (
               <optgroup key={s} label={s}>
                 {free
@@ -194,14 +194,14 @@ export function StepRequirements(props: StepRequirementsProps) {
                   ))}
               </optgroup>
             ))}
-            <option value={NEW}>New field…</option>
+            <option value={NEW}>New Field…</option>
           </select>
         </label>
       )}
       {!readOnly && adding && (
         <div className="zwf-requirements-new" role="group" aria-label="New field">
           <label className="zwf-field">
-            <span>Field name</span>
+            <span>Field Name</span>
             <input value={label} autoFocus onChange={(e) => setLabel(e.target.value)} onKeyDown={(e) => e.key === "Enter" && create()} />
           </label>
           <label className="zwf-field">
@@ -216,7 +216,7 @@ export function StepRequirements(props: StepRequirementsProps) {
           </label>
           {type === "choice" && (
             <label className="zwf-field">
-              <span>Choices, separated by commas</span>
+              <span>Choices (separated by commas)</span>
               <input value={options} onChange={(e) => setOptions(e.target.value)} />
             </label>
           )}
@@ -227,7 +227,7 @@ export function StepRequirements(props: StepRequirementsProps) {
           )}
           <div className="zwf-row zwf-actions">
             <button type="button" className="zwf-button" onClick={create}>
-              Add field
+              Add Field
             </button>
             <button
               type="button"

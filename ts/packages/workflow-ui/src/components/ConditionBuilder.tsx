@@ -4,12 +4,13 @@ import { useId, useMemo, useState } from "react";
 import { describe, evaluate, OPERATORS, parse } from "@zavon/conditions";
 import { fromRows, LIST_VALUE, NO_VALUE, toRows, type Row, type Rows } from "../conditionRows.js";
 import type { Sample } from "../types.js";
+import { ADVANCED_HINT, useAdvanced } from "./context.js";
 
 export type ConditionBuilderProps = {
   /** The condition, in the condition language's JSON. */
   value: unknown;
   onChange: (value: unknown) => void;
-  /** What the fieldset is called: "Ask", "Take this way when". */
+  /** What the fieldset is called: "Ask", "Take This Way When". */
   legend: string;
   readOnly?: boolean;
   /** Fields offered as you type: vars.amount, steps.review.output.outcome… */
@@ -61,6 +62,7 @@ export function ConditionBuilder({ value, onChange, legend, readOnly = false, fi
   const [json, setJson] = useState(() => JSON.stringify(value ?? {}, null, 2));
   const [jsonError, setJsonError] = useState("");
   const read = readCondition(value, mode);
+  const advanced = useAdvanced();
 
   const verdict = useMemo(() => {
     if (!sample || read.error) return null;
@@ -128,10 +130,14 @@ export function ConditionBuilder({ value, onChange, legend, readOnly = false, fi
           </ol>
           {!readOnly && (
             <button type="button" className="zwf-button" onClick={() => write({ ...rows, rows: [...rows.rows, { field: "", op: "is", value: "" }] })}>
-              Add a rule
+              Add a Rule
             </button>
           )}
         </>
+      ) : !advanced ? (
+        <p className="zwf-muted zwf-advanced-hint" data-advanced-hint="condition">
+          This condition uses more than rules can show. {ADVANCED_HINT}
+        </p>
       ) : (
         <label className="zwf-field">
           <span>Condition (JSON: this one uses more than rules can show)</span>

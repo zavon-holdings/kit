@@ -75,7 +75,7 @@ describe("the Signature Request node", () => {
     await user.click(screen.getByRole("button", { name: "Add a Signer" }));
     await user.type(screen.getByLabelText("Signer 1 Key"), "tenant");
     await user.type(screen.getByLabelText("Signer 1 Email"), "laila@client.test");
-    await user.click(screen.getByLabelText("Remind Signers on the platform's schedule"));
+    await user.click(screen.getByLabelText("Remind Signers on the Platform's Schedule"));
     expect(last).toMatchObject({ template: "3f2c9a1e-6b7d-4c1a-9e0f-5a8b7c6d5e4f", signers: { tenant: { email: "laila@client.test" } }, remind_signers: true });
     expect(signatureProblems(last)).toEqual([]);
     expect(signatureProblems({ template: "x", signers: { Tenant: {} } })).toHaveLength(2);

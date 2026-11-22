@@ -51,7 +51,7 @@ export function ScoreBandsEditor(props: ScoreBandsEditorProps) {
   return (
     <section className="zwf-bands" aria-labelledby={`${uid}-h`}>
       <Heading level={headingLevel} id={`${uid}-h`}>
-        Score bands
+        Score Bands
       </Heading>
       <div className="zwf-fields">
         <label className="zwf-field">
@@ -76,7 +76,7 @@ export function ScoreBandsEditor(props: ScoreBandsEditorProps) {
       </div>
 
       <table className="zwf-bands-table">
-        <caption className="zwf-visually-hidden">Bands, highest first</caption>
+        <caption className="zwf-visually-hidden">Bands, Highest First</caption>
         <thead>
           <tr>
             <th scope="col">From</th>
@@ -134,14 +134,14 @@ export function ScoreBandsEditor(props: ScoreBandsEditorProps) {
       {!readOnly && (
         <button type="button" className="zwf-button" disabled={bands.length >= MAX_BANDS}
           onClick={() => set({ bands: [...bands, nextBand(bands)] })}>
-          Add a band
+          Add a Band
         </button>
       )}
       <p className="zwf-help">A band with a recommendation flags the record for a person to look at.</p>
 
       <div className="zwf-bands-try">
         <label className="zwf-field">
-          <span>Try a score</span>
+          <span>Try a Score</span>
           <input type="number" step="any" value={tryScore} onChange={(e) => setTryScore(e.target.value)} />
         </label>
         <p aria-live="polite">

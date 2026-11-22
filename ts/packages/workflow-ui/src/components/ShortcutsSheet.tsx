@@ -40,7 +40,7 @@ export function ShortcutsSheet({ onClose, mac = false }: { onClose: () => void; 
       >
         <div className="zwf-row zwf-modal-head">
           <h2 id={`${id}-title`} className="zwf-heading">
-            Keyboard shortcuts
+            Keyboard Shortcuts
           </h2>
           <button ref={close} type="button" className="zwf-button" onClick={onClose}>
             Close

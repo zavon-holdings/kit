@@ -108,7 +108,7 @@ export function VersionDiff({ before, after, trigger = "", headingLevel = 2 }: {
         </p>
         <label className="zwf-check">
           <input type="checkbox" checked={view === "list"} onChange={(e) => setView(e.target.checked ? "list" : "canvas")} />
-          <span>Show as lists</span>
+          <span>Show as Lists</span>
         </label>
       </div>
       <div className="zwf-diff-sides">
@@ -149,7 +149,7 @@ export function VersionDiff({ before, after, trigger = "", headingLevel = 2 }: {
           <Heading level={headingLevel} className="zwf-subheading">Steps</Heading>
           <label className="zwf-check">
             <input type="checkbox" checked={onlyChanges} onChange={(e) => setOnlyChanges(e.target.checked)} />
-            <span>Only the steps that differ</span>
+            <span>Only the Steps That Differ</span>
           </label>
         </div>
         <table className="zwf-table">

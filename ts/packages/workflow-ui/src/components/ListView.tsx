@@ -217,7 +217,7 @@ export function ListView() {
       </ol>
       {!ed.readOnly && (
         <div className="zwf-path-end">
-          <AddStepMenu label="Add a step" wide onAdd={(type) => added(ed, (g) => addAtEnd(g, analysis.order, type))} />
+          <AddStepMenu label="Add a Step" wide onAdd={(type) => added(ed, (g) => addAtEnd(g, analysis.order, type))} />
         </div>
       )}
       {notes.length > 0 && (

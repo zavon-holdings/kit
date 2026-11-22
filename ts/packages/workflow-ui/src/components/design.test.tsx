@@ -84,10 +84,10 @@ describe("node cards", () => {
     expect(card("ship").dataset.category).toBe("apps");
     expect(card("start").dataset.category).toBe("structure");
     for (const id of ["check", "sign", "mail", "pay", "wait", "ship"]) expect(card(id).querySelector(".zwf-node-chip svg")).not.toBeNull();
-    expect(card("pay").querySelector(".zwf-node-meta")!.textContent).toBe("Payment request · ZAR 50 · expires in 3 days");
+    expect(card("pay").querySelector(".zwf-node-meta")!.textContent).toBe("Payment Request · ZAR 50 · expires in 3 days");
     expect(card("sign").querySelector(".zwf-node-meta")!.textContent).toBe("Approval · a@example.org");
     // The chip is decoration: the card's name stays what it was.
-    expect(screen.getByRole("button", { name: "Payment request: Deposit" })).toBe(card("pay"));
+    expect(screen.getByRole("button", { name: "Payment Request: Deposit" })).toBe(card("pay"));
   });
 
   test("an end is an outcome badge, toned by what the outcome means, in words as well", () => {
@@ -136,7 +136,7 @@ describe("edges", () => {
 describe("the palette", () => {
   test("cards keep their names, describe themselves, and can be dragged", () => {
     render(<Harness />);
-    const nav = screen.getByRole("navigation", { name: "Add a node" });
+    const nav = screen.getByRole("navigation", { name: "Add a Node" });
     const delay = within(nav).getByRole("button", { name: "Add delay" });
     expect(delay).toHaveAccessibleDescription("Pauses for a set time.");
     expect(delay).toHaveAttribute("draggable", "true");
@@ -145,11 +145,11 @@ describe("the palette", () => {
   test("search narrows the cards, and says when nothing matches", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    const nav = screen.getByRole("navigation", { name: "Add a node" });
-    await user.type(within(nav).getByRole("searchbox", { name: "Search steps" }), "pay");
+    const nav = screen.getByRole("navigation", { name: "Add a Node" });
+    await user.type(within(nav).getByRole("searchbox", { name: "Search Steps" }), "pay");
     expect(within(nav).getAllByRole("button").map((b) => b.getAttribute("aria-label"))).toEqual(["Add payment request"]);
-    await user.clear(within(nav).getByRole("searchbox", { name: "Search steps" }));
-    await user.type(within(nav).getByRole("searchbox", { name: "Search steps" }), "zzz");
+    await user.clear(within(nav).getByRole("searchbox", { name: "Search Steps" }));
+    await user.type(within(nav).getByRole("searchbox", { name: "Search Steps" }), "zzz");
     expect(within(nav).getByRole("status")).toHaveTextContent("No step matches");
   });
 
@@ -170,24 +170,24 @@ describe("the empty canvas", () => {
     const user = userEvent.setup();
     const onGraph = vi.fn();
     render(<Harness onGraph={onGraph} initial={{ format: "workflow.graph/1", nodes: [{ id: "start", type: "start" }], edges: [] }} />);
-    const empty = screen.getByRole("group", { name: "Add your first step" });
-    await user.click(within(empty).getByRole("button", { name: "Start with a condition" }));
+    const empty = screen.getByRole("group", { name: "Add Your First Step" });
+    await user.click(within(empty).getByRole("button", { name: "Start With a Condition" }));
     const g = last(onGraph);
     expect(g.nodes.map((n) => n.type)).toEqual(["start", "condition"]);
     expect(g.edges).toEqual([expect.objectContaining({ from: "start", to: g.nodes[1].id })]);
-    expect(screen.queryByRole("group", { name: "Add your first step" })).toBeNull();
+    expect(screen.queryByRole("group", { name: "Add Your First Step" })).toBeNull();
   });
 
   test("is not offered read only", () => {
     render(<Harness readOnly initial={{ format: "workflow.graph/1", nodes: [{ id: "start", type: "start" }], edges: [] }} />);
-    expect(screen.queryByRole("group", { name: "Add your first step" })).toBeNull();
+    expect(screen.queryByRole("group", { name: "Add Your First Step" })).toBeNull();
   });
 });
 
 describe("the toolbar and the canvas controls", () => {
   test("icon buttons are named, with the name as a tooltip", () => {
     render(<Harness />);
-    for (const name of ["Undo", "Redo", "Tidy the layout", "Add a note", "Keyboard shortcuts", "Zoom in", "Zoom out", "Fit"]) {
+    for (const name of ["Undo", "Redo", "Tidy the Layout", "Add a Note", "Keyboard Shortcuts", "Zoom In", "Zoom Out", "Fit"]) {
       const b = screen.getByRole("button", { name });
       expect(b.getAttribute("data-tip")).toBeTruthy();
     }
@@ -196,7 +196,7 @@ describe("the toolbar and the canvas controls", () => {
   test("the overview map is a toggle beside the zoom", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    const toggle = screen.getByRole("button", { name: "Show the overview map" });
+    const toggle = screen.getByRole("button", { name: "Show the Overview Map" });
     expect(toggle).toHaveAttribute("aria-pressed", "false");
     await user.click(toggle);
     expect(toggle).toHaveAttribute("aria-pressed", "true");
@@ -205,9 +205,9 @@ describe("the toolbar and the canvas controls", () => {
 
   test("read only: the same drawing, no edit chrome", () => {
     render(<Harness readOnly />);
-    expect(screen.queryByRole("navigation", { name: "Add a node" })).toBeNull();
+    expect(screen.queryByRole("navigation", { name: "Add a Node" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Tidy the layout" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Tidy the Layout" })).toBeNull();
     expect(screen.getByRole("button", { name: "Fit" })).toBeInTheDocument();
     expect(document.querySelector('.zwf-node[data-category="logic"]')).not.toBeNull();
   });
@@ -232,7 +232,7 @@ describe("removing, with a way back", () => {
     const onGraph = vi.fn();
     render(<Harness onGraph={onGraph} defaultView="list" />);
     await user.click(row("Which tier?"));
-    await user.click(within(inspector()).getByRole("button", { name: "Remove it and everything after it (4 steps)" }));
+    await user.click(within(inspector()).getByRole("button", { name: "Remove It and Everything After It (4 steps)" }));
     const dialog = screen.getByRole("alertdialog", { name: "Remove 4 steps?" });
     expect(dialog).toHaveTextContent("Which tier?, Mark high, Mark normal, Done");
     expect(onGraph).not.toHaveBeenCalled();
@@ -241,8 +241,8 @@ describe("removing, with a way back", () => {
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("alertdialog")).toBeNull();
     expect(onGraph).not.toHaveBeenCalled();
-    await user.click(within(inspector()).getByRole("button", { name: "Remove it and everything after it (4 steps)" }));
-    await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Remove 4 steps" }));
+    await user.click(within(inspector()).getByRole("button", { name: "Remove It and Everything After It (4 steps)" }));
+    await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Remove 4 Steps" }));
     expect(last(onGraph).nodes.map((n) => n.id)).not.toEqual(expect.arrayContaining(["tier"]));
     expect(last(onGraph).nodes.some((n) => ["tier", "high", "normal", "done"].includes(n.id))).toBe(false);
     expect(last(onGraph).nodes.some((n) => n.id === "both")).toBe(true);
@@ -260,7 +260,7 @@ describe("removing, with a way back", () => {
     expect(screen.queryByRole("alertdialog")).toBeNull();
     // Delete with the node still selected asks too.
     fireEvent.keyDown(row("Mark high"), { key: "Delete" });
-    await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Remove step" }));
+    await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Remove Step" }));
     expect(last(onGraph).nodes.some((n) => n.id === "high")).toBe(false);
   });
 
@@ -268,7 +268,7 @@ describe("removing, with a way back", () => {
     const user = userEvent.setup();
     render(<Harness defaultView="list" />);
     await user.click(row("Which tier?"));
-    await user.click(within(inspector()).getByRole("button", { name: /Remove it and everything after it/ }));
+    await user.click(within(inspector()).getByRole("button", { name: /Remove It and Everything After It/ }));
     expect(await violations()).toEqual([]);
   });
 });
@@ -302,7 +302,7 @@ describe("ConfirmDialog", () => {
 
   test("a click on the backdrop cancels; one inside does not", async () => {
     const onCancel = vi.fn();
-    render(<ConfirmDialog title="Discard changes?" confirmLabel="Discard changes" onConfirm={() => {}} onCancel={onCancel} />);
+    render(<ConfirmDialog title="Discard changes?" confirmLabel="Discard Changes" onConfirm={() => {}} onCancel={onCancel} />);
     fireEvent.mouseDown(screen.getByRole("alertdialog"));
     expect(onCancel).not.toHaveBeenCalled();
     fireEvent.mouseDown(document.querySelector(".zwf-confirm-backdrop")!);

@@ -41,7 +41,7 @@ function Harness(props: Partial<WorkflowBuilderProps> & { initial?: Graph; onGra
   );
 }
 
-const editor = () => screen.getByRole("region", { name: "Workflow editor" });
+const editor = () => screen.getByRole("region", { name: "Workflow Editor" });
 const inspector = () => screen.getByRole("complementary", { name: "Inspector" });
 const list = () => screen.getByRole("list", { name: "Workflow, as a list" });
 const rows = () => within(list()).getAllByRole("listitem").filter((li) => li.classList.contains("zwf-list-row"));
@@ -117,7 +117,7 @@ describe("copy and paste", () => {
     render(<Harness onGraph={onGraph} />);
     await openList(user);
     await user.click(row("Which tier?"));
-    await user.click(within(inspector()).getByRole("button", { name: "Copy it and everything after it" }));
+    await user.click(within(inspector()).getByRole("button", { name: "Copy It and Everything After It" }));
     await user.click(within(inspector()).getByRole("button", { name: "Paste" }));
     const g = last(onGraph);
     expect(g.nodes.map((n) => n.id)).toEqual(expect.arrayContaining(["tier-2", "high-2", "normal-2", "done-2"]));
@@ -162,7 +162,7 @@ describe("several nodes at once", () => {
     await user.click(row("Which tier?"));
     await user.keyboard("{/Shift}");
     expect(within(inspector()).getByRole("heading", { name: "3 nodes" })).toBeInTheDocument();
-    await user.click(within(inspector()).getByRole("button", { name: "Align left" }));
+    await user.click(within(inspector()).getByRole("button", { name: "Align Left" }));
     const at = last(onGraph).layout as Record<string, { x: number }>;
     expect(new Set([at.high.x, at.normal.x, at.tier.x]).size).toBe(1);
     fireEvent.keyDown(rows()[0], { key: "Delete" });
@@ -199,17 +199,17 @@ describe("finding, problems and the shortcuts sheet", () => {
   test("find lists matches, and a match goes to its node", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    await user.type(screen.getByRole("searchbox", { name: "Find a node" }), "mark");
+    await user.type(screen.getByRole("searchbox", { name: "Find a Node" }), "mark");
     expect(screen.getByText("2 matches.")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Mark normal" }));
     expect(within(inspector()).getByRole("heading", { name: "Mark normal" })).toBeInTheDocument();
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /^Set a value: Mark normal/ })));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /^Set a Value: Mark normal/ })));
   });
 
   test("Enter in find goes to the best match; nothing found says so", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    const box = screen.getByRole("searchbox", { name: "Find a node" });
+    const box = screen.getByRole("searchbox", { name: "Find a Node" });
     await user.type(box, "zzz");
     expect(screen.getByText("No node matches.")).toBeInTheDocument();
     await user.clear(box);
@@ -230,9 +230,9 @@ describe("finding, problems and the shortcuts sheet", () => {
   test("the sheet lists every shortcut and closes on Escape, giving focus back", async () => {
     const user = userEvent.setup();
     render(<Harness />);
-    const opener = screen.getByRole("button", { name: "Keyboard shortcuts" });
+    const opener = screen.getByRole("button", { name: "Keyboard Shortcuts" });
     await user.click(opener);
-    const sheet = screen.getByRole("dialog", { name: "Keyboard shortcuts" });
+    const sheet = screen.getByRole("dialog", { name: "Keyboard Shortcuts" });
     for (const s of SHORTCUTS) expect(within(sheet).getByText(s.does)).toBeInTheDocument();
     expect(document.activeElement).toBe(within(sheet).getByRole("button", { name: "Close" }));
     await user.keyboard("{Escape}");
@@ -247,7 +247,7 @@ describe("finding, problems and the shortcuts sheet", () => {
     await openList(user);
     await user.click(row("Mark high"));
     fireEvent.keyDown(rows()[0], { key: "?", shiftKey: true });
-    const sheet = screen.getByRole("dialog", { name: "Keyboard shortcuts" });
+    const sheet = screen.getByRole("dialog", { name: "Keyboard Shortcuts" });
     fireEvent.keyDown(sheet, { key: "Delete" });
     expect(onGraph).not.toHaveBeenCalled();
   });
@@ -273,7 +273,7 @@ describe("export and import", () => {
     const user = userEvent.setup();
     render(<Harness readOnly />);
     await user.click(screen.getByText("Export"));
-    expect(screen.getByRole("button", { name: "Download the graph (JSON)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Download the Graph (JSON)" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Import/ })).toBeNull();
   });
 });
@@ -287,10 +287,10 @@ describe("the trigger and interrupts, on the start node", () => {
     await user.click(row("Start"));
     const panel = within(inspector()).getByRole("group", { name: "Trigger" });
     expect(within(panel).getByText("An event trigger needs the event it starts on.")).toBeInTheDocument();
-    await user.type(within(panel).getByRole("combobox", { name: "The event" }), "orders.order.placed");
+    await user.type(within(panel).getByRole("combobox", { name: "The Event" }), "orders.order.placed");
     expect(onTrigger.mock.calls.at(-1)![0]).toMatchObject({ kind: "event", event_type: "orders.order.placed" });
     expect(within(panel).getByText("An order is placed", { selector: "p" })).toBeInTheDocument();
-    await user.click(within(panel).getByRole("radio", { name: /On a schedule/ }));
+    await user.click(within(panel).getByRole("radio", { name: /On a Schedule/ }));
     expect(onTrigger.mock.calls.at(-1)![0]).toEqual({ kind: "schedule", cron_expression: "0 8 * * *" });
     expect(within(panel).getAllByText("Every day at 08:00").length).toBeGreaterThan(0);
   });
@@ -300,7 +300,7 @@ describe("the trigger and interrupts, on the start node", () => {
     render(<Harness initialTrigger={{ kind: "manual" }} />);
     await openList(user);
     await user.click(row("Start"));
-    await user.click(within(inspector()).getByRole("button", { name: "Add an interrupt" }));
+    await user.click(within(inspector()).getByRole("button", { name: "Add an Interrupt" }));
     const group = within(inspector()).getByRole("group", { name: "Interrupts" });
     expect(within(group).getByText("Interrupt 1 needs the event that interrupts.")).toBeInTheDocument();
     await user.type(within(group).getByRole("combobox", { name: "Interrupt 1: when" }), "orders.order.cancelled");
@@ -353,16 +353,16 @@ describe("several samples, and scenarios", () => {
     const simulate = vi.fn().mockResolvedValueOnce(endedAs("completed", ["large", "prepare"])).mockResolvedValueOnce(endedAs("declined", ["large", "approve"]));
     render(<Harness api={{ simulate }} />);
     await user.click(screen.getByRole("tab", { name: "Simulate" }));
-    await user.click(screen.getByRole("button", { name: "Add another sample" }));
+    await user.click(screen.getByRole("button", { name: "Add Another Sample" }));
     const second = screen.getByRole("region", { name: "Sample 2" });
     fireEvent.change(within(second).getByRole("textbox", { name: "Vars (JSON)" }), { target: { value: '{"amount": 5000}' } });
-    await user.click(screen.getByRole("button", { name: "Simulate all 2 samples" }));
+    await user.click(screen.getByRole("button", { name: "Simulate All 2 Samples" }));
     expect(await within(screen.getByRole("region", { name: "Sample 1" })).findByText("Ended: completed")).toBeInTheDocument();
     expect(await within(second).findByText("Ended: declined")).toBeInTheDocument();
     expect(simulate.mock.calls[1][0].vars).toEqual({ amount: 5000 });
     // The last one run is on the canvas; the first can be shown instead.
     expect(within(second).getByText("on the canvas")).toBeInTheDocument();
-    await user.click(within(screen.getByRole("region", { name: "Sample 1" })).getByRole("button", { name: "Show its path" }));
+    await user.click(within(screen.getByRole("region", { name: "Sample 1" })).getByRole("button", { name: "Show Its Path" }));
     const marked = [...document.querySelectorAll('.zwf-node[data-on-path="true"]')].map((n) => n.getAttribute("data-type"));
     expect(marked.sort()).toEqual(["condition", "fork", "start"]);
   });
@@ -375,8 +375,8 @@ describe("several samples, and scenarios", () => {
     await user.click(screen.getByRole("tab", { name: "Simulate" }));
     await user.click(screen.getByRole("button", { name: "Simulate" }));
     await screen.findByText("Ended: completed");
-    await user.type(screen.getByRole("textbox", { name: "Keep this walk as a scenario named" }), "Small request");
-    await user.click(screen.getByRole("button", { name: "Save the scenario" }));
+    await user.type(screen.getByRole("textbox", { name: "Scenario Name" }), "Small request");
+    await user.click(screen.getByRole("button", { name: "Save the Scenario" }));
     expect(saveScenario).toHaveBeenCalledWith(expect.objectContaining({ name: "Small request", decisions: {}, expect: { ended: true, outcome: "completed" } }));
     expect(await screen.findByText(/Saved as "Small request"/)).toBeInTheDocument();
     await waitFor(() => expect(listScenarios.mock.calls.length).toBeGreaterThanOrEqual(2));
@@ -392,7 +392,7 @@ describe("several samples, and scenarios", () => {
     const api: WorkflowApi = { simulate, listScenarios: async () => scenarios, deleteScenario: vi.fn(async () => {}) };
     render(<Harness api={api} />);
     await user.click(screen.getByRole("tab", { name: "Scenarios" }));
-    await user.click(await screen.findByRole("button", { name: "Run all 2 against this drawing" }));
+    await user.click(await screen.findByRole("button", { name: "Run All 2 Against This Drawing" }));
     expect(await screen.findByText("1 of 2 failing")).toBeInTheDocument();
     expect(screen.getByText("fails: it ended completed, not declined")).toBeInTheDocument();
     expect(simulate.mock.calls[1][0].decisions).toEqual({ approve: "rejected" });
@@ -404,7 +404,7 @@ describe("several samples, and scenarios", () => {
     const scenarios: Scenario[] = [{ name: "Gold", sample: { subject: { type: "person", pid: "p" }, vars: {} }, decisions: {}, expect: { ended: true } }];
     render(<Harness api={{ listScenarios: async () => scenarios, runScenarios }} />);
     await user.click(screen.getByRole("tab", { name: "Scenarios" }));
-    await user.click(await screen.findByRole("button", { name: "Run all 1 against this drawing" }));
+    await user.click(await screen.findByRole("button", { name: "Run All 1 Against This Drawing" }));
     expect(await screen.findByText("All 1 pass")).toBeInTheDocument();
     expect(runScenarios).toHaveBeenCalledTimes(1);
   });
@@ -420,7 +420,7 @@ describe("comparing two versions", () => {
     render(<VersionDiff before={{ label: "Version 1", graph: before }} after={{ label: "Version 2", graph: after }} />);
     const left = screen.getByRole("region", { name: "Version 1, drawn" });
     const right = screen.getByRole("region", { name: "Version 2, drawn" });
-    expect(within(left).getByRole("button", { name: /^Set a value: Mark high.*removed$/ })).toBeInTheDocument();
+    expect(within(left).getByRole("button", { name: /^Set a Value: Mark high.*removed$/ })).toBeInTheDocument();
     expect(within(right).queryByRole("button", { name: /Mark high/ })).toBeNull();
     expect(within(right).getByRole("button", { name: /^Email: Confirm.*changed$/ })).toBeInTheDocument();
     const steps = screen.getByRole("table", { name: "Steps of Version 1 and Version 2" });
@@ -450,7 +450,7 @@ describe("the view menu", () => {
     render(<Harness />);
     expect(document.querySelector(".react-flow__minimap")).toBeNull();
     await user.click(screen.getByText("View"));
-    await user.click(screen.getByRole("checkbox", { name: "Overview map" }));
+    await user.click(screen.getByRole("checkbox", { name: "Overview Map" }));
     expect(document.querySelector(".react-flow__minimap")).not.toBeNull();
     act(() => editor());
   });
@@ -462,7 +462,7 @@ describe("comparing two versions, as lists", () => {
     const after = structuredClone(sampleTree());
     after.nodes.find((n) => n.id === "confirm")!.config = { template_code: "other" };
     render(<VersionDiff before={{ label: "Version 1", graph: sampleTree() }} after={{ label: "Version 2", graph: after }} />);
-    await user.click(screen.getByRole("checkbox", { name: "Show as lists" }));
+    await user.click(screen.getByRole("checkbox", { name: "Show as Lists" }));
     const right = screen.getByRole("region", { name: "Version 2, drawn" });
     const confirm = within(right)
       .getAllByRole("listitem")

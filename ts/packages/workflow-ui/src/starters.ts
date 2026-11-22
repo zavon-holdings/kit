@@ -15,7 +15,7 @@ export const STARTERS: readonly Starter[] = Object.freeze([
   { code: "blank", name: "Blank", blurb: "A start and an end.", graph: emptyGraph },
   {
     code: "review-and-route",
-    name: "Somebody decides",
+    name: "One Person Decides",
     blurb: "A review; approved goes on, anything else is told no.",
     graph: (): Graph => ({
       format: FORMAT,
@@ -38,7 +38,7 @@ export const STARTERS: readonly Starter[] = Object.freeze([
   },
   {
     code: "route-by-value",
-    name: "Route by a value",
+    name: "Route by a Value",
     blurb: "A decision on a run value, three ways, each ending its own way.",
     graph: (): Graph => ({
       format: FORMAT,
@@ -63,7 +63,7 @@ export const STARTERS: readonly Starter[] = Object.freeze([
   },
   {
     code: "wait-or-chase",
-    name: "Wait, then chase",
+    name: "Wait, Then Chase",
     blurb: "Wait for an event; if it does not come in time, remind once and wait again.",
     trigger: "event",
     graph: (): Graph => ({
@@ -90,7 +90,7 @@ export const STARTERS: readonly Starter[] = Object.freeze([
   },
   {
     code: "do-both",
-    name: "Two things at once",
+    name: "Two Things at Once",
     blurb: "A fork whose arms run together, joined when both are done.",
     graph: (): Graph => ({
       format: FORMAT,

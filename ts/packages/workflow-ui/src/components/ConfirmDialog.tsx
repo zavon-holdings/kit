@@ -10,7 +10,7 @@ export type ConfirmDialogProps = {
   description?: ReactNode;
   /** The impact, one line each: "Removes Approval, Email and 2 more". */
   impact?: ReactNode[];
-  /** The primary button's words: "Remove", "Publish", "Discard changes". */
+  /** The primary button's words: "Remove", "Publish", "Discard Changes". */
   confirmLabel: string;
   cancelLabel?: string;
   /** "danger" for something that removes or discards; "primary" for go-live. */

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { InspectorProps } from "../types.js";
 import { ConditionBuilder } from "./ConditionBuilder.js";
-import { useEditor } from "./context.js";
+import { ADVANCED_HINT, useAdvanced, useEditor } from "./context.js";
 import { fieldSuggestions } from "../fields.js";
 import { DecideInspector } from "./DecideInspector.js";
 import { SmsInspector, WhatsAppInspector } from "./MessageInspectors.js";
@@ -25,6 +25,13 @@ export function JsonInspector({ node, onChange, readOnly }: InspectorProps) {
     setDraft(text);
     setError("");
   }, [text]);
+  const advanced = useAdvanced();
+  if (!advanced)
+    return (
+      <p className="zwf-muted zwf-advanced-hint" data-advanced-hint="settings">
+        This step has no form here; its settings are kept as JSON. {ADVANCED_HINT}
+      </p>
+    );
   return (
     <label className="zwf-field">
       <span>Settings (JSON)</span>
@@ -76,9 +83,9 @@ export function JoinInspector({ node, onChange, readOnly }: InspectorProps) {
   const join = config.join || "all";
   return (
     <fieldset className="zwf-group" disabled={readOnly}>
-      <legend>The arms meet when</legend>
+      <legend>The Arms Meet When</legend>
       <label className="zwf-field">
-        <span>Wait for</span>
+        <span>Wait For</span>
         <select value={join} onChange={(e) => onChange(e.target.value === "quorum" ? { join: "quorum", quorum: config.quorum || 2 } : { join: e.target.value })}>
           <option value="all">every arm</option>
           <option value="any">any one arm</option>
@@ -87,7 +94,7 @@ export function JoinInspector({ node, onChange, readOnly }: InspectorProps) {
       </label>
       {join === "quorum" && (
         <label className="zwf-field">
-          <span>How many arms</span>
+          <span>How Many Arms</span>
           <input type="number" min={1} value={config.quorum ?? ""} onChange={(e) => onChange({ join: "quorum", quorum: Number(e.target.value) || undefined })} />
         </label>
       )}
@@ -165,24 +172,24 @@ export function LoopInspector({ node, onChange, readOnly }: InspectorProps) {
       {mode === "var" && (
         <>
           <label className="zwf-field">
-            <span>The list (a run value)</span>
+            <span>The List (a run value)</span>
             <input value={over.var ?? ""} spellCheck={false} onChange={(e) => set({ over: { var: e.target.value } })} />
           </label>
           <label className="zwf-field">
-            <span>Each item is called</span>
+            <span>Each Item Is Called</span>
             <input value={config.item_var ?? ""} placeholder="item" spellCheck={false} onChange={(e) => set({ item_var: e.target.value || undefined })} />
           </label>
         </>
       )}
       {mode === "while" && (
-        <ConditionBuilder legend="Keep going while" value={over.while} readOnly={readOnly} fields={fieldSuggestions(ed.graph, ed.sample)} onChange={(w) => set({ over: { while: w } })} />
+        <ConditionBuilder legend="Keep Going While" value={over.while} readOnly={readOnly} fields={fieldSuggestions(ed.graph, ed.sample)} onChange={(w) => set({ over: { while: w } })} />
       )}
       <label className="zwf-field">
-        <span>At most this many times (a while loop must say)</span>
+        <span>At Most This Many Times (a while loop must say)</span>
         <input type="number" min={1} max={1000} value={config.max_iterations ?? ""} onChange={(e) => set({ max_iterations: Number(e.target.value) || undefined })} />
       </label>
       <label className="zwf-field">
-        <span>On reaching it</span>
+        <span>On Reaching It</span>
         <select value={config.on_limit ?? "continue"} onChange={(e) => set({ on_limit: e.target.value })}>
           <option value="continue">go on to what follows</option>
           <option value="pause">pause the run</option>
@@ -198,7 +205,7 @@ export function SubWorkflowInspector({ node, onChange, readOnly }: InspectorProp
   const set = (patch: Partial<typeof config>) => onChange({ ...config, ...patch });
   return (
     <fieldset className="zwf-group" disabled={readOnly}>
-      <legend>Run another workflow</legend>
+      <legend>Run Another Workflow</legend>
       <label className="zwf-field">
         <span>Workflow (its code)</span>
         <input value={config.definition ?? ""} spellCheck={false} onChange={(e) => set({ definition: e.target.value })} />
@@ -206,7 +213,7 @@ export function SubWorkflowInspector({ node, onChange, readOnly }: InspectorProp
       <p className="zwf-muted">It runs the workflow's current version when the step starts.</p>
       <label className="zwf-check">
         <input type="checkbox" checked={config.wait !== false} onChange={(e) => set({ wait: e.target.checked })} />
-        <span>Wait for it to finish, and route on its outcome</span>
+        <span>Wait for It to Finish, and Route on Its Outcome</span>
       </label>
     </fieldset>
   );
@@ -220,13 +227,13 @@ export function MoneyInspector({ node, onChange, readOnly }: InspectorProps) {
   const amountIsVar = typeof config.amount === "object" && config.amount !== null;
   return (
     <fieldset className="zwf-group" disabled={readOnly}>
-      <legend>{invoice ? "The invoice" : "The payment"}</legend>
+      <legend>{invoice ? "The Invoice" : "The Payment"}</legend>
       <label className="zwf-field">
-        <span>App action</span>
+        <span>App Action</span>
         <input value={config.action ?? ""} placeholder={invoice ? "billing.invoice.issue" : "billing.payment.request"} spellCheck={false} onChange={(e) => set({ action: e.target.value })} />
       </label>
       <label className="zwf-field">
-        <span>Amount, in cents (or a run value, vars.…)</span>
+        <span>Amount, in Cents (or a run value, vars.…)</span>
         <input
           value={amountIsVar ? (config.amount as { var: string }).var : (config.amount ?? "").toString()}
           onChange={(e) => set({ amount: /^\d+$/.test(e.target.value) ? Number(e.target.value) : e.target.value ? { var: e.target.value } : undefined })}
@@ -241,13 +248,13 @@ export function MoneyInspector({ node, onChange, readOnly }: InspectorProps) {
         <input value={config.description ?? ""} onChange={(e) => set({ description: e.target.value || undefined })} />
       </label>
       {invoice ? (
-        <SpanField label="Due in" value={config.due} onChange={(due) => set({ due })} />
+        <SpanField label="Due In" value={config.due} onChange={(due) => set({ due })} />
       ) : (
-        <SpanField label="Expires after" value={config.expires} onChange={(expires) => set({ expires })} />
+        <SpanField label="Expires After" value={config.expires} onChange={(expires) => set({ expires })} />
       )}
       {invoice && (
         <div className="zwf-group">
-          <p className="zwf-muted">Reminders while it is unpaid</p>
+          <p className="zwf-muted">Reminders While It Is Unpaid</p>
           {(config.reminders ?? []).map((r, i) => (
             <div key={i} className="zwf-row">
               <SpanField label={`Reminder ${i + 1} after`} value={r.after} onChange={(after) => set({ reminders: (config.reminders ?? []).map((x, k) => (k === i ? { ...x, after } : x)) })} />
@@ -257,7 +264,7 @@ export function MoneyInspector({ node, onChange, readOnly }: InspectorProps) {
             </div>
           ))}
           <button type="button" className="zwf-button" onClick={() => set({ reminders: [...(config.reminders ?? []), { after: { value: 3, unit: "business_days" } }] })}>
-            Add a reminder
+            Add a Reminder
           </button>
         </div>
       )}
@@ -351,10 +358,10 @@ export function SignatureInspector({ node, onChange, readOnly }: InspectorProps)
         <span>Message (the template's when empty)</span>
         <textarea rows={3} value={config.message ?? ""} onChange={(e) => set({ message: e.target.value || undefined })} />
       </label>
-      <SpanField label="Lapses after" value={config.deadline} units={FIXED_UNITS} onChange={(deadline) => set({ deadline })} />
+      <SpanField label="Lapses After" value={config.deadline} units={FIXED_UNITS} onChange={(deadline) => set({ deadline })} />
       <label className="zwf-check">
         <input type="checkbox" checked={config.remind_signers === true} onChange={(e) => set({ remind_signers: e.target.checked || undefined })} />
-        <span>Remind Signers on the platform's schedule</span>
+        <span>Remind Signers on the Platform's Schedule</span>
       </label>
       {problems.length > 0 && (
         <ul className="zwf-problems" aria-label="Not Ready Yet">
@@ -409,7 +416,7 @@ export function EmailReplyInspector({ node, onChange, readOnly }: InspectorProps
         <span>Message</span>
         <textarea rows={5} value={config.body ?? ""} onChange={(e) => set({ body: e.target.value })} />
       </label>
-      <SpanField label="Waits for a reply for" value={config.wait} units={FIXED_UNITS} onChange={(wait) => set({ wait })} />
+      <SpanField label="Waits for a Reply For" value={config.wait} units={FIXED_UNITS} onChange={(wait) => set({ wait })} />
       {problems.length > 0 && (
         <ul className="zwf-problems" aria-label="Not Ready Yet">
           {problems.map((p) => (
@@ -449,7 +456,7 @@ export function TodoInspector({ node, onChange, readOnly }: InspectorProps) {
   const reminders = config.reminders ?? [];
   return (
     <fieldset className="zwf-group" disabled={readOnly}>
-      <legend>The to-do</legend>
+      <legend>The To-Do</legend>
       <label className="zwf-field">
         <span>Task</span>
         <input value={config.title ?? ""} onChange={(e) => set({ title: e.target.value || undefined })} />
@@ -464,9 +471,9 @@ export function TodoInspector({ node, onChange, readOnly }: InspectorProps) {
         </p>
       )}
       <p className="zwf-muted">Complete when any of them marks it done. A to-do has no approval.</p>
-      <SpanField label="Due in" value={config.due} onChange={(due) => set({ due })} />
+      <SpanField label="Due In" value={config.due} onChange={(due) => set({ due })} />
       <div className="zwf-group">
-        <p className="zwf-muted">Reminders while it is not done</p>
+        <p className="zwf-muted">Reminders While It Is Not Done</p>
         {reminders.map((r, i) => (
           <div key={i} className="zwf-row">
             <SpanField label={`Reminder ${i + 1} after`} value={r.after} onChange={(after) => set({ reminders: reminders.map((x, k) => (k === i ? { ...x, after } : x)) })} />
@@ -476,7 +483,7 @@ export function TodoInspector({ node, onChange, readOnly }: InspectorProps) {
           </div>
         ))}
         <button type="button" className="zwf-button" onClick={() => set({ reminders: [...reminders, { after: { value: 1, unit: "business_days" } }] })}>
-          Add a reminder
+          Add a Reminder
         </button>
       </div>
     </fieldset>

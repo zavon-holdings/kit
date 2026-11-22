@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useId, useImperativeHandle, useMemo, useRef, useState, type ClipboardEvent, type KeyboardEvent, type ReactNode, type Ref } from "react";
 import { analyse } from "../analysis.js";
 import { copyNodes, parseFragment, pasteFragment, type Fragment } from "../clipboard.js";
 import { emptyHistory, record, redo as redoHistory, undo as undoHistory, type History } from "../history.js";
@@ -9,7 +9,7 @@ import { addNote } from "../model.js";
 import { positions } from "../layout.js";
 import { isTyping, shortcutFor } from "../shortcuts.js";
 import type { ApiError, Graph, Inspectors, Problem, Sample, Selection, Step, WorkflowApi } from "../types.js";
-import type { CatalogueEvent, Interrupt, Trigger } from "../trigger.js";
+import { describeTrigger, eventLabelFrom, type CatalogueEvent, type EventLabel, type Interrupt, type Trigger } from "../trigger.js";
 import { EditorContext, nameOf, useReducedMotion, type ConfirmRequest, type Editor, type TriggerEditor } from "./context.js";
 import { ConfirmDialog } from "./ConfirmDialog.js";
 import { Icon } from "./icons.js";
@@ -87,11 +87,81 @@ export type WorkflowBuilderProps = {
    * step. Pass it only when AI is on for the organisation; absent, no button.
    */
   suggestRequirements?: (input: RequirementSuggestInput) => Promise<RequirementSuggestion[]>;
+  /**
+   * Fill the container's height instead of drawing a canvas of a fixed
+   * height (`--zwf-canvas-height`). The canvas or the List takes what is left
+   * under the top bar and scrolls inside itself; the palette and the inspector
+   * scroll inside the same height; Problems, Steps, Simulate and Scenarios
+   * become a dock at the foot that opens and closes and scrolls inside
+   * itself. The host gives the editor a definite height (a flex child with
+   * `min-height: 0`, or a fixed one). Off: the editor lays out as before.
+   */
+  fill?: boolean;
+  /** In fill mode, whether the dock starts open (default closed: the canvas gets the room). */
+  defaultDockOpen?: boolean;
+  /**
+   * The host's own panels, as more tabs beside Problems, Steps, Simulate and
+   * Scenarios (Versions, Runs): in fill mode they stay in reach in the dock.
+   */
+  extraPanels?: ExtraPanel[];
+  /**
+   * An event type's label, for the start node's sentence ("Starts when:
+   * Event registration paid."). Absent: the `events` catalogue's labels.
+   * `triggerSummary`, when the host passes it, is shown as it is instead.
+   */
+  eventLabel?: EventLabel;
+  /**
+   * Shows the editor's own toasts (a removal's Restore) in the host's toast
+   * stack. Return a function that takes the toast down: the editor calls it
+   * when Restore can no longer apply (the drawing moved on). Absent: the
+   * editor draws its own toast, top right.
+   */
+  onToast?: (toast: BuilderToast) => void | (() => void);
+  /** A handle for the host: select a node by id (a banner naming a step). */
+  handleRef?: Ref<WorkflowBuilderHandle>;
+  /**
+   * Whether the Advanced fields start shown: the Steps tab, the sample's
+   * subject and its values as JSON, a node's settings as JSON. Default on
+   * (as before 1.18); a host for operators passes false, and the View menu
+   * turns them on. Off, a node with no form keeps a line saying where its
+   * settings are, and Simulate offers a box per value the graph reads.
+   */
+  defaultAdvanced?: boolean;
+  /** Called when the person turns Advanced on or off (to remember it). */
+  onAdvancedChange?: (on: boolean) => void;
 };
+
+/** A host panel in the editor's panel tabs. */
+export type ExtraPanel = { key: string; label: string; content: ReactNode };
+
+/** A toast the editor asks the host to show. */
+export type BuilderToast = {
+  kind: "removed";
+  /** The words, as a short sentence ("Removed Declined."). */
+  message: string;
+  /** The one action it offers ("Restore") and what it does. */
+  action: { label: string; run: () => void };
+  /** How long it is worth showing, in milliseconds. */
+  durationMs: number;
+};
+
+/** What the host can ask of a mounted editor. */
+export type WorkflowBuilderHandle = {
+  /**
+   * Selects the node, brings it into view (the canvas pans to it, the List
+   * scrolls to it) and moves keyboard focus there. False when the graph has
+   * no node by that id.
+   */
+  select: (nodeId: string) => boolean;
+  /** Clears the selection. */
+  clearSelection: () => void;
+};
+
+const TOAST_MS = 8000;
 
 const DEFAULT_SAMPLE: Sample = { subject: { type: "person", pid: "sample-1" }, vars: {} };
 
-type Panel = "problems" | "steps" | "simulate" | "scenarios";
+type Panel = "problems" | "steps" | "simulate" | "scenarios" | `x:${string}`;
 
 const isMac = () => typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || "");
 
@@ -119,12 +189,23 @@ export function selectedIds(s: Selection): string[] {
  * Undo, redo, copy and paste live here, as history of the graphs proposed.
  */
 export function WorkflowBuilder(props: WorkflowBuilderProps) {
-  const { graph, onChange, trigger = "", api, savedSteps, toolbar, label = "Workflow editor" } = props;
+  const { graph, onChange, trigger = "", api, savedSteps, toolbar, label = "Workflow Editor" } = props;
   const readOnly = props.readOnly || !onChange;
   const uid = useId();
   const reducedMotion = useReducedMotion();
   const [view, setView] = useState<"canvas" | "list">(props.defaultView ?? "canvas");
   const [panel, setPanel] = useState<Panel>("problems");
+  const fill = !!props.fill;
+  const [dockOpen, setDockOpen] = useState(!fill || !!props.defaultDockOpen);
+  const [advanced, setAdvancedState] = useState(props.defaultAdvanced ?? true);
+  const onAdvancedChange = props.onAdvancedChange;
+  const setAdvanced = useCallback(
+    (on: boolean) => {
+      setAdvancedState(on);
+      onAdvancedChange?.(on);
+    },
+    [onAdvancedChange],
+  );
   const [selection, setSelection] = useState<Selection>(null);
   const [focus, setFocusState] = useState<{ id: string | null; tick: number }>({ id: null, tick: 0 });
   const [path, setPath] = useState<string[]>([]);
@@ -265,7 +346,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
           cut > 0 ? `${cut} connection${cut === 1 ? "" : "s"} into ${removable.length === 1 ? "it" : "them"} from other steps ${cut === 1 ? "is" : "are"} removed too` : "No other step connects into them",
           `Undo brings ${removable.length === 1 ? "it" : "them"} back`,
         ],
-        confirmLabel: removable.length === 1 ? "Remove step" : `Remove ${removable.length} steps`,
+        confirmLabel: removable.length === 1 ? "Remove Step" : `Remove ${removable.length} Steps`,
         tone: "danger",
         onConfirm: go,
       });
@@ -281,8 +362,35 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
   }, [graph, removedCard]);
   useEffect(() => {
     if (!removedCard) return;
-    const t = setTimeout(() => setRemovedCard(null), 8000);
+    const t = setTimeout(() => setRemovedCard(null), TOAST_MS);
     return () => clearTimeout(t);
+  }, [removedCard]);
+
+  const restore = useCallback(
+    (card: { at: Graph }) => {
+      if (latest.current === card.at) undo();
+      setRemovedCard(null);
+    },
+    [undo],
+  );
+
+  // A host that shows toasts itself is handed the card, and told when it goes.
+  const onToast = useRef(props.onToast);
+  onToast.current = props.onToast;
+  const hostToasts = !!props.onToast;
+  useEffect(() => {
+    if (!removedCard || readOnly || !onToast.current) return;
+    const dismiss = onToast.current({
+      kind: "removed",
+      message: removedCard.words,
+      action: { label: "Restore", run: () => restore(removedCard) },
+      durationMs: TOAST_MS,
+    });
+    return () => {
+      if (typeof dismiss === "function") dismiss();
+    };
+    // Once per card; restore reads the latest graph through a ref.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [removedCard]);
 
   const reveal = useCallback(
@@ -292,6 +400,23 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
     },
     [setFocus],
   );
+
+  useImperativeHandle(
+    props.handleRef,
+    () => ({
+      select: (nodeId: string) => {
+        if (!latest.current.nodes.some((n) => n.id === nodeId)) return false;
+        reveal(nodeId);
+        return true;
+      },
+      clearSelection: () => setSelection(null),
+    }),
+    [reveal],
+  );
+
+  // The start node's sentence: the host's words, or the trigger said with the catalogue's labels.
+  const labelOf = props.eventLabel ?? eventLabelFrom(props.events);
+  const startSummary = props.triggerSummary ?? (props.triggerValue ? describeTrigger(props.triggerValue, labelOf) : undefined);
 
   const triggerEditor: TriggerEditor | undefined = props.triggerValue
     ? {
@@ -325,7 +450,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
     sample,
     setSample,
     reducedMotion,
-    triggerSummary: props.triggerSummary,
+    triggerSummary: startSummary,
     api,
     headingLevel: props.headingLevel ?? 2,
     scenariosTick,
@@ -339,6 +464,8 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
     requirementFields: props.requirementFields,
     requirementsDocsUrl: props.requirementsDocsUrl,
     suggestRequirements: props.suggestRequirements,
+    advanced,
+    eventLabel: labelOf,
   };
 
   const check = async () => {
@@ -351,6 +478,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
       setChecked({ problems, graph: sent });
       setChecking(problems.length ? "idle" : "clean");
       setPanel("problems");
+      setDockOpen(true);
     } catch (e) {
       setChecking("error");
       setCheckError((e as ApiError)?.message ?? String(e));
@@ -434,12 +562,27 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
 
   const views = ["canvas", "list"];
   const scenarios = !!(api?.listScenarios || api?.saveScenario);
-  const panels: Panel[] = scenarios ? ["problems", "steps", "simulate", "scenarios"] : ["problems", "steps", "simulate"];
-  const panelNames: Record<Panel, string> = {
+  const extra = props.extraPanels ?? [];
+  const panels: Panel[] = [
+    "problems",
+    ...(advanced ? (["steps"] as Panel[]) : []),
+    "simulate",
+    ...(scenarios ? (["scenarios"] as Panel[]) : []),
+    ...extra.map((x) => `x:${x.key}` as Panel),
+  ];
+  const panelNames: Record<string, string> = {
     problems: analysis.problems.length ? `Problems (${analysis.problems.length})` : "Problems",
     steps: "Steps",
     simulate: "Simulate",
     scenarios: "Scenarios",
+    ...Object.fromEntries(extra.map((x) => [`x:${x.key}`, x.label])),
+  };
+  // The Steps tab, hidden with Advanced, or a host panel taken away: back to Problems.
+  const shownPanel: Panel = panels.includes(panel) ? panel : "problems";
+  const openPanel = (p: Panel) => {
+    if (fill && dockOpen && p === shownPanel) return setDockOpen(false);
+    setPanel(p);
+    setDockOpen(true);
   };
 
   return (
@@ -448,6 +591,8 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
         className="zwf"
         aria-label={label}
         data-readonly={readOnly ? "true" : undefined}
+        data-fill={fill ? "true" : undefined}
+        data-view={view}
         onKeyDown={onKeyDown}
         onCopy={(e) => onCopy(e)}
         onCut={(e) => !readOnly && onCopy(e, true)}
@@ -478,7 +623,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
             {readOnly && (
               <span className="zwf-status zwf-status-muted zwf-readonly-badge">
                 <span className="zwf-dot" aria-hidden="true" />
-                Read only
+                Read Only
               </span>
             )}
             {!readOnly && (
@@ -492,14 +637,14 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
                   </button>
                 </span>
                 <span className="zwf-button-group">
-                  <button type="button" className="zwf-icon-button" aria-label="Tidy the layout" data-tip="Tidy the layout" onClick={() => update(layoutAll)}>
+                  <button type="button" className="zwf-icon-button" aria-label="Tidy the Layout" data-tip="Tidy the Layout" onClick={() => update(layoutAll)}>
                     <Icon name="tidy" />
                   </button>
                   <button
                     type="button"
                     className="zwf-icon-button"
-                    aria-label="Add a note"
-                    data-tip="Add a note"
+                    aria-label="Add a Note"
+                    data-tip="Add a Note"
                     onClick={() => {
                       const about = ids.length === 1 ? ids[0] : undefined;
                       update((g) => {
@@ -520,7 +665,7 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
             {api?.validate && (
               <button type="button" className="zwf-button" onClick={check} disabled={checking === "busy"}>
                 <Icon name="check" size={14} />
-                {checking === "busy" ? "Checking…" : "Check with the server"}
+                {checking === "busy" ? "Checking…" : "Check With the Server"}
               </button>
             )}
             {checking === "clean" && checked?.graph === graph && (
@@ -541,15 +686,19 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
               <div className="zwf-menu-body">
                 <label className="zwf-check">
                   <input type="checkbox" checked={snapToGrid} onChange={(e) => setSnapToGrid(e.target.checked)} />
-                  <span>Snap to the grid</span>
+                  <span>Snap to the Grid</span>
                 </label>
                 <label className="zwf-check">
                   <input type="checkbox" checked={minimap} onChange={(e) => setMinimap(e.target.checked)} />
-                  <span>Overview map</span>
+                  <span>Overview Map</span>
+                </label>
+                <label className="zwf-check">
+                  <input type="checkbox" checked={advanced} onChange={(e) => setAdvanced(e.target.checked)} />
+                  <span>Advanced</span>
                 </label>
               </div>
             </details>
-            <button type="button" className="zwf-icon-button" aria-label="Keyboard shortcuts" data-tip="Keyboard shortcuts" onClick={() => setSheet(true)} aria-keyshortcuts="Shift+?">
+            <button type="button" className="zwf-icon-button" aria-label="Keyboard Shortcuts" data-tip="Keyboard Shortcuts" onClick={() => setSheet(true)} aria-keyshortcuts="Shift+?">
               <Icon name="keyboard" />
             </button>
             {toolbar}
@@ -567,48 +716,64 @@ export function WorkflowBuilder(props: WorkflowBuilderProps) {
           <Inspector />
         </div>
 
-        <div className="zwf-panels">
-          <div role="tablist" aria-label="Panels" className="zwf-tabs zwf-tabs-underline">
-            {panels.map((p) => (
+        <div className="zwf-panels" data-open={dockOpen ? "true" : "false"}>
+          <div className="zwf-panels-head">
+            <div role="tablist" aria-label="Panels" className="zwf-tabs zwf-tabs-underline">
+              {panels.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  role="tab"
+                  data-tab={p}
+                  id={`${uid}-ptab-${p}`}
+                  aria-selected={dockOpen && shownPanel === p}
+                  aria-controls={`${uid}-panel-${p}`}
+                  tabIndex={shownPanel === p ? 0 : -1}
+                  className="zwf-tab"
+                  onClick={() => openPanel(p)}
+                  onKeyDown={(e) =>
+                    tabKeys(e, panels, shownPanel, (x) => {
+                      setPanel(x as Panel);
+                      setDockOpen(true);
+                    })
+                  }
+                >
+                  {panelNames[p]}
+                </button>
+              ))}
+            </div>
+            {fill && (
               <button
-                key={p}
                 type="button"
-                role="tab"
-                data-tab={p}
-                id={`${uid}-ptab-${p}`}
-                aria-selected={panel === p}
-                aria-controls={`${uid}-panel-${p}`}
-                tabIndex={panel === p ? 0 : -1}
-                className="zwf-tab"
-                onClick={() => setPanel(p)}
-                onKeyDown={(e) => tabKeys(e, panels, panel, (x) => setPanel(x as Panel))}
+                className="zwf-icon-button zwf-dock-toggle"
+                aria-expanded={dockOpen}
+                aria-controls={`${uid}-dock`}
+                aria-label={dockOpen ? "Hide Panels" : "Show Panels"}
+                data-tip={dockOpen ? "Hide Panels" : "Show Panels"}
+                onClick={() => setDockOpen((o) => !o)}
               >
-                {panelNames[p]}
+                <Icon name={dockOpen ? "down" : "up"} />
               </button>
+            )}
+          </div>
+          {/* All stay mounted, open or closed: a simulation keeps its answers while the Steps are read. */}
+          <div id={`${uid}-dock`} className="zwf-dock" hidden={!dockOpen}>
+            {panels.map((p) => (
+              <div key={p} id={`${uid}-panel-${p}`} role="tabpanel" aria-labelledby={`${uid}-ptab-${p}`} className="zwf-panel" hidden={shownPanel !== p}>
+                {p === "problems" && <ProblemsPanel />}
+                {p === "steps" && <StepsPanel savedSteps={savedSteps} />}
+                {p === "simulate" && <SimulatePanel api={api} />}
+                {p === "scenarios" && <ScenariosPanel api={api} />}
+                {p.startsWith("x:") && extra.find((x) => `x:${x.key}` === p)?.content}
+              </div>
             ))}
           </div>
-          {/* All stay mounted: a simulation keeps its answers while the Steps are read. */}
-          {panels.map((p) => (
-            <div key={p} id={`${uid}-panel-${p}`} role="tabpanel" aria-labelledby={`${uid}-ptab-${p}`} className="zwf-panel" hidden={panel !== p}>
-              {p === "problems" && <ProblemsPanel />}
-              {p === "steps" && <StepsPanel savedSteps={savedSteps} />}
-              {p === "simulate" && <SimulatePanel api={api} />}
-              {p === "scenarios" && <ScenariosPanel api={api} />}
-            </div>
-          ))}
         </div>
-        {removedCard && !readOnly && (
+        {removedCard && !readOnly && !hostToasts && (
           <div className="zwf-toast" key={removedCard.key} role="status">
             <Icon name="trash" size={14} />
             <span>{removedCard.words}</span>
-            <button
-              type="button"
-              className="zwf-link"
-              onClick={() => {
-                if (latest.current === removedCard.at) undo();
-                setRemovedCard(null);
-              }}
-            >
+            <button type="button" className="zwf-link" onClick={() => restore(removedCard)}>
               Restore
             </button>
             <button type="button" className="zwf-toast-close" aria-label="Dismiss" onClick={() => setRemovedCard(null)}>

@@ -96,7 +96,7 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
   },
   {
     type: "payment_request",
-    label: "Payment request",
+    label: "Payment Request",
     group: "Money",
     blurb: "Requests a payment link, notifies the payer, and waits: paid, failed or expired.",
     config: { action: "", amount: 0, currency: "ZAR", expires: { value: 7, unit: "days" } },
@@ -116,10 +116,10 @@ export const NODE_KINDS: readonly NodeKind[] = Object.freeze([
     config: { template: "", signers: {}, deadline: { value: 14, unit: "days" } },
   },
   { type: "delay", label: "Delay", group: "Timing", blurb: "Pauses for a set time.", config: { value: 1, unit: "days" } },
-  { type: "wait_event", label: "Wait for event", group: "Timing", blurb: "Waits for an event, with an optional timeout.", config: { event: [] } },
-  { type: "call", label: "Call an app", group: "Apps", blurb: "Runs an action in an app.", config: { action: "" } },
+  { type: "wait_event", label: "Wait for Event", group: "Timing", blurb: "Waits for an event, with an optional timeout.", config: { event: [] } },
+  { type: "call", label: "Call an App", group: "Apps", blurb: "Runs an action in an app.", config: { action: "" } },
   { type: "webhook", label: "Webhook", group: "Apps", blurb: "Calls an allowed address over HTTPS.", config: { url: "" } },
-  { type: "set_var", label: "Set a value", group: "Apps", blurb: "Stores values for later steps.", config: { set: {} } },
+  { type: "set_var", label: "Set a Value", group: "Apps", blurb: "Stores values for later steps.", config: { set: {} } },
 ]);
 
 export const PALETTE_GROUPS: readonly NodeGroup[] = ["Logic", "People", "Messages", "Money", "Timing", "Apps"];

@@ -64,7 +64,7 @@ describe("the canvas", () => {
 
   test("zoom works from buttons, not only the wheel", () => {
     render(<Harness />);
-    for (const name of ["Zoom in", "Zoom out", "Fit"]) expect(screen.getByRole("button", { name })).toBeInTheDocument();
+    for (const name of ["Zoom In", "Zoom Out", "Fit"]) expect(screen.getByRole("button", { name })).toBeInTheDocument();
   });
 });
 
@@ -110,7 +110,7 @@ describe("the List tab", () => {
     await openList(user);
     await user.click(row("Which tier?"));
     const inspector = screen.getByRole("complementary", { name: "Inspector" });
-    await user.selectOptions(within(inspector).getByRole("combobox", { name: "Connect to…" }), "refused");
+    await user.selectOptions(within(inspector).getByRole("combobox", { name: "Connect To…" }), "refused");
     await user.click(within(inspector).getByRole("button", { name: "Connect" }));
     const g = onGraph.mock.calls.at(-1)![0] as Graph;
     expect(g.edges.at(-1)).toEqual({ from: "tier", to: "refused", label: "case-1" });
@@ -123,7 +123,7 @@ describe("the List tab", () => {
     await openList(user);
     await user.click(row("Which tier?"));
     const inspector = screen.getByRole("complementary", { name: "Inspector" });
-    const name = within(inspector).getAllByRole("textbox", { name: "Branch name" }).find((i) => (i as HTMLInputElement).value === "gold")!;
+    const name = within(inspector).getAllByRole("textbox", { name: "Branch Name" }).find((i) => (i as HTMLInputElement).value === "gold")!;
     await user.clear(name);
     await user.type(name, "premium");
     const g = onGraph.mock.calls.at(-1)![0] as Graph;
@@ -136,7 +136,7 @@ describe("the List tab", () => {
     await openList(user);
     await user.click(row("Which tier?"));
     const inspector = screen.getByRole("complementary", { name: "Inspector" });
-    expect(within(inspector).getAllByRole("button", { name: "Remove connection" })).toHaveLength(1);
+    expect(within(inspector).getAllByRole("button", { name: "Remove Connection" })).toHaveLength(1);
     expect(within(inspector).getByText("A default connection is required. Make another the default to change it.")).toBeInTheDocument();
   });
 
@@ -184,8 +184,8 @@ describe("read only", () => {
   test("offers no palette, no removals, and no edits", async () => {
     const user = userEvent.setup();
     render(<Harness readOnly />);
-    expect(screen.queryByRole("navigation", { name: "Add a node" })).toBeNull();
-    expect(screen.getByText("Read only")).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Add a Node" })).toBeNull();
+    expect(screen.getByText("Read Only")).toBeInTheDocument();
     await openList(user);
     await user.click(row("Which tier?"));
     const inspector = screen.getByRole("complementary", { name: "Inspector" });
@@ -200,7 +200,7 @@ describe("the Steps panel", () => {
     const user = userEvent.setup();
     render(<Harness savedSteps={analyse(sampleTree()).steps!} />);
     await user.click(screen.getByRole("tab", { name: "Steps" }));
-    const table = screen.getByRole("table", { name: "Compiled steps" });
+    const table = screen.getByRole("table", { name: "Compiled Steps" });
     const route = within(table).getByText("approve--route").closest("tr")!;
     expect(route).toHaveAttribute("data-generated", "true");
     expect(within(route).getByText("(generated)")).toBeInTheDocument();
@@ -223,7 +223,7 @@ describe("check and simulate", () => {
     const user = userEvent.setup();
     const api: WorkflowApi = { validate: vi.fn(async () => [{ code: "unknown_template", node: "confirm", message: "There is no template called confirmed." }]) };
     render(<Harness api={api} />);
-    await user.click(screen.getByRole("button", { name: "Check with the server" }));
+    await user.click(screen.getByRole("button", { name: "Check With the Server" }));
     expect(await screen.findByText("There is no template called confirmed.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Email: Confirm, 1 problem/ })).toBeInTheDocument();
   });

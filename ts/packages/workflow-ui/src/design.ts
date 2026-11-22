@@ -16,12 +16,12 @@ export type NodeCategory = "logic" | "people" | "messages" | "money" | "timing" 
 
 export const CATEGORY_LABELS: Readonly<Record<NodeCategory, string>> = Object.freeze({
   logic: "Logic",
-  people: "People and approvals",
+  people: "People and Approvals",
   messages: "Messages",
   money: "Money",
   timing: "Timing",
-  apps: "Apps and integrations",
-  structure: "Start and end",
+  apps: "Apps and Integrations",
+  structure: "Start and End",
 });
 
 export function categoryOf(type: string): NodeCategory {

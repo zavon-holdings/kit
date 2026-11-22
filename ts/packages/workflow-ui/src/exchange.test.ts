@@ -5,7 +5,7 @@ import { graphSvg, graphToJson, readGraphJson } from "./exporting.js";
 import { diffGraphs, diffSteps, nodeMarks } from "./diff.js";
 import { keyWords, shortcutFor, SHORTCUTS, isTyping } from "./shortcuts.js";
 import { checkScenario, describeExpect, expectFrom, scenarioNameProblem } from "./scenarios.js";
-import { cronProblem, describeCron, describeTrigger, interruptProblems, triggerProblems, withKind } from "./trigger.js";
+import { cronProblem, describeCron, describeTrigger, eventLabelFrom, interruptProblems, triggerProblems, withKind } from "./trigger.js";
 import { sampleTree } from "./test/fixtures.js";
 import type { Graph, SimulateResult, Step } from "./types.js";
 
@@ -227,6 +227,17 @@ describe("triggers", () => {
     );
     expect(describeTrigger({ kind: "schedule", cron_expression: "0 8 * * 1-5" })).toBe("Starts on a schedule: every weekday at 08:00.");
     expect(describeTrigger({ kind: "date", date_var: "renewal", date_offset_days: -7 })).toBe("Starts 7 days before each subject's renewal.");
+  });
+
+  test("an event the catalogue labels is said by its label; one it does not, by its type", () => {
+    const labelOf = eventLabelFrom([{ type: "orders.order.placed", label: "Event registration paid." }, { type: "orders.order.lost" }]);
+    expect(describeTrigger({ kind: "event", event_type: "orders.order.placed" }, labelOf)).toBe("Starts when: Event registration paid.");
+    expect(describeTrigger({ kind: "event", event_type: "orders.order.placed", filter: { field: "x", op: "is", value: 1 } }, labelOf)).toBe(
+      "Starts when: Event registration paid (and its filter matches).",
+    );
+    expect(describeTrigger({ kind: "event", event_type: "orders.order.lost" }, labelOf)).toBe("Starts when orders.order.lost happens.");
+    expect(describeTrigger({ kind: "event" }, labelOf)).toBe("Starts when an event happens.");
+    expect(describeTrigger({ kind: "schedule", cron_expression: "0 8 * * 1-5" }, labelOf)).toBe("Starts on a schedule: every weekday at 08:00.");
   });
 
   test("interrupts name a real step, once per event", () => {

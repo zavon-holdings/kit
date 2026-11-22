@@ -67,7 +67,7 @@ describe("score bands", () => {
   test("a band is added below the lowest and removed by its own button", async () => {
     const user = userEvent.setup();
     render(<Harness initial={{ ...interview, bands: [{ min_value: 50, label: "Pass", tone: "good", recommendation: "" }] }} />);
-    await user.click(screen.getByRole("button", { name: "Add a band" }));
+    await user.click(screen.getByRole("button", { name: "Add a Band" }));
     expect((screen.getByLabelText("Band 2 starts at") as HTMLInputElement).value).toBe("40");
     await user.click(screen.getByRole("button", { name: "Remove band 1" }));
     expect(screen.queryByLabelText("Band 2 starts at")).toBeNull();

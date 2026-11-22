@@ -257,13 +257,13 @@ function Zoom() {
 
   return (
     <Panel position="bottom-left" className="zwf-zoom" role="group" aria-label="Zoom">
-      <button type="button" className="zwf-icon-button" aria-label="Zoom in" data-tip="Zoom in" onClick={() => rf.zoomIn({ duration })}>
+      <button type="button" className="zwf-icon-button" aria-label="Zoom In" data-tip="Zoom In" onClick={() => rf.zoomIn({ duration })}>
         <Icon name="plus" />
       </button>
-      <button type="button" className="zwf-icon-button" aria-label="Zoom out" data-tip="Zoom out" onClick={() => rf.zoomOut({ duration })}>
+      <button type="button" className="zwf-icon-button" aria-label="Zoom Out" data-tip="Zoom Out" onClick={() => rf.zoomOut({ duration })}>
         <Icon name="minus" />
       </button>
-      <button type="button" className="zwf-icon-button" aria-label="Fit" data-tip="Fit to view" onClick={fit}>
+      <button type="button" className="zwf-icon-button" aria-label="Fit" data-tip="Fit to View" onClick={fit}>
         <Icon name="fit" />
       </button>
       {ed.setMinimap && (
@@ -272,9 +272,9 @@ function Zoom() {
           <button
             type="button"
             className="zwf-icon-button"
-            aria-label="Show the overview map"
+            aria-label="Show the Overview Map"
             aria-pressed={ed.minimap}
-            data-tip={ed.minimap ? "Hide the overview map" : "Show the overview map"}
+            data-tip={ed.minimap ? "Hide the Overview Map" : "Show the Overview Map"}
             onClick={() => ed.setMinimap?.(!ed.minimap)}
           >
             <Icon name="map" />
@@ -312,7 +312,7 @@ function FirstView({ lone }: { lone: boolean }) {
   const height = useStore((s) => s.height);
   const done = useRef(false);
   const wasLone = useRef(lone);
-  // Emptied after the first view: look again, so the start sits above "Add your first step".
+  // Emptied after the first view: look again, so the start sits above "Add Your First Step".
   if (lone && !wasLone.current) done.current = false;
   wasLone.current = lone;
   useEffect(() => {
@@ -322,7 +322,7 @@ function FirstView({ lone }: { lone: boolean }) {
     done.current = true;
     const b = rf.getNodesBounds(nodes);
     const view = readableView(widen(b, 40), width, height);
-    // A lone start sits high, leaving room for "Add your first step" below it.
+    // A lone start sits high, leaving room for "Add Your First Step" below it.
     if (lone) view.y = Math.min(view.y, height * 0.2 - b.y * view.zoom);
     void rf.setViewport(view, { duration: 0 });
   }, [ready, width, height, rf, lone]);
@@ -346,12 +346,12 @@ const TONE_COLOUR: Record<Tone, string> = {
 function EmptyState() {
   const ed = useEditor();
   const suggestions: { type: string; words: string }[] = [
-    { type: "approval", words: "Start with an approval" },
-    { type: "condition", words: "Start with a condition" },
-    { type: "email", words: "Start with an email" },
+    { type: "approval", words: "Start With an Approval" },
+    { type: "condition", words: "Start With a Condition" },
+    { type: "email", words: "Start With an Email" },
   ];
   return (
-    <div className="zwf-empty" role="group" aria-label="Add your first step">
+    <div className="zwf-empty" role="group" aria-label="Add Your First Step">
       <svg className="zwf-empty-art" width="132" height="76" viewBox="0 0 132 76" aria-hidden="true" focusable="false">
         <rect x="44" y="2" width="44" height="18" rx="9" className="zwf-art-start" />
         <path d="M66 20v12M66 32c0 6-30 4-30 12M66 32c0 6 30 4 30 12" className="zwf-art-line" fill="none" />
@@ -362,7 +362,7 @@ function EmptyState() {
         <rect x="30" y="60" width="18" height="3" rx="1.5" className="zwf-art-text zwf-art-soft" />
         <path d="M96 52v12M90 58h12" className="zwf-art-plus" />
       </svg>
-      <p className="zwf-empty-title">Add your first step</p>
+      <p className="zwf-empty-title">Add Your First Step</p>
       <p className="zwf-muted zwf-empty-text">Pick a step from the palette or drag one onto the canvas. Each new step connects to the one selected.</p>
       <div className="zwf-row zwf-empty-actions">
         {suggestions

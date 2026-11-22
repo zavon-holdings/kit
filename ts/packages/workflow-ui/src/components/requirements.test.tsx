@@ -7,7 +7,7 @@ import { catalogueFromGraph, itemFieldsOf, keyFor, requiredOf, withRequirements,
 import { StepRequirements } from "./StepRequirements.js";
 import type { Graph, GraphNode } from "../types.js";
 
-// "Required to move on": a review step names fields that must be filled before
+// "Required to Move On": a review step names fields that must be filled before
 // an item leaves it forward. Chips from the catalogue, a field made in place,
 // and the rule said in one sentence.
 
@@ -58,7 +58,7 @@ describe("step requirements", () => {
     const user = userEvent.setup();
     let last: Record<string, unknown> = {};
     render(<Harness initial={{ outcomes: [{ name: "approved" }] }} onConfig={(c) => (last = c)} />);
-    await user.selectOptions(screen.getByLabelText("Add a required field"), "score");
+    await user.selectOptions(screen.getByLabelText("Add a Required Field"), "score");
     expect(last).toEqual({ outcomes: [{ name: "approved" }], required_fields: ["score"] });
     await user.click(screen.getByRole("button", { name: "Remove Score" }));
     expect(last).toEqual({ outcomes: [{ name: "approved" }] });
@@ -68,12 +68,12 @@ describe("step requirements", () => {
     const user = userEvent.setup();
     let last: Record<string, unknown> = {};
     render(<Harness initial={{}} onConfig={(c) => (last = c)} />);
-    await user.selectOptions(screen.getByLabelText("Add a required field"), "__new__");
-    await user.click(screen.getByRole("button", { name: "Add field" }));
+    await user.selectOptions(screen.getByLabelText("Add a Required Field"), "__new__");
+    await user.click(screen.getByRole("button", { name: "Add Field" }));
     expect(screen.getByRole("alert")).toHaveTextContent("Give the field a name.");
-    await user.type(screen.getByLabelText("Field name"), "Start date");
+    await user.type(screen.getByLabelText("Field Name"), "Start date");
     await user.selectOptions(screen.getByLabelText("Type"), "date");
-    await user.click(screen.getByRole("button", { name: "Add field" }));
+    await user.click(screen.getByRole("button", { name: "Add Field" }));
     expect(last).toEqual({ required_fields: ["start_date"], fields: [{ key: "start_date", label: "Start date", type: "date" }] });
     // Removing the chip takes the step's own field with it.
     await user.click(screen.getByRole("button", { name: "Remove Start date" }));
@@ -149,7 +149,7 @@ describe("suggest requirements (AI)", () => {
     expect(screen.queryByText("ghost")).toBeNull();
     await user.click(screen.getByRole("button", { name: "Add Score" }));
     expect(last).toEqual({ required_fields: ["score"] });
-    await user.click(screen.getByRole("button", { name: "Add all" }));
+    await user.click(screen.getByRole("button", { name: "Add All" }));
     expect(last).toEqual({ required_fields: ["score", "reviewer"] });
     expect(await violations()).toEqual([]);
   });
